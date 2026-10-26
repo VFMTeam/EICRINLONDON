@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { checkBooking, encodeBooking, type Booking } from "@/lib/booking";
+import { checkBooking, encodeBooking, paymentMode, type Booking } from "@/lib/booking";
+import { emailTeam } from "@/lib/email";
+import { gbp } from "@/lib/pricing";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import { site } from "@/lib/site";
 
 // Starts payment for an online booking (components/BookingWizard.tsx).
-// With STRIPE_SECRET_KEY set it opens Stripe Checkout (card, Apple Pay,
-// Google Pay). Without it the site runs in demo mode and no money is taken.
+// See paymentMode() in lib/booking.ts for the three ways this works.
 
 async function stripeCheckout(b: Booking, origin: string, key: string) {
   const description = `${b.quote.option.label}${b.quote.items ? `, ${b.quote.items} items` : ""} · ${prettyDate(b.date)}, ${slotLabel(b.slot)}`;
@@ -49,9 +50,24 @@ export async function POST(request: Request) {
   const booking = checkBooking(body);
   if (typeof booking === "string") return NextResponse.json({ error: booking }, { status: 400 });
 
+  const mode = paymentMode();
+  if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
+  if (mode === "request") {
+    const rows = [
+      ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
+      ["Service", `${booking.quote.service.title} – ${booking.quote.option.label}${booking.quote.items ? `, ${booking.quote.items} items` : ""}`],
+      ["Price", `${gbp(booking.quote.total)} inc. VAT (not paid online)`],
+      ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
+      ["Property", `${booking.propertyType}, ${booking.address}, ${booking.postcode}`],
+      ["Notes", booking.notes || "None"],
+    ];
+    const sent = await emailTeam(`Booking request: ${booking.quote.service.title} – ${booking.name}`, "New booking request", rows, booking.email);
+    if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+    return NextResponse.json({ url: `/booking/confirmed/?request=${encodeBooking(booking)}` });
+  }
+
   const origin = new URL(request.url).origin;
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
+  const key = process.env.STRIPE_SECRET_KEY!;
 
   const url = await stripeCheckout(booking, origin, key);
   if (!url) return NextResponse.json({ error: `Sorry, payment could not be started. Please call ${site.phone}.` }, { status: 502 });

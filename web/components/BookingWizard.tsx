@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { pricedServices, quote, gbp, DEPOSIT } from "@/lib/pricing";
 import { SLOTS, prettyDate } from "@/lib/slots";
-import { PROPERTY_TYPES } from "@/lib/booking";
+import { PROPERTY_TYPES, type PaymentMode } from "@/lib/booking";
 
 // Online booking in three steps: service and price, date and time, then
 // details and payment. The server re-checks the price (app/api/checkout).
-export default function BookingWizard({ dates, initialService, demo }: { dates: string[]; initialService?: string; demo: boolean }) {
+export default function BookingWizard({ dates, initialService, mode }: { dates: string[]; initialService?: string; mode: PaymentMode }) {
   // initialService is a slug, optionally with an option: "gas-safety:with-boiler-service".
   const [startSlug, startOption] = (initialService ?? "").split(":");
   const start = pricedServices.find((s) => s.slug === startSlug) ?? pricedServices[0];
@@ -161,24 +161,30 @@ export default function BookingWizard({ dates, initialService, demo }: { dates: 
               </div>
               <label className="bk-field">Notes for the engineer (access, other services needed)<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
 
-              <fieldset className="bk-options bk-pay">
-                <legend>How would you like to pay?</legend>
-                <label className={pay === "deposit" ? "is-selected" : ""}>
-                  <input type="radio" name="pay" checked={pay === "deposit"} onChange={() => setPay("deposit")} />
-                  <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now<small>The rest is paid after the visit</small></span>
-                </label>
-                <label className={pay === "full" ? "is-selected" : ""}>
-                  <input type="radio" name="pay" checked={pay === "full"} onChange={() => setPay("full")} />
-                  <span>Pay {gbp(total)} in full now</span>
-                </label>
-              </fieldset>
+              {mode !== "request" && (
+                <fieldset className="bk-options bk-pay">
+                  <legend>How would you like to pay?</legend>
+                  <label className={pay === "deposit" ? "is-selected" : ""}>
+                    <input type="radio" name="pay" checked={pay === "deposit"} onChange={() => setPay("deposit")} />
+                    <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now<small>The rest is paid after the visit</small></span>
+                  </label>
+                  <label className={pay === "full" ? "is-selected" : ""}>
+                    <input type="radio" name="pay" checked={pay === "full"} onChange={() => setPay("full")} />
+                    <span>Pay {gbp(total)} in full now</span>
+                  </label>
+                </fieldset>
+              )}
 
               {error && <p className="bk-error" role="alert">{error}</p>}
               <div className="bk-nav">
                 <button type="button" className="bk-back" onClick={() => setStep(2)}>Back</button>
-                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : `Pay ${gbp(payNow)} securely`}</button>
+                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : mode === "request" ? "Send booking request" : `Pay ${gbp(payNow)} securely`}</button>
               </div>
-              <p className="bk-note">Card, Apple Pay and Google Pay accepted.{demo && " Demo mode: no real payment is taken."}</p>
+              <p className="bk-note">
+                {mode === "request"
+                  ? "No payment now. We will call you to confirm the appointment and take payment."
+                  : `Card, Apple Pay and Google Pay accepted.${mode === "demo" ? " Demo mode: no real payment is taken." : ""}`}
+              </p>
             </form>
           )}
         </div>
@@ -194,7 +200,7 @@ export default function BookingWizard({ dates, initialService, demo }: { dates: 
             {slot && (<><dt>Time</dt><dd>{SLOTS.find((s) => s.id === slot)?.label} ({SLOTS.find((s) => s.id === slot)?.time})</dd></>)}
           </dl>
           <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(total)}</b></p>
-          {step === 3 && <p className="bk-paynow"><span>Pay now</span><b>{gbp(payNow)}</b></p>}
+          {step === 3 && mode !== "request" && <p className="bk-paynow"><span>Pay now</span><b>{gbp(payNow)}</b></p>}
         </aside>
       </div>
     </div>

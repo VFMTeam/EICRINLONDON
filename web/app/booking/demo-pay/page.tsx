@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import BookingSummary from "@/components/BookingSummary";
 import DemoPayForm from "@/components/DemoPayForm";
-import { decodeBooking } from "@/lib/booking";
+import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
 
 export const metadata: Metadata = { title: "Payment", robots: { index: false } };
 
 // Demo mode only (no STRIPE_SECRET_KEY): stands in for Stripe Checkout.
 export default async function DemoPayPage({ searchParams }: { searchParams: Promise<{ b?: string }> }) {
-  if (process.env.STRIPE_SECRET_KEY) redirect("/booking/");
+  if (paymentMode() !== "demo") redirect("/booking/");
   const { b } = await searchParams;
   const booking = decodeBooking(b);
   if (!booking || !b) redirect("/booking/");

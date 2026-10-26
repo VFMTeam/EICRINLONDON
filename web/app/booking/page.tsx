@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BookingWizard from "@/components/BookingWizard";
+import { paymentMode } from "@/lib/booking";
 import { pricedServices } from "@/lib/pricing";
 import { getService } from "@/lib/services";
 import { bookableDates } from "@/lib/slots";
@@ -28,7 +29,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             <h1>Book Online</h1>
           </header>
           <p className="core-page-intro">
-            See your price, pick a time that suits you and pay securely. Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
+            {paymentMode() === "request" ? "See your price, pick a time that suits you and send your booking. We will call to confirm." : "See your price, pick a time that suits you and pay securely."} Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
             <a href={`https://wa.me/${site.whatsapp}`}>message us on WhatsApp</a>.
           </p>
           {quoteOnly && (
@@ -36,7 +37,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
               {quoteOnly.title} is priced after a quick look at the job. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a>, or book one of the services below.
             </p>
           )}
-          <BookingWizard dates={bookableDates()} initialService={slug} demo={!process.env.STRIPE_SECRET_KEY} />
+          <BookingWizard dates={bookableDates()} initialService={slug} mode={paymentMode()} />
         </div>
       </section>
     </main>
