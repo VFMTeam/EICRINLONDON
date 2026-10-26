@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const service = field("service", 120);
   const details = field("details", 5000);
   if (!name || !phone || !details) return reply(false, "Please fill in your name, phone and the work details.", 400);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(false, "Please enter a valid email address.", 400);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(false, "Please enter a valid email address.", 400);
   if (service && !services.some((s) => s.title === service)) return reply(false, "Please choose a service from the list.", 400);
 
   const apiKey = process.env.RESEND_API_KEY;
@@ -51,10 +51,10 @@ export async function POST(request: Request) {
   const from = process.env.FORM_FROM_EMAIL ?? "EICR in London <website@eicrinlondon.co.uk>";
   if (!apiKey) {
     console.error("Quote form received but RESEND_API_KEY is not set, so no email was sent.");
-    return reply(false, `Online quotes are not connected yet. Please call ${site.phone} or email ${site.email}.`, 503);
+    return reply(false, `Sorry, we could not send your request just now. Please call ${site.phone} or email ${site.email}.`, 503);
   }
 
-  const rows = [["Name", name], ["Email", email], ["Phone", phone], ["Service", service || "Not selected"], ["Details", details]];
+  const rows = [["Name", name], ["Email", email || "Not given"], ["Phone", phone], ["Service", service || "Not selected"], ["Details", details]];
   const html = `<h2>New quote request</h2><table cellpadding="6">${rows
     .map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td>${escapeHtml(v).replace(/\n/g, "<br>")}</td></tr>`)
     .join("")}</table>`;
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, reply_to: email, subject: `Quote request: ${service || "General"} – ${name}`, html }),
+    body: JSON.stringify({ from, to, ...(email && { reply_to: email }), subject: `Quote request: ${service || "General"} – ${name}`, html }),
   });
   if (!res.ok) {
     console.error("Resend rejected the quote email", res.status, await res.text());

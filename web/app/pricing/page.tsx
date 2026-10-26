@@ -12,7 +12,7 @@ export default function PricingPage() {
   return (
     <CorePage title="Pricing">
       <div className="core-page-intro">
-        <p>Clear starting prices for London property inspections and certification services. Select a service to view its details or start a booking.</p>
+        <p>Clear starting prices for London property inspections and certification services. Select a service to view its details or book an appointment.</p>
       </div>
       <div className="core-price-list">
         {services.map((s) => (

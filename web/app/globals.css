@@ -210,3 +210,57 @@ body {
     padding: 18px;
   }
 }
+
+/* Call / WhatsApp / Book bar on phones (components/MobileContactBar.tsx).
+   It replaces the floating WhatsApp bubble there, which covered page content. */
+.mobile-contact-bar {
+  display: none;
+}
+@media (max-width: 640px) {
+  .mobile-contact-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 8px;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid var(--eicr-border, #e4ddd6);
+    box-shadow: 0 -10px 30px -18px rgba(18, 24, 38, 0.45);
+  }
+  .mobile-contact-bar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 10px;
+    background: var(--eicr-dark, #121826);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .mobile-contact-bar a.primary {
+    background: var(--eicr-accent, #c35a2e);
+    color: #111827;
+  }
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+  a.fixed[href^="https://wa.me/"] {
+    display: none !important;
+  }
+  .eicr-cookie {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    max-height: calc(100vh - 92px);
+  }
+}
+
+.core-page-intro a {
+  color: var(--eicr-accent-hover, #9a3f20);
+  font-weight: 700;
+  text-decoration: underline;
+}
