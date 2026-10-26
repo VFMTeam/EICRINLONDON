@@ -1,32 +1,43 @@
 import type { Metadata } from "next";
-import { readPartial } from "@/lib/content";
+import BookingWizard from "@/components/BookingWizard";
+import { pricedServices } from "@/lib/pricing";
 import { getService } from "@/lib/services";
+import { availableDays } from "@/lib/slots";
 import { site, telHref } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: "Book an Appointment | EICR in London" },
-  description: "Book an EICR, gas safety, EPC, fire safety or other property compliance appointment anywhere in London.",
+  title: { absolute: "Book Online | EICR in London" },
+  description: "Book an EICR, gas safety, EPC, fire safety or other property compliance appointment online. See your price, pick a time and pay securely.",
   alternates: { canonical: "/booking/" },
 };
 
-const escapeAttr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-
-// Booking request page. It reuses the quote form (public/js/main.js sends it)
-// and picks the service from links such as /booking/?service=epc.
+// Online booking: price, appointment slot and payment. Links such as
+// /booking/?service=epc open with that service chosen.
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ service?: string | string[] }> }) {
   const { service } = await searchParams;
-  const chosen = typeof service === "string" ? getService(service) : undefined;
-  let form = readPartial("pages/request-a-quote")
-    .replace("<h1>Request a Quote</h1>", "<h1>Book an Appointment</h1>")
-    .replace(">Request quote</button>", ">Send booking request</button>")
-    .replace(
-      "</header>",
-      `</header><p class="core-page-intro">Send your details and preferred date, and we will call you to confirm the appointment and price. Prefer to talk? <a href="${telHref}">Call ${site.phone}</a> or <a href="https://wa.me/${site.whatsapp}">message us on WhatsApp</a>.</p>`,
-    );
-  // Earliest preferred date is tomorrow (London time).
-  const tomorrow = new Date(Date.now() + 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
-  form = form.replace('name="preferred_date" type="date"', `name="preferred_date" type="date" min="${tomorrow}"`);
-  if (chosen) form = form.replace(`<option value="${escapeAttr(chosen.title)}" >`, `<option value="${escapeAttr(chosen.title)}" selected>`);
+  const slug = typeof service === "string" ? service : undefined;
+  const quoteOnly = slug && !pricedServices.some((s) => s.slug === slug) ? getService(slug) : undefined;
 
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: form }} />;
+  return (
+    <main id="main-content">
+      <section className="core-page-shell">
+        <div className="core-page-wrap">
+          <header className="core-page-header">
+            <p>Property compliance in London</p>
+            <h1>Book Online</h1>
+          </header>
+          <p className="core-page-intro">
+            See your price, pick a time that suits you and pay securely. Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
+            <a href={`https://wa.me/${site.whatsapp}`}>message us on WhatsApp</a>.
+          </p>
+          {quoteOnly && (
+            <p className="bk-quote-only">
+              {quoteOnly.title} is priced after a quick look at the job. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a>, or book one of the services below.
+            </p>
+          )}
+          <BookingWizard days={availableDays()} initialService={slug} demo={!process.env.STRIPE_SECRET_KEY} />
+        </div>
+      </section>
+    </main>
+  );
 }

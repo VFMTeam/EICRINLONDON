@@ -1,0 +1,207 @@
+"use client";
+
+import { useState } from "react";
+import { pricedServices, quote, gbp, DEPOSIT } from "@/lib/pricing";
+import { SLOTS, prettyDate, type Day } from "@/lib/slots";
+import { PROPERTY_TYPES } from "@/lib/booking";
+
+// Online booking in three steps: service and price, date and time, then
+// details and payment. The server re-checks the price (app/api/checkout).
+export default function BookingWizard({ days, initialService, demo }: { days: Day[]; initialService?: string; demo: boolean }) {
+  const start = pricedServices.find((s) => s.slug === initialService) ?? pricedServices[0];
+  const [step, setStep] = useState(1);
+  const [service, setService] = useState(start.slug);
+  const [option, setOption] = useState(start.options[0].id);
+  const [items, setItems] = useState(start.extra?.included ?? 0);
+  const [date, setDate] = useState("");
+  const [slot, setSlot] = useState("");
+  const [form, setForm] = useState({ propertyType: "", address: "", postcode: "", name: "", phone: "", email: "", notes: "" });
+  const [pay, setPay] = useState<"deposit" | "full">("deposit");
+  const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const svc = pricedServices.find((s) => s.slug === service)!;
+  const q = quote(service, option, items);
+  const total = q?.total ?? 0;
+  const payNow = pay === "full" ? total : Math.min(DEPOSIT, total);
+  const day = days.find((d) => d.date === date);
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm({ ...form, [k]: e.target.value });
+
+  function chooseService(slug: string) {
+    const s = pricedServices.find((x) => x.slug === slug)!;
+    setService(slug);
+    setOption(s.options[0].id);
+    setItems(s.extra?.included ?? 0);
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSending(true);
+    try {
+      const res = await fetch("/api/checkout/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ service, option, items, date, slot, pay, ...form }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setError(data.error ?? "Please try again.");
+    } catch {
+      setError("Connection problem. Please try again.");
+    }
+    setSending(false);
+  }
+
+  return (
+    <div className="bk">
+      <ol className="bk-steps" aria-label="Booking steps">
+        {["Service", "Date & time", "Details & payment"].map((label, i) => (
+          <li key={label} className={step === i + 1 ? "is-current" : step > i + 1 ? "is-done" : ""}>
+            <b>{i + 1}</b> {label}
+          </li>
+        ))}
+      </ol>
+
+      <div className="bk-layout">
+        <div className="bk-main">
+          {step === 1 && (
+            <section>
+              <h2>Choose your service</h2>
+              <label className="bk-field">
+                Service
+                <select value={service} onChange={(e) => chooseService(e.target.value)}>
+                  {pricedServices.map((s) => (
+                    <option key={s.slug} value={s.slug}>{s.title}</option>
+                  ))}
+                </select>
+              </label>
+              <fieldset className="bk-options">
+                <legend>Property size</legend>
+                {svc.options.map((o) => (
+                  <label key={o.id} className={option === o.id ? "is-selected" : ""}>
+                    <input type="radio" name="option" value={o.id} checked={option === o.id} onChange={() => setOption(o.id)} />
+                    <span>{o.label}</span>
+                    <b>{gbp(o.price)}</b>
+                  </label>
+                ))}
+              </fieldset>
+              {svc.extra && (
+                <label className="bk-field">
+                  {svc.extra.label} ({gbp(svc.extra.each)} each after {svc.extra.included})
+                  <input type="number" min={svc.extra.included} max={500} value={items || svc.extra.included} onChange={(e) => setItems(Number(e.target.value))} />
+                </label>
+              )}
+              <p className="bk-note">
+                Need something else? <a href="/request-a-quote/">Request a quote</a> for other services.
+              </p>
+              <button type="button" className="bk-next" onClick={() => setStep(2)}>Choose a date</button>
+            </section>
+          )}
+
+          {step === 2 && (
+            <section>
+              <h2>Pick a date and time</h2>
+              <div className="bk-days" role="listbox" aria-label="Date">
+                {days.map((d) => {
+                  const free = d.slots.some((s) => s.free);
+                  const dt = new Date(`${d.date}T12:00:00Z`);
+                  return (
+                    <button
+                      type="button"
+                      key={d.date}
+                      role="option"
+                      aria-selected={date === d.date}
+                      disabled={!free}
+                      className={date === d.date ? "is-selected" : ""}
+                      onClick={() => { setDate(d.date); setSlot(""); }}
+                    >
+                      <small>{dt.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}</small>
+                      <b>{dt.getUTCDate()}</b>
+                      <small>{dt.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}</small>
+                    </button>
+                  );
+                })}
+              </div>
+              {day && (
+                <div className="bk-slots">
+                  {SLOTS.map((s) => {
+                    const free = day.slots.find((x) => x.id === s.id)?.free;
+                    return (
+                      <button type="button" key={s.id} disabled={!free} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
+                        <b>{s.label}</b>
+                        <span>{free ? s.time : "Fully booked"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="bk-nav">
+                <button type="button" className="bk-back" onClick={() => setStep(1)}>Back</button>
+                <button type="button" className="bk-next" disabled={!slot} onClick={() => setStep(3)}>Continue</button>
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <form onSubmit={submit}>
+              <h2>Your details</h2>
+              <div className="bk-grid">
+                <label className="bk-field">Full name *<input required autoComplete="name" value={form.name} onChange={set("name")} /></label>
+                <label className="bk-field">Phone *<input required type="tel" autoComplete="tel" value={form.phone} onChange={set("phone")} /></label>
+                <label className="bk-field">Email (for your receipt) *<input required type="email" autoComplete="email" value={form.email} onChange={set("email")} /></label>
+                <label className="bk-field">
+                  Property type *
+                  <select required value={form.propertyType} onChange={set("propertyType")}>
+                    <option value="">Select</option>
+                    {PROPERTY_TYPES.map((t) => <option key={t}>{t}</option>)}
+                  </select>
+                </label>
+                <label className="bk-field">Property address *<input required autoComplete="street-address" value={form.address} onChange={set("address")} /></label>
+                <label className="bk-field">Postcode *<input required autoComplete="postal-code" value={form.postcode} onChange={set("postcode")} /></label>
+              </div>
+              <label className="bk-field">Access notes for the engineer<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
+
+              <fieldset className="bk-options bk-pay">
+                <legend>How would you like to pay?</legend>
+                <label className={pay === "deposit" ? "is-selected" : ""}>
+                  <input type="radio" name="pay" checked={pay === "deposit"} onChange={() => setPay("deposit")} />
+                  <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now<small>The rest is paid after the visit</small></span>
+                </label>
+                <label className={pay === "full" ? "is-selected" : ""}>
+                  <input type="radio" name="pay" checked={pay === "full"} onChange={() => setPay("full")} />
+                  <span>Pay {gbp(total)} in full now</span>
+                </label>
+              </fieldset>
+
+              {error && <p className="bk-error" role="alert">{error}</p>}
+              <div className="bk-nav">
+                <button type="button" className="bk-back" onClick={() => setStep(2)}>Back</button>
+                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : `Pay ${gbp(payNow)} securely`}</button>
+              </div>
+              <p className="bk-note">Card, Apple Pay and Google Pay accepted.{demo && " Demo mode: no real payment is taken."}</p>
+            </form>
+          )}
+        </div>
+
+        <aside className="bk-summary" aria-label="Booking summary">
+          <h2>Your booking</h2>
+          <dl>
+            <dt>Service</dt>
+            <dd>{svc.title}</dd>
+            <dt>Property</dt>
+            <dd>{q?.option.label}{svc.extra ? `, ${q?.items} items` : ""}</dd>
+            {date && (<><dt>Date</dt><dd>{prettyDate(date)}</dd></>)}
+            {slot && (<><dt>Time</dt><dd>{SLOTS.find((s) => s.id === slot)?.label} ({SLOTS.find((s) => s.id === slot)?.time})</dd></>)}
+          </dl>
+          <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(total)}</b></p>
+          {step === 3 && <p className="bk-paynow"><span>Pay now</span><b>{gbp(payNow)}</b></p>}
+        </aside>
+      </div>
+    </div>
+  );
+}
