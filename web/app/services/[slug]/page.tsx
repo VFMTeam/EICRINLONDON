@@ -21,6 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+// "/images/fire-alarm-certificate-closeup.webp" -> "Fire alarm certificate work in a London property"
+function galleryAlt(src: string) {
+  if (src.includes("property-safety-engineers")) return "Our property safety engineers at work in London";
+  const name = src.replace(/^.*\//, "").replace(/(-closeup)?\.\w+$/, "").replace(/^epc-/, "").replace(/-/g, " ");
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} work in a London property`;
+}
+
 function faqs(s: Service) {
   return [
     [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)}. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
@@ -85,7 +92,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <a className="service-detail-quote" href={`/request-a-quote/?service=${s.slug}`}>Request a quote</a>
               </div>
             </div>
-            <img src={serviceHeroImage(s.slug)} alt={`${s.title} service in London`} />
+            <img src={serviceHeroImage(s.slug)} alt={`${s.title} service in London`} width={1100} height={600} fetchPriority="high" />
           </div>
         </section>
 
@@ -154,8 +161,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <p className="service-detail-kicker">Our work</p>
             <h2>{s.title} gallery</h2>
             <div className="service-detail-gallery">
-              {serviceGallery(s.slug).map((src, i) => (
-                <img key={src} src={src} alt={`${s.title} working image ${i + 1}`} loading="lazy" />
+              {serviceGallery(s.slug).map((src) => (
+                <img key={src} src={src} alt={galleryAlt(src)} width={1100} height={600} loading="lazy" />
               ))}
             </div>
           </div>
