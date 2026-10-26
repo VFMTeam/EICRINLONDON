@@ -1,7 +1,7 @@
 import { site, telHref } from "@/lib/site";
 
-// Placeholder for features still being rebuilt (online booking and customer
-// accounts). Visitors can still reach the team straight away.
+// Notice page for features not yet available (online booking) and for
+// missing pages. Visitors can still reach the team straight away.
 export default function ComingSoon({ title, text }: { title: string; text: string }) {
   return (
     <main id="main-content">

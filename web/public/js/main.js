@@ -57,12 +57,6 @@
       var primary = item.querySelector(":scope > a"),
         submenu = item.querySelector(":scope > div");
       if (!primary) return;
-      if (item.classList.contains("eicr-account-menu")) {
-        var accountLink = primary.cloneNode(true);
-        accountLink.classList.add("eicr-account-nav-mobile-row");
-        mobile.appendChild(accountLink);
-        return;
-      }
       var group = document.createElement("div");
       group.className = "eicr-mobile-group";
       var button = document.createElement("button");
@@ -97,30 +91,6 @@
         mobile.classList.remove("open");
         toggle.setAttribute("aria-expanded", "false");
       }
-    });
-  }
-  function setupAccountMenu() {
-    document.querySelectorAll(".eicr-account-menu").forEach(function (menu) {
-      var trigger = menu.querySelector(":scope > .eicr-account-nav-link"),
-        popover = menu.querySelector(":scope > .eicr-account-popover");
-      if (!trigger || !popover) return;
-      function setExpanded(expanded) {
-        trigger.setAttribute("aria-expanded", expanded ? "true" : "false");
-      }
-      menu.addEventListener("mouseenter", function () {
-        setExpanded(true);
-      });
-      menu.addEventListener("mouseleave", function () {
-        setExpanded(false);
-      });
-      menu.addEventListener("focusin", function () {
-        setExpanded(true);
-      });
-      menu.addEventListener("focusout", function () {
-        requestAnimationFrame(function () {
-          setExpanded(menu.contains(document.activeElement));
-        });
-      });
     });
   }
   function setupReveal() {
@@ -233,40 +203,6 @@
         if (first) first.focus();
       });
     }
-  }
-  function setupCertificateReviewPrompt() {
-    var modal = document.getElementById("eicr-certificate-review-prompt");
-    if (!modal) return;
-    var controls = setupModal(modal),
-      reviewLink = modal.querySelector("[data-review-prompt-link]"),
-      reviewNav = document.querySelector("[data-review-nav]");
-    document.querySelectorAll("[data-certificate-download]").forEach(function (link) {
-      link.addEventListener("click", function () {
-        var service = link.getAttribute("data-review-service") || "";
-        if (reviewNav) reviewNav.hidden = false;
-        if (reviewLink && service) {
-          var url = new URL(reviewLink.href, window.location.href);
-          url.searchParams.set("review_service", service);
-          reviewLink.href = url.toString();
-        }
-        window.setTimeout(function () {
-          controls.show(link);
-        }, 700);
-      });
-    });
-  }
-  function setupProfilePhotoPreview() {
-    var input = document.querySelector("[data-profile-photo-input]"),
-      preview = document.querySelector("[data-profile-photo-preview]"),
-      temporaryUrl = "";
-    if (!input || !preview || !window.URL || !window.URL.createObjectURL) return;
-    input.addEventListener("change", function () {
-      var file = input.files && input.files[0];
-      if (!file || file.type.indexOf("image/") !== 0) return;
-      if (temporaryUrl) window.URL.revokeObjectURL(temporaryUrl);
-      temporaryUrl = window.URL.createObjectURL(file);
-      preview.src = temporaryUrl;
-    });
   }
   function setupBooking() {
     document.querySelectorAll("[data-booking-v2]").forEach(function (f) {
@@ -792,11 +728,8 @@
   document.addEventListener("DOMContentLoaded", function () {
     setupConversionTracking();
     setupMobileMenu();
-    setupAccountMenu();
     setupReveal();
     setupReview();
-    setupCertificateReviewPrompt();
-    setupProfilePhotoPreview();
     setupBookingValidation();
     setupBooking();
     setupAjaxForms();

@@ -18,7 +18,7 @@ Check each provider's current prices before you sign up.
 | Hosting | [Vercel](https://vercel.com), **Pro plan** | about $20 a month | Fast hosting with free HTTPS. The free Hobby plan is not allowed for business sites. |
 | Email sending | [Resend](https://resend.com) | free for up to 3,000 emails a month | Sends quote requests and booking emails |
 | Payments | [Stripe](https://stripe.com/gb) | no monthly fee, a small fee per payment | Card, Apple Pay and Google Pay on Stripe's secure page |
-| Accounts and database (phase 2) | [Supabase](https://supabase.com), London region | free to start, about $25 a month later | Customer logins, bookings and certificate PDFs |
+| Database (phase 2) | [Supabase](https://supabase.com), London region | free to start, about $25 a month later | Stores bookings and payment records |
 
 ## Put the site online (step by step)
 
@@ -79,4 +79,4 @@ npm run dev                  # open http://localhost:3000
 ## Roadmap
 
 - **Phase 1 (done):** all public pages, fast static site, quote form by email, security headers, sitemap, old WordPress addresses redirected.
-- **Phase 2:** online booking with Stripe Checkout payments, customer accounts (email plus Google and Apple sign-in), My Account with certificate PDF downloads, the staff portal, an owner admin for orders, prices and reviews, and the review system.
+- **Phase 2:** online booking with Stripe Checkout payments (no customer sign-in needed) and an owner admin for orders and prices.

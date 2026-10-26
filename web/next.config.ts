@@ -24,7 +24,12 @@ const nextConfig: NextConfig = {
       ...services.map((s) => ({ source: `/${s.slug}/`, destination: `/services/${s.slug}/`, permanent: true })),
       { source: "/service/:slug/", destination: "/services/:slug/", permanent: true },
       { source: "/sitemap.xml/", destination: "/sitemap.xml", permanent: true },
-      ...["create-account", "reset-password", "my-account"].map((p) => ({ source: `/${p}/`, destination: "/sign-in/", permanent: false })),
+      // The old site's customer and staff login pages no longer exist.
+      ...["sign-in", "create-account", "reset-password", "my-account", "staff-login", "staff-verify", "staff-dashboard"].map((p) => ({
+        source: `/${p}/`,
+        destination: "/contact/",
+        permanent: true,
+      })),
     ];
   },
 };
