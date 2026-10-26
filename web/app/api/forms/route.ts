@@ -42,6 +42,13 @@ export async function POST(request: Request) {
   const phone = field("phone", 50);
   const service = field("service", 120);
   const details = field("details", 5000);
+  // Optional booking details. Anything outside the form's own choices is dropped.
+  const pick = (name: string, options: string[]) => (options.includes(field(name, 40)) ? field(name, 40) : "");
+  const propertyType = pick("property_type", ["Flat", "House", "HMO", "Commercial", "Other"]);
+  const bedrooms = pick("bedrooms", ["Studio", "1", "2", "3", "4", "5", "6+", "Not applicable"]);
+  const preferredTime = pick("preferred_time", ["Morning (8am–12pm)", "Afternoon (12pm–5pm)"]);
+  const date = field("preferred_date", 10);
+  const preferredDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "";
   if (!name || !phone || !details) return reply(false, "Please fill in your name, phone and the work details.", 400);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(false, "Please enter a valid email address.", 400);
   if (service && !services.some((s) => s.title === service)) return reply(false, "Please choose a service from the list.", 400);
@@ -54,7 +61,11 @@ export async function POST(request: Request) {
     return reply(false, `Sorry, we could not send your request just now. Please call ${site.phone} or email ${site.email}.`, 503);
   }
 
-  const rows = [["Name", name], ["Email", email || "Not given"], ["Phone", phone], ["Service", service || "Not selected"], ["Details", details]];
+  const rows = [["Name", name], ["Email", email || "Not given"], ["Phone", phone], ["Service", service || "Not selected"]];
+  if (propertyType) rows.push(["Property type", propertyType]);
+  if (bedrooms) rows.push(["Bedrooms", bedrooms]);
+  if (preferredDate || preferredTime) rows.push(["Preferred visit", [preferredDate, preferredTime].filter(Boolean).join(", ")]);
+  rows.push(["Details", details]);
   const html = `<h2>New quote request</h2><table cellpadding="6">${rows
     .map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td>${escapeHtml(v).replace(/\n/g, "<br>")}</td></tr>`)
     .join("")}</table>`;

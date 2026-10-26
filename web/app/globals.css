@@ -264,3 +264,59 @@ body {
   font-weight: 700;
   text-decoration: underline;
 }
+
+/* Phone number and opening days in the header (content/header.html). */
+.eicr-header-call {
+  display: none;
+}
+@media (min-width: 768px) {
+  .eicr-header-call {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: auto;
+    padding-left: 20px;
+    line-height: 1.15;
+    white-space: nowrap;
+    color: var(--eicr-heading, #0f172a);
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .eicr-header-call small {
+    margin-top: 3px;
+    color: var(--eicr-accent-hover, #9a3f20);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .eicr-header-call + button {
+    margin-left: 14px;
+  }
+}
+@media (min-width: 1280px) {
+  .eicr-header-call {
+    margin-left: 0;
+  }
+}
+
+/* Landlord reminder on EICR and gas service pages. */
+.service-landlord-note {
+  margin-top: 14px;
+  border-left: 4px solid var(--eicr-accent, #c35a2e);
+  padding: 8px 12px;
+  background: rgba(195, 90, 46, 0.08);
+  border-radius: 0 10px 10px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Postcode list on the areas page. */
+.core-area-postcodes {
+  margin-top: 0.6rem;
+}
+.core-area-postcodes a {
+  color: var(--eicr-accent-hover, #9a3f20);
+  font-weight: 800;
+  text-decoration: underline;
+}

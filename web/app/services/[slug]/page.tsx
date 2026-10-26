@@ -28,9 +28,16 @@ function galleryAlt(src: string) {
   return `${name.charAt(0).toUpperCase()}${name.slice(1)} work in a London property`;
 }
 
+// Short legal reminder for landlords (England) on the services it applies to.
+const landlordNotes: Record<string, string> = {
+  "eicr-certificate": "Landlords: an EICR is needed at least every 5 years, or sooner if the last report says so.",
+  "gas-safety": "Landlords: a Gas Safety Certificate is needed every 12 months.",
+  "boiler-gas-safety-combo": "Landlords: a Gas Safety Certificate is needed every 12 months.",
+};
+
 function faqs(s: Service) {
   return [
-    [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)}. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
+    [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)} including VAT. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
     ["Can I combine this with another service?", "Yes. List every service you need in one booking request and we will arrange them together, often in a single visit."],
     ["Which areas do you cover?", "We arrange residential and commercial property-compliance services throughout London and selected areas near the M25."],
     ["What should I prepare before the visit?", "Make sure the relevant areas are accessible and tell us about any access instructions or known issues when you book."],
@@ -85,8 +92,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <h1>{s.title}</h1>
               <p className="service-detail-lead">{s.benefit}</p>
               <div className="service-detail-price">
-                <span className="eicr-current-price">From {formatPrice(s.price)}</span>
+                <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
               </div>
+              {landlordNotes[s.slug] && <p className="service-landlord-note">{landlordNotes[s.slug]}</p>}
               <div className="service-detail-actions">
                 <a className="service-detail-book" href={book}>Book now</a>
                 <a className="service-detail-quote" href={`/request-a-quote/?service=${s.slug}`}>Request a quote</a>

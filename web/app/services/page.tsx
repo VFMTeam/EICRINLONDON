@@ -21,7 +21,7 @@ export default function ServicesPage() {
             <p>{s.benefit}</p>
             <div>
               <strong className="core-price-display">
-                <span className="eicr-current-price">From {formatPrice(s.price)}</span>
+                <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
               </strong>
               <span>
                 <a href={`/services/${s.slug}/`}>More details</a>

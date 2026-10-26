@@ -23,6 +23,9 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
       "</header>",
       `</header><p class="core-page-intro">Send your details and preferred date, and we will call you to confirm the appointment and price. Prefer to talk? <a href="${telHref}">Call ${site.phone}</a> or <a href="https://wa.me/${site.whatsapp}">message us on WhatsApp</a>.</p>`,
     );
+  // Earliest preferred date is tomorrow (London time).
+  const tomorrow = new Date(Date.now() + 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  form = form.replace('name="preferred_date" type="date"', `name="preferred_date" type="date" min="${tomorrow}"`);
   if (chosen) form = form.replace(`<option value="${escapeAttr(chosen.title)}" >`, `<option value="${escapeAttr(chosen.title)}" selected>`);
 
   return <main id="main-content" dangerouslySetInnerHTML={{ __html: form }} />;

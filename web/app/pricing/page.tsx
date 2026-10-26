@@ -19,7 +19,7 @@ export default function PricingPage() {
           <div key={s.slug}>
             <a href={`/services/${s.slug}/`}>{s.title}</a>
             <strong className="core-price-display">
-              <span className="eicr-current-price">From {formatPrice(s.price)}</span>
+              <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
             </strong>
             <a className="core-book" href={`/booking/?service=${s.slug}`}>Book</a>
           </div>
