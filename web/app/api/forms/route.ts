@@ -48,6 +48,9 @@ export async function POST(request: Request) {
   const bedrooms = pick("bedrooms", ["Studio", "1", "2", "3", "4", "5", "6+", "Not applicable"]);
   const preferredTime = pick("preferred_time", ["Morning (8am–12pm)", "Afternoon (12pm–5pm)"]);
   const date = field("preferred_date", 10);
+  // Online requests are Monday to Saturday; Sunday visits are arranged by phone.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date) && new Date(`${date}T12:00:00Z`).getUTCDay() === 0)
+    return reply(false, `Sunday visits are arranged by phone or WhatsApp only. Please pick Monday to Saturday, or call ${site.phone}.`, 400);
   const preferredDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "";
   if (!name || !phone || !details) return reply(false, "Please fill in your name, phone and the work details.", 400);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(false, "Please enter a valid email address.", 400);
