@@ -8,10 +8,12 @@ import { PROPERTY_TYPES } from "@/lib/booking";
 // Online booking in three steps: service and price, date and time, then
 // details and payment. The server re-checks the price (app/api/checkout).
 export default function BookingWizard({ dates, initialService, demo }: { dates: string[]; initialService?: string; demo: boolean }) {
-  const start = pricedServices.find((s) => s.slug === initialService) ?? pricedServices[0];
+  // initialService is a slug, optionally with an option: "gas-safety:with-boiler-service".
+  const [startSlug, startOption] = (initialService ?? "").split(":");
+  const start = pricedServices.find((s) => s.slug === startSlug) ?? pricedServices[0];
   const [step, setStep] = useState(1);
   const [service, setService] = useState(start.slug);
-  const [option, setOption] = useState(start.options[0].id);
+  const [option, setOption] = useState(start.options.find((o) => o.id === startOption)?.id ?? start.options[0].id);
   const [items, setItems] = useState(start.extra?.included ?? 0);
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
@@ -105,15 +107,14 @@ export default function BookingWizard({ dates, initialService, demo }: { dates: 
           {step === 2 && (
             <section>
               <h2>Pick a date and time</h2>
-              <div className="bk-days" role="listbox" aria-label="Date">
+              <div className="bk-days" role="group" aria-label="Date">
                 {dates.map((d) => {
                   const dt = new Date(`${d}T12:00:00Z`);
                   return (
                     <button
                       type="button"
                       key={d}
-                      role="option"
-                      aria-selected={date === d}
+                      aria-pressed={date === d}
                       className={date === d ? "is-selected" : ""}
                       onClick={() => setDate(d)}
                     >
@@ -127,7 +128,7 @@ export default function BookingWizard({ dates, initialService, demo }: { dates: 
               {date && (
                 <div className="bk-slots">
                   {SLOTS.map((s) => (
-                    <button type="button" key={s.id} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
+                    <button type="button" key={s.id} aria-pressed={slot === s.id} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
                       <b>{s.label}</b>
                       <span>{s.time}</span>
                     </button>
@@ -158,7 +159,7 @@ export default function BookingWizard({ dates, initialService, demo }: { dates: 
                 <label className="bk-field">Property address *<input required autoComplete="street-address" value={form.address} onChange={set("address")} /></label>
                 <label className="bk-field">Postcode *<input required autoComplete="postal-code" value={form.postcode} onChange={set("postcode")} /></label>
               </div>
-              <label className="bk-field">Access notes for the engineer<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
+              <label className="bk-field">Notes for the engineer (access, other services needed)<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
 
               <fieldset className="bk-options bk-pay">
                 <legend>How would you like to pay?</legend>

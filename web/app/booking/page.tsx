@@ -15,8 +15,9 @@ export const metadata: Metadata = {
 // /booking/?service=epc open with that service chosen.
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ service?: string | string[] }> }) {
   const { service } = await searchParams;
-  const slug = typeof service === "string" ? service : undefined;
-  const quoteOnly = slug && !pricedServices.some((s) => s.slug === slug) ? getService(slug) : undefined;
+  // The boiler + gas combo is an option of the gas safety booking.
+  const slug = service === "boiler-gas-safety-combo" ? "gas-safety:with-boiler-service" : typeof service === "string" ? service : undefined;
+  const quoteOnly = slug && !pricedServices.some((s) => s.slug === slug.split(":")[0]) ? getService(slug) : undefined;
 
   return (
     <main id="main-content">
