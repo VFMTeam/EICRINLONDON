@@ -1,0 +1,83 @@
+:root{
+ --eicr-accent:#c35a2e;
+ --eicr-accent-hover:#9a3f20;
+ --eicr-accent-soft:#fff0e8;
+ --eicr-heading:#000000;
+ --eicr-body:#202020;
+ --eicr-dark:#121826;
+ --eicr-dark-text:#ffffff;
+ --eicr-page:#fcfbfa;
+ --eicr-soft:#f7f4f1;
+ --eicr-border:#e4ddd6;
+ --eicr-on-accent:#ffffff;
+ --eicr-success:#1f8a5b;
+ --eicr-error:#dc2626;
+ --gold:#c35a2e;
+ --ink:#000000;
+ --muted:#202020;
+ --mist:#f7f4f1;
+ --line:#e4ddd6;
+}
+body,.service-detail-page{background:var(--eicr-page);color:var(--eicr-body)}
+.text-gold,.text-amber-500,.text-amber-600,.text-amber-800,.service-detail-kicker,.service-process b,.core-page-header>p,.home-coverage-kicker,.eyebrow,.brand small{color:var(--eicr-accent)!important}
+.text-ink,.text-black,.text-slate-900,.text-slate-950{color:var(--eicr-heading)!important}
+.text-muted,.text-slate-600,.text-slate-700,.text-slate-800{color:var(--eicr-body)!important}
+.bg-gold{background-color:var(--eicr-accent)!important;color:var(--eicr-on-accent)!important}
+.bg-gold\/10{background-color:rgba(195,90,46,0.1)!important}
+.bg-amber-50{background-color:var(--eicr-accent-soft)!important}
+.bg-mist,.bg-slate-50,.bg-slate-50\/70{background-color:var(--eicr-soft)!important}
+.bg-ink,.bg-slate-900,.bg-slate-950,.service-detail-hero,footer{background-color:var(--eicr-dark)!important}
+.bg-white,.card,.eicr-form,.core-copy,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{background-color:var(--eicr-page)!important}
+.border-gold,.border-amber-400{border-color:var(--eicr-accent)!important}
+.border-gold\/40{border-color:rgba(195,90,46,0.4)!important}
+.ring-gold\/20{--tw-ring-color:rgba(195,90,46,0.2)!important}
+.shadow-gold{--tw-shadow-color:rgba(195,90,46,0.4)!important}
+.from-amber-50{--tw-gradient-from:var(--eicr-accent-soft) var(--tw-gradient-from-position)!important;--tw-gradient-to:transparent var(--tw-gradient-to-position)!important}
+.via-mist{--tw-gradient-stops:var(--tw-gradient-from),var(--eicr-soft) var(--tw-gradient-via-position),var(--tw-gradient-to)!important}
+.to-white{--tw-gradient-to:var(--eicr-page) var(--tw-gradient-to-position)!important}
+.hover\:bg-amber-400:hover,.hover\:bg-slate-800:hover{background-color:var(--eicr-accent-hover)!important;color:var(--eicr-on-accent)!important}
+.hover\:bg-amber-50:hover,.hover\:bg-mist:hover{background-color:var(--eicr-accent-soft)!important}
+.hover\:border-amber-300:hover,.hover\:border-gold:hover{border-color:var(--eicr-accent)!important}
+.hover\:text-amber-600:hover,.hover\:text-amber-700:hover,.hover\:text-amber-800:hover,.hover\:text-gold:hover{color:var(--eicr-accent-hover)!important}
+:focus-visible{outline-color:rgba(195,90,46,0.4)!important}
+.site-header,.site-header a,.eicr-mobile-nav>a,.eicr-mobile-group-toggle{color:var(--eicr-heading)}
+.eicr-mobile-group-toggle:hover,.eicr-mobile-nav>a:hover,.eicr-mobile-submenu a:hover{background:var(--eicr-accent-soft)!important;color:var(--eicr-accent-hover)!important}
+.eicr-mobile-submenu{border-left-color:var(--eicr-accent)!important}
+.booking-type-card:hover,.booking-radio:hover,.booking-compact .service-option:hover{border-color:var(--eicr-accent)!important;background:var(--eicr-accent-soft)!important}
+.booking-type-card:has(input:checked),.booking-radio:has(input:checked),.service-option:has(input:checked){border-color:var(--eicr-accent)!important;background:var(--eicr-accent-soft)!important;box-shadow:inset 0 0 0 1px var(--eicr-accent)!important}
+.payment-icon{background:var(--eicr-accent-soft)!important;color:var(--eicr-accent-hover)!important}
+.stripe-card-panel{border-color:rgba(195,90,46,0.2)!important;background:var(--eicr-soft)!important}
+.stripe-card-panel [data-stripe-element-wrap],.stripe-card-panel #eicr-card-number,.stripe-card-panel #eicr-card-expiry,.stripe-card-panel #eicr-card-cvc{background:#fff!important}
+.stripe-setup-note,.booking-success-card .booking-success-call,.booking-multi-note{background:var(--eicr-accent-soft)!important;color:var(--eicr-heading)!important;border-color:var(--eicr-accent)!important}
+.service-detail-book,.service-detail-included>a,.service-detail-cta,.core-book,.core-cta{background:var(--eicr-accent)!important;color:var(--eicr-on-accent)!important}
+.service-detail-included,.home-coverage-areas,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{border-top-color:var(--eicr-accent)!important}
+.service-detail-included li:before,.service-why li:before{color:var(--eicr-accent)!important}
+.service-detail-soft,.core-page-shell,.home-coverage-section{background:var(--eicr-soft)!important}
+.service-detail-cta h2,.service-detail-cta p{color:var(--eicr-on-accent)!important}
+.eicr-review-consent{color:var(--eicr-body)}
+main h1,main h2,main h3,main h4,main summary,main label,main legend{color:var(--eicr-heading)!important}
+.eicr-hero,.eicr-hero h1,.eicr-hero p,.eicr-hero .text-white,.service-detail-hero,.service-detail-hero h1,footer,footer h2,footer strong{color:var(--eicr-dark-text)!important}
+.eicr-hero .text-gold,.eicr-hero .text-amber-500,.eicr-hero .text-amber-600,.service-detail-hero .service-detail-kicker,footer .text-gold{color:color-mix(in srgb,var(--eicr-accent) 58%,white)!important}
+.eicr-hero-booking,.eicr-hero-booking h2,.eicr-hero-booking p{color:var(--eicr-heading)!important}
+.cky-consent-container .cky-btn-accept{border-color:var(--eicr-accent)!important;background:var(--eicr-accent)!important;color:var(--eicr-on-accent)!important}
+.bg-mist,.bg-slate-50,.bg-slate-50\/70,.why,.service-detail-soft,.core-page-shell,.home-coverage-section{background-color:var(--eicr-soft)!important}
+.bg-ink,.bg-slate-900,.bg-slate-950,.service-detail-hero,.hero,.service-title,.service-risk,.card-actions a,footer{background-color:var(--eicr-dark)!important}
+.bg-white,.card,.eicr-form,.quick-card,.service-card,.why-grid article,.steps,.step,.service-detail-gallery-section,.service-process>div,.service-detail-included,.service-why,.service-faq-wrap details,.core-copy,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{background-color:var(--eicr-page)!important}
+.border-line,.border-slate-200,.booking-type-card,.booking-radio,.service-option,.stripe-card-panel,.stripe-split-field,.eicr-form,.service-card,.why-grid article,.step,.service-detail-included,.service-process>div,.service-why,.service-faq-wrap details,.home-coverage-section,.home-coverage-areas,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{border-color:var(--eicr-border)!important}
+.eicr-service-card{border-left-color:var(--eicr-accent)!important}
+.eicr-process article{border-left-color:var(--eicr-accent)!important}
+.site-header,.eicr-mobile-nav,.eicr-mobile-nav>a,.eicr-mobile-group-toggle,.eicr-mobile-submenu,.eicr-review-dialog{background:var(--eicr-page)!important}
+.stripe-card-panel [data-stripe-element-wrap],.stripe-split-field,.stripe-card-panel #eicr-card-number,.stripe-card-panel #eicr-card-expiry,.stripe-card-panel #eicr-card-cvc,.eicr-form input,.eicr-form select,.eicr-form textarea,.field{background:var(--eicr-page)!important;color:var(--eicr-heading)!important}
+.booking-compact h1,.booking-compact h2,.booking-compact h3,.booking-compact b,.booking-compact .label,.service-detail-section h1,.service-detail-section h2,.service-detail-section h3,.core-page-shell h1,.core-page-shell h2,.home-coverage-section h2,.home-coverage-section h3,.step b,.step span{color:var(--eicr-heading)!important}
+.booking-compact p,.booking-compact small,.service-detail-section p,.service-detail-editor,.service-detail-included li,.service-why li,.core-page-shell p,.home-coverage-section p,.home-coverage-area span,.step p{color:var(--eicr-body)!important}
+.booking-compact>form>header,.booking-compact>form>header h1,.booking-compact>form>header p,.booking-compact>form>header [data-booking-title],.booking-compact>form>header [data-booking-copy]{background-color:var(--eicr-dark)!important;color:var(--eicr-dark-text)!important}
+.service-title,.service-title h3,.service-risk,.service-risk h2,.service-risk p,.card-actions a{color:var(--eicr-dark-text)!important}
+.booking-success-check,.wa-float b{color:var(--eicr-success)!important}
+.eicr-discount-price small{background:var(--eicr-success)!important;color:#fff!important}
+.eicr-field-error,.eicr-invalid>legend.label,.eicr-invalid>span.label,.stripe-card-error{color:var(--eicr-error)!important}
+.eicr-field-error i{background:var(--eicr-error)!important}
+.cky-consent-container .cky-consent-bar,.cky-preference-header,.cky-preference-body-wrapper,.cky-accordion-wrapper,.cky-footer-wrapper{background:var(--eicr-page)!important;border-color:var(--eicr-border)!important}
+.cky-consent-container .cky-title,.cky-consent-container .cky-notice-des a,.cky-preference-header .cky-preference-title{color:var(--eicr-heading)!important}
+.cky-consent-container .cky-notice-des,.cky-consent-container .cky-notice-des p,.cky-accordion-header .cky-accordion-btn,.cky-accordion-header-des{color:var(--eicr-body)!important}
+
+/*# sourceURL=eicr-theme-inline-css */

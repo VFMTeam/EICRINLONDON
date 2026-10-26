@@ -1,0 +1,212 @@
+/* The site design lives in public/css (carried over from the original theme).
+   This file only holds fixes and styles for the new Next.js pages. */
+
+.site-shell {
+  display: contents;
+}
+
+/* Fix: hidden dropdown menus and the zooming hero image pushed desktop pages
+   3px wider than the screen, causing a sideways scroll. */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Fix: on phones the three hero buttons did not fit on one row, so "Book Now"
+   was cut off and the WhatsApp bubble covered "Call Us". */
+@media (max-width: 640px) {
+  .eicr-hero .eicr-hero-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .eicr-hero .eicr-hero-actions > a {
+    justify-content: center;
+    width: 100%;
+  }
+  .eicr-hero .eicr-hero-actions > a:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.notice-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 16px;
+  text-align: center;
+}
+.notice-page h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 900;
+  margin: 0 0 16px;
+}
+.notice-page p {
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.notice-page .notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.notice-page .notice-actions a {
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 800;
+  background: var(--eicr-accent, #c35a2e);
+  color: #fff;
+}
+.notice-page .notice-actions a.secondary {
+  background: var(--eicr-dark, #121826);
+}
+
+/* Cookie banner (components/CookieConsent.tsx) */
+.eicr-cookie {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 60;
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid var(--eicr-border, #e4ddd6);
+  border-top: 5px solid var(--eicr-accent, #c35a2e);
+  border-radius: 20px;
+  padding: 22px;
+  background: #fff;
+  color: var(--eicr-body, #202020);
+  box-shadow: 0 30px 80px -30px rgba(18, 24, 38, 0.55);
+  animation: eicrCookieIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.eicr-cookie:focus {
+  outline: none;
+}
+@keyframes eicrCookieIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eicr-cookie {
+    animation: none;
+  }
+}
+.eicr-cookie-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eicr-cookie-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--eicr-accent-soft, #fff0e8);
+  color: var(--eicr-accent, #c35a2e);
+}
+.eicr-cookie h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--eicr-heading, #000);
+}
+.eicr-cookie p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.eicr-cookie p a {
+  font-weight: 800;
+  color: var(--eicr-accent, #c35a2e);
+  text-decoration: underline;
+}
+.eicr-cookie-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.eicr-cookie-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--eicr-border, #e4ddd6);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--eicr-page, #fcfbfa);
+  cursor: pointer;
+}
+.eicr-cookie-option b {
+  display: block;
+  font-size: 14px;
+  color: var(--eicr-heading, #000);
+}
+.eicr-cookie-option small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.eicr-cookie-option input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--eicr-accent, #c35a2e);
+}
+.eicr-cookie-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.eicr-cookie-btn {
+  border: 1px solid var(--eicr-dark, #121826);
+  border-radius: 12px;
+  padding: 11px 14px;
+  background: #fff;
+  color: var(--eicr-dark, #121826);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+.eicr-cookie-btn:hover {
+  transform: translateY(-1px);
+}
+.eicr-cookie-btn:focus-visible {
+  outline: 3px solid var(--eicr-accent, #c35a2e);
+  outline-offset: 2px;
+}
+.eicr-cookie-wide {
+  grid-column: 1 / -1;
+}
+.eicr-cookie-link {
+  border-color: var(--eicr-border, #e4ddd6);
+}
+.eicr-cookie-reject {
+  background: var(--eicr-dark, #121826);
+  color: var(--eicr-dark-text, #fff);
+}
+.eicr-cookie-accept {
+  border-color: var(--eicr-accent, #c35a2e);
+  background: var(--eicr-accent, #c35a2e);
+  color: var(--eicr-on-accent, #fff);
+}
+.eicr-cookie-accept:hover {
+  background: var(--eicr-accent-hover, #9a3f20);
+}
+@media (max-width: 640px) {
+  .eicr-cookie {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    padding: 18px;
+  }
+}
