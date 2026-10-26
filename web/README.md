@@ -40,6 +40,25 @@ From then on, every change pushed to GitHub goes live automatically. Each
 branch also gets its own preview address, so changes can be checked before
 they go live.
 
+## Cookie banner and Google Ads
+
+The site has its own cookie banner (`components/CookieConsent.tsx`) that uses
+Google Consent Mode v2, which Google requires for running ads to UK visitors.
+Google tags only load after a visitor accepts, as UK law requires, and
+"Reject all" is as easy to choose as "Accept all".
+
+To start measuring your Google Ads:
+
+1. In Google Ads, open *Goals → Conversions → New conversion action → Website*,
+   create one called "Quote request" and choose *Use Google tag*.
+2. Copy the tag ID (`AW-…`) and the conversion label into Vercel as
+   `NEXT_PUBLIC_GOOGLE_ADS_ID` and `NEXT_PUBLIC_GOOGLE_ADS_LABEL`. Optionally
+   add a Google Analytics ID as `NEXT_PUBLIC_GA_ID`. Then redeploy.
+3. Calls, emails, WhatsApp clicks and quote requests are then reported
+   automatically. Quote requests count as Google Ads conversions.
+4. In your ad campaign, use `https://www.eicrinlondon.co.uk/` (or a service
+   page such as `/services/eicr-certificate/`) as the landing page.
+
 ## Editing content
 
 - Business phone, email and address: `lib/site.ts`

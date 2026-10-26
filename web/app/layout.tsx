@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { readPartial, pageMeta } from "@/lib/content";
 import { site } from "@/lib/site";
+import { tracking, consentDefaultsScript } from "@/lib/tracking";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 // Settings read by public/js/main.js (menus, scroll animations, forms).
-const clientData = { ajax: "/api/forms/", stripeKey: "", stripeEnabled: false, colours: {}, adsId: "", adsLabel: "" };
+const clientData = { ajax: "/api/forms/", stripeKey: "", stripeEnabled: false, colours: {}, adsId: tracking.adsId, adsLabel: tracking.adsLabel };
 
 const localBusiness = {
   "@context": "https://schema.org",
@@ -36,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="stylesheet" href="/css/main.css" />
         <link rel="stylesheet" href="/css/theme-vars.css" />
         <link rel="icon" href="/images/logo.png" />
+        <script dangerouslySetInnerHTML={{ __html: consentDefaultsScript }} />
         <script dangerouslySetInnerHTML={{ __html: `window.EICR_DATA=${JSON.stringify(clientData)};` }} />
         <script defer src="/js/main.js" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusiness) }} />
@@ -44,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: header }} />
         {children}
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: footer }} />
+        <CookieConsent gaId={tracking.gaId} adsId={tracking.adsId} />
       </body>
     </html>
   );
