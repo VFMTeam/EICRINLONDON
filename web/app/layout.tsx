@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 // Settings read by public/js/main.js (menus, scroll animations, forms).
-const clientData = { ajax: "/api/forms/", stripeKey: "", stripeEnabled: false, colours: {}, adsId: tracking.adsId, adsLabel: tracking.adsLabel };
+const clientData = { ajax: "/api/forms/", adsId: tracking.adsId, adsLabel: tracking.adsLabel };
 
 const localBusiness = {
   "@context": "https://schema.org",
