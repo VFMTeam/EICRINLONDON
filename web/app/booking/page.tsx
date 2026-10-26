@@ -1,24 +1,45 @@
 import type { Metadata } from "next";
-import { quoteFormHtml } from "@/lib/quoteForm";
+import BookingWizard from "@/components/BookingWizard";
+import { paymentMode } from "@/lib/booking";
+import { pricedServices } from "@/lib/pricing";
+import { getService } from "@/lib/services";
+import { bookableDates } from "@/lib/slots";
 import { site, telHref } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: "Book an Appointment | EICR in London" },
-  description: "Book an EICR, gas safety, EPC, fire safety or other property compliance appointment anywhere in London.",
+  title: { absolute: "Book Online | EICR in London" },
+  description: "Book an EICR, gas safety, EPC, fire safety or other property compliance appointment online. See your price, pick a time and pay securely.",
   alternates: { canonical: "/booking/" },
 };
 
-// Booking request page. It reuses the quote form (public/js/main.js sends it)
-// and picks the service from links such as /booking/?service=epc.
+// Online booking: price, appointment slot and payment. Links such as
+// /booking/?service=epc open with that service chosen.
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ service?: string | string[] }> }) {
   const { service } = await searchParams;
-  const form = quoteFormHtml(service)
-    .replace("<h1>Request a Quote</h1>", "<h1>Book an Appointment</h1>")
-    .replace(">Request quote</button>", ">Send booking request</button>")
-    .replace(
-      "</header>",
-      `</header><p class="core-page-intro">Send your details and preferred date, and we will call you to confirm the appointment and price. Prefer to talk? <a href="${telHref}">Call ${site.phone}</a> or <a href="https://wa.me/${site.whatsapp}">message us on WhatsApp</a>.</p>`,
-    );
+  // The boiler + gas combo is an option of the gas safety booking.
+  const slug = service === "boiler-gas-safety-combo" ? "gas-safety:with-boiler-service" : typeof service === "string" ? service : undefined;
+  const quoteOnly = slug && !pricedServices.some((s) => s.slug === slug.split(":")[0]) ? getService(slug) : undefined;
 
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: form }} />;
+  return (
+    <main id="main-content">
+      <section className="core-page-shell">
+        <div className="core-page-wrap">
+          <header className="core-page-header">
+            <p>Property compliance in London</p>
+            <h1>Book Online</h1>
+          </header>
+          <p className="core-page-intro">
+            {paymentMode() === "request" ? "See your price, pick a time that suits you and send your booking. We will call to confirm." : "See your price, pick a time that suits you and pay securely."} Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
+            <a href={`https://wa.me/${site.whatsapp}`}>message us on WhatsApp</a>.
+          </p>
+          {quoteOnly && (
+            <p className="bk-quote-only">
+              {quoteOnly.title} is priced after a quick look at the job. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a>, or book one of the services below.
+            </p>
+          )}
+          <BookingWizard dates={bookableDates()} initialService={slug} mode={paymentMode()} />
+        </div>
+      </section>
+    </main>
+  );
 }
