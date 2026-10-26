@@ -46,7 +46,7 @@ export function checkBooking(raw: unknown): Booking | string {
   };
   const q = quote(input.service, input.option, input.items);
   if (!q) return "Please choose a service and property size.";
-  if (!isBookable(input.date, input.slot)) return "That appointment is no longer available. Please pick another time.";
+  if (!isBookable(input.date, input.slot)) return "Please choose a date and time for the visit.";
   if (!PROPERTY_TYPES.includes(input.propertyType)) return "Please choose the property type.";
   if (!input.address || !UK_POSTCODE.test(input.postcode)) return "Please enter the property address and a valid UK postcode.";
   if (!input.name || !input.phone) return "Please enter your name and phone number.";

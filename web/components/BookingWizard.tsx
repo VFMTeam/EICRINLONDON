@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { pricedServices, quote, gbp, DEPOSIT } from "@/lib/pricing";
-import { SLOTS, prettyDate, type Day } from "@/lib/slots";
+import { SLOTS, prettyDate } from "@/lib/slots";
 import { PROPERTY_TYPES } from "@/lib/booking";
 
 // Online booking in three steps: service and price, date and time, then
 // details and payment. The server re-checks the price (app/api/checkout).
-export default function BookingWizard({ days, initialService, demo }: { days: Day[]; initialService?: string; demo: boolean }) {
+export default function BookingWizard({ dates, initialService, demo }: { dates: string[]; initialService?: string; demo: boolean }) {
   const start = pricedServices.find((s) => s.slug === initialService) ?? pricedServices[0];
   const [step, setStep] = useState(1);
   const [service, setService] = useState(start.slug);
@@ -24,7 +24,6 @@ export default function BookingWizard({ days, initialService, demo }: { days: Da
   const q = quote(service, option, items);
   const total = q?.total ?? 0;
   const payNow = pay === "full" ? total : Math.min(DEPOSIT, total);
-  const day = days.find((d) => d.date === date);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
@@ -107,18 +106,16 @@ export default function BookingWizard({ days, initialService, demo }: { days: Da
             <section>
               <h2>Pick a date and time</h2>
               <div className="bk-days" role="listbox" aria-label="Date">
-                {days.map((d) => {
-                  const free = d.slots.some((s) => s.free);
-                  const dt = new Date(`${d.date}T12:00:00Z`);
+                {dates.map((d) => {
+                  const dt = new Date(`${d}T12:00:00Z`);
                   return (
                     <button
                       type="button"
-                      key={d.date}
+                      key={d}
                       role="option"
-                      aria-selected={date === d.date}
-                      disabled={!free}
-                      className={date === d.date ? "is-selected" : ""}
-                      onClick={() => { setDate(d.date); setSlot(""); }}
+                      aria-selected={date === d}
+                      className={date === d ? "is-selected" : ""}
+                      onClick={() => setDate(d)}
                     >
                       <small>{dt.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}</small>
                       <b>{dt.getUTCDate()}</b>
@@ -127,17 +124,14 @@ export default function BookingWizard({ days, initialService, demo }: { days: Da
                   );
                 })}
               </div>
-              {day && (
+              {date && (
                 <div className="bk-slots">
-                  {SLOTS.map((s) => {
-                    const free = day.slots.find((x) => x.id === s.id)?.free;
-                    return (
-                      <button type="button" key={s.id} disabled={!free} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
-                        <b>{s.label}</b>
-                        <span>{free ? s.time : "Fully booked"}</span>
-                      </button>
-                    );
-                  })}
+                  {SLOTS.map((s) => (
+                    <button type="button" key={s.id} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
+                      <b>{s.label}</b>
+                      <span>{s.time}</span>
+                    </button>
+                  ))}
                 </div>
               )}
               <div className="bk-nav">

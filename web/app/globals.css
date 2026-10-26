@@ -485,12 +485,6 @@ body {
 .bk-slots button.is-selected span {
   color: #fff;
 }
-.bk-days button:disabled,
-.bk-slots button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  text-decoration: line-through;
-}
 .bk-slots {
   display: grid;
   grid-template-columns: 1fr 1fr;

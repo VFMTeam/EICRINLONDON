@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import BookingWizard from "@/components/BookingWizard";
 import { pricedServices } from "@/lib/pricing";
 import { getService } from "@/lib/services";
-import { availableDays } from "@/lib/slots";
+import { bookableDates } from "@/lib/slots";
 import { site, telHref } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -35,7 +35,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
               {quoteOnly.title} is priced after a quick look at the job. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a>, or book one of the services below.
             </p>
           )}
-          <BookingWizard days={availableDays()} initialService={slug} demo={!process.env.STRIPE_SECRET_KEY} />
+          <BookingWizard dates={bookableDates()} initialService={slug} demo={!process.env.STRIPE_SECRET_KEY} />
         </div>
       </section>
     </main>

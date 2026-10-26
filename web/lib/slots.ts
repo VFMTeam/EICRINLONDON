@@ -1,38 +1,22 @@
-// Appointment slots for online booking. Customers can book from tomorrow up
-// to two weeks ahead, morning or afternoon, seven days a week.
-//
-// DEMO: availability is made up (a few slots show as taken). To go live,
-// replace isTaken() with a check against the team's calendar.
+// Appointment times for online booking. The team has enough engineers to take
+// every booking, so customers simply choose a day (from tomorrow, up to 30 days
+// ahead, seven days a week) and morning or afternoon.
 export const SLOTS = [
   { id: "am", label: "Morning", time: "8am – 12pm" },
   { id: "pm", label: "Afternoon", time: "12pm – 5pm" },
 ] as const;
 
-export type SlotId = (typeof SLOTS)[number]["id"];
-export type Day = { date: string; slots: { id: SlotId; free: boolean }[] };
+const DAYS_AHEAD = 30;
 
-const DAYS_AHEAD = 14;
-
-// "YYYY-MM-DD" in London time, `offset` days from today.
-function londonDate(offset: number) {
-  return new Date(Date.now() + offset * 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/London" });
-}
-
-function isTaken(date: string, slot: SlotId) {
-  let h = 0;
-  for (const c of date + slot) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return h % 4 === 0;
-}
-
-export function availableDays(): Day[] {
-  return Array.from({ length: DAYS_AHEAD }, (_, i) => {
-    const date = londonDate(i + 1);
-    return { date, slots: SLOTS.map((s) => ({ id: s.id, free: !isTaken(date, s.id) })) };
-  });
+// "YYYY-MM-DD" dates in London time, starting tomorrow.
+export function bookableDates() {
+  return Array.from({ length: DAYS_AHEAD }, (_, i) =>
+    new Date(Date.now() + (i + 1) * 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/London" }),
+  );
 }
 
 export function isBookable(date: string, slot: string) {
-  return availableDays().some((d) => d.date === date && d.slots.some((s) => s.id === slot && s.free));
+  return bookableDates().includes(date) && SLOTS.some((s) => s.id === slot);
 }
 
 export const slotLabel = (slot: string) => {
