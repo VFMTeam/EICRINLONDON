@@ -8,7 +8,7 @@ export default function AdminLogin() {
   return (
     <form action={action} className="adm-login">
       <img src="/images/logo.png" alt="" width={56} height={48} />
-      <h1>EICR_LONDON <span>secure access</span></h1>
+      <h1>EICR in London <span>root@admin · secure access</span></h1>
       <label>
         <span>&gt; password</span>
         <input type="password" name="password" autoComplete="current-password" required autoFocus />
