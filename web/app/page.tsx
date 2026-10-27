@@ -20,12 +20,12 @@ export default async function HomePage() {
     if (price == null) return token;
     return hourly ? `£${Number.isInteger(price) ? price : price.toFixed(2)}/hr` : gbp(price);
   });
-  const [before, after] = html.split("<!--reviews-->");
+  const [top, rest] = html.split("<!-- reviews -->");
   return (
     <main id="main-content">
-      <div className="site-shell" dangerouslySetInnerHTML={{ __html: before }} />
+      <div className="contents" dangerouslySetInnerHTML={{ __html: top }} />
       <Reviews />
-      {after && <div className="site-shell" dangerouslySetInnerHTML={{ __html: after }} />}
+      {rest && <div className="contents" dangerouslySetInnerHTML={{ __html: rest }} />}
     </main>
   );
 }

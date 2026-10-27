@@ -33,9 +33,9 @@ export async function moderateReview(form: FormData) {
   if (!(await isAdmin())) redirect("/admin/");
   const id = String(form.get("id") ?? "");
   if (!/^[a-z0-9-]{1,40}$/.test(id)) return;
-  const action = form.get("action");
-  if (action === "approve") await approveReview(id);
-  if (action === "reject") await deleteReview("pending", id);
-  if (action === "remove") await deleteReview("approved", id);
+  const decision = form.get("decision");
+  if (decision === "approve") await approveReview(id);
+  if (decision === "reject") await deleteReview("pending", id);
+  if (decision === "remove") await deleteReview("approved", id);
   revalidatePath("/admin/");
 }

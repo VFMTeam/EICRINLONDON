@@ -1118,7 +1118,6 @@ body {
   cursor: pointer;
   font-size: 1.75rem;
   line-height: 1;
-  color: #cbd5e1;
 }
 .review-stars-input input {
   position: absolute;
@@ -1126,13 +1125,16 @@ body {
   width: 1px;
   height: 1px;
 }
-.review-stars-input label:has(input:checked),
-.review-stars-input label:has(input:checked) ~ label,
-.review-stars-input:hover label:hover,
-.review-stars-input:hover label:hover ~ label {
+.review-stars-input span {
+  color: #cbd5e1;
+}
+.review-stars-input label:has(input:checked) span,
+.review-stars-input label:has(input:checked) ~ label span,
+.review-stars-input:hover label:hover span,
+.review-stars-input:hover label:hover ~ label span {
   color: #f59e0b;
 }
-.review-stars-input:hover label:not(:hover):not(:hover ~ label) {
+.review-stars-input:hover label:not(:hover):not(:hover ~ label) span {
   color: #cbd5e1;
 }
 .review-stars-input label:has(input:focus-visible) {

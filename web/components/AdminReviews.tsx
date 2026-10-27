@@ -8,12 +8,15 @@ function Item({ review, actions }: { review: Review; actions: [string, string][]
     <div className="admin-review">
       <strong>{"★".repeat(review.rating) + "☆".repeat(5 - review.rating)} {review.name}</strong> <small>{review.service} · {date(review.createdAt)}</small>
       <p>{review.text}</p>
-      <form action={moderateReview} className="admin-review-actions">
-        <input type="hidden" name="id" value={review.id} />
+      <div className="admin-review-actions">
         {actions.map(([value, label]) => (
-          <button key={value} type="submit" name="action" value={value} className={value === "approve" ? "admin-save" : "admin-reject"}>{label}</button>
+          <form key={value} action={moderateReview}>
+            <input type="hidden" name="id" value={review.id} />
+            <input type="hidden" name="decision" value={value} />
+            <button type="submit" className={value === "approve" ? "admin-save" : "admin-reject"}>{label}</button>
+          </form>
         ))}
-      </form>
+      </div>
     </div>
   );
 }
