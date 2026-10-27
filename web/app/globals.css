@@ -240,6 +240,15 @@ body {
     bottom: calc(72px + env(safe-area-inset-bottom));
     max-height: calc(100vh - 92px);
   }
+  body:has(.booking-compact) {
+    padding-bottom: 0;
+  }
+  body:has(.booking-compact) .mobile-contact-bar {
+    display: none;
+  }
+  body:has(.booking-compact) .eicr-cookie {
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
 }
 
 .core-page-intro a {

@@ -5,12 +5,8 @@ import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, gbp, parki
 import { SLOTS } from "@/lib/slots";
 import type { Pay, PaymentMode } from "@/lib/booking";
 
-const icons = {
-  bank: <path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 18h18M12 3l9 5H3l9-5Z" />,
-  card: <><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="M3 10h18M7 15h3" /></>,
-  cash: <><rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M7 9H6v1m11-1h1v1M7 15H6v-1m11 1h1v-1" /></>,
-};
-const methodLabel = { bank: "Bank Transfer", card: "Debit/Credit Card", cash: "Cash to Engineer" };
+const cardIcon = <><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="M3 10h18M7 15h3" /></>;
+const otherMethods = [["cash", "Cash to engineer"], ["bank", "Bank transfer"]] as const;
 
 export default function BookingWizard({ minDate, maxDate, initialService, mode, settings }: { minDate: string; maxDate: string; initialService?: string; mode: PaymentMode; settings: Settings }) {
   const [part, setPart] = useState(1);
@@ -31,7 +27,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode, 
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", address: "", postcode: "", notes: "" });
   const [parking, setParking] = useState("");
   const [congestion, setCongestion] = useState<boolean | null>(null);
-  const [method, setMethod] = useState<"bank" | "card" | "cash" | "">("");
+  const [method, setMethod] = useState<"bank" | "card" | "cash" | "">(mode === "request" ? "" : "card");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -42,7 +38,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode, 
   const q = quote(services, property, parking, congestion === true, settings);
   const total = q?.total ?? 0;
   const pay: Pay = method === "card" ? "full" : method || "cash";
-  const methods = (["bank", "card", "cash"] as const).filter((m) => mode !== "request" || m !== "card");
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
 
   function toggle(slug: string) {
@@ -215,13 +210,20 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode, 
                 </div>
               </section>
               <section className="rounded-2xl border border-line bg-white p-4 sm:p-5">
-                <h2 className="text-lg font-black">How would you like to pay?</h2>
-                <div className="mt-3 grid gap-2 md:grid-cols-3">
-                  {methods.map((m) => (
-                    <label key={m} className="booking-radio payment-choice">
-                      <input type="radio" name="payment_method" checked={method === m} onChange={() => setMethod(m)} required />
-                      <span className="payment-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icons[m]}</svg></span>
-                      <b>{methodLabel[m]}</b>
+                {mode !== "request" && (
+                  <label className="booking-radio payment-card">
+                    <input type="radio" name="payment_method" checked={method === "card"} onChange={() => setMethod("card")} />
+                    <span className="payment-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{cardIcon}</svg></span>
+                    <b>Pay online by card</b>
+                    <b className="payment-card-total">{gbp(total)} <small>inc. VAT</small></b>
+                  </label>
+                )}
+                <div className="payment-other">
+                  <span>{mode === "request" ? "Pay by" : "Or pay by"}</span>
+                  {otherMethods.map(([m, label]) => (
+                    <label key={m}>
+                      <input type="radio" name="payment_method" checked={method === m} onChange={() => setMethod(m)} required={mode === "request"} />
+                      {label}
                     </label>
                   ))}
                 </div>

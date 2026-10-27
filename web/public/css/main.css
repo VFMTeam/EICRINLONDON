@@ -587,3 +587,7 @@
 .logo-verify strong{display:block;color:#0f172a}
 .logo-verify a{color:#9a3f20;font-weight:800;text-decoration:underline}
 @media(prefers-reduced-motion:reduce){.logo-marquee{animation:none}.logo-marquee-set[aria-hidden]{display:none}.logo-marquee-set{flex-wrap:wrap}.logo-marquee{width:auto}}
+.payment-card{gap:.65rem}.payment-card b{font-size:.92rem;font-weight:900}.payment-card .payment-card-total{margin-left:auto}.payment-card-total small{font-size:.68rem;font-weight:700;color:#64748b}
+.payment-other{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .9rem;margin-top:.7rem;font-size:.78rem;color:#64748b}
+.payment-other label{display:inline-flex;align-items:center;gap:.3rem;font-weight:700;color:#334155;cursor:pointer}
+.payment-other input{width:.85rem;height:.85rem;margin:0;accent-color:var(--eicr-accent,#b4532a)}
