@@ -114,8 +114,12 @@
       function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
-            entry.target.classList.add("eicr-scroll-visible");
-            io.unobserve(entry.target);
+            var el = entry.target;
+            el.classList.add("eicr-scroll-visible");
+            io.unobserve(el);
+            setTimeout(function () {
+              el.classList.remove("eicr-scroll-reveal", "eicr-scroll-visible");
+            }, 700);
           }
         });
       },
