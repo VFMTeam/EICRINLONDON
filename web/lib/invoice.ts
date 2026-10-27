@@ -53,44 +53,59 @@ const METHOD_TEXT: Record<InvoiceMethod, string> = {
   bank: "To pay by bank transfer",
 };
 
-function bankBlock() {
-  const details = process.env.BANK_DETAILS?.trim();
-  return details
-    ? `<p style="margin:16px 0 4px;font-weight:bold">Bank details</p><p style="margin:0">${escapeHtml(details).replace(/\n/g, "<br>")}</p>`
-    : `<p style="margin:16px 0 0">We will send our bank details separately.</p>`;
+const bankDetails = () => process.env.BANK_DETAILS?.trim() ?? "";
+
+const issued = () => new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" });
+
+const visitText = (inv: Invoice) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(inv.date) ? [prettyDate(inv.date), slotLabel(inv.slot)].filter(Boolean).join(", ") : "";
+
+function invoiceText(inv: Invoice) {
+  const visit = visitText(inv);
+  const bank = inv.method === "bank" ? bankDetails() || "We will send our bank details separately." : "";
+  return [
+    `Invoice ${inv.number}`,
+    issued(),
+    "",
+    `Billed to: ${inv.name}`,
+    inv.address,
+    ...(visit ? [`Visit: ${visit}`] : []),
+    "",
+    ...inv.lines.map(([label, price]) => `${label}: ${gbp(price)}`),
+    `Total inc. VAT: ${gbp(inv.total)}`,
+    METHOD_TEXT[inv.method],
+    ...(bank ? ["", bank] : []),
+    "",
+    site.name,
+    site.address,
+    `${site.phone} · ${site.email}`,
+  ].join("\n");
 }
 
 function invoiceHtml(inv: Invoice) {
-  const cell = "padding:8px 0;border-bottom:1px solid #e5e7eb";
+  const cell = "padding:6px 0;border-bottom:1px solid #eee";
   const rows = inv.lines
     .map(([label, price]) => `<tr><td style="${cell}">${escapeHtml(label)}</td><td align="right" style="${cell}">${gbp(price)}</td></tr>`)
     .join("");
-  const visit = /^\d{4}-\d{2}-\d{2}$/.test(inv.date) ? [prettyDate(inv.date), slotLabel(inv.slot)].filter(Boolean).join(", ") : "";
-  return `<div style="background:#f4f5f7;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#111827;font-size:14px;line-height:1.5">
-<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:28px">
-<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px"><tr>
-<td><img src="${site.url}/images/logo.png" alt="${site.name}" height="40" style="display:block"></td>
-<td align="right" style="font-size:20px;font-weight:bold">Invoice</td>
-</tr></table>
-<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-top:24px"><tr>
-<td valign="top"><b>Billed to</b><br>${escapeHtml(inv.name)}<br>${escapeHtml(inv.address)}</td>
-<td valign="top" align="right">${inv.number}<br>${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}</td>
-</tr></table>
-${visit ? `<p style="margin:20px 0 0"><b>Visit</b><br>${visit}</p>` : ""}
-<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-top:20px">${rows}
-<tr><td style="padding:12px 0;font-weight:bold">Total inc. VAT</td><td align="right" style="padding:12px 0;font-weight:bold;font-size:16px">${gbp(inv.total)}</td></tr>
+  const visit = visitText(inv);
+  const bank = bankDetails();
+  return `<div style="max-width:520px;font-family:Arial,Helvetica,sans-serif;color:#222;font-size:14px;line-height:1.5">
+<p style="margin:0 0 16px"><b>${site.name}</b><br>Invoice ${inv.number}<br>${issued()}</p>
+<p style="margin:0 0 16px">${escapeHtml(inv.name)}<br>${escapeHtml(inv.address)}${visit ? `<br>Visit: ${visit}` : ""}</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px">${rows}
+<tr><td style="padding:8px 0"><b>Total inc. VAT</b></td><td align="right" style="padding:8px 0"><b>${gbp(inv.total)}</b></td></tr>
 </table>
 <p style="margin:8px 0 0">${METHOD_TEXT[inv.method]}</p>
-${inv.method === "bank" ? bankBlock() : ""}
-<p style="margin:28px 0 0;color:#6b7280;font-size:12px">${site.name} · ${escapeHtml(site.address)}<br>${site.phone} · ${site.email}</p>
-</div></div>`;
+${inv.method === "bank" ? `<p style="margin:12px 0 0">${bank ? escapeHtml(bank).replace(/\n/g, "<br>") : "We will send our bank details separately."}</p>` : ""}
+<p style="margin:24px 0 0;color:#777;font-size:12px">${site.name}, ${escapeHtml(site.address)}<br>${site.phone} · ${site.email}</p>
+</div>`;
 }
 
 // Sent through Resend. Never throws: a failed invoice must not undo a booking.
 export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inv.email)) return "skipped";
-  const from = process.env.FORM_FROM_EMAIL ?? "EICR in London <website@eicrinlondon.co.uk>";
+  const from = process.env.INVOICE_FROM_EMAIL ?? `${site.name} <${site.email}>`;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -102,9 +117,10 @@ export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
       body: JSON.stringify({
         from,
         to: inv.email,
-        reply_to: process.env.FORM_TO_EMAIL ?? site.email,
+        reply_to: site.email,
         subject: `Your invoice ${inv.number} from ${site.name}`,
         html: invoiceHtml(inv),
+        text: invoiceText(inv),
       }),
     });
     if (!res.ok) {

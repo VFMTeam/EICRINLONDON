@@ -60,6 +60,8 @@ Online bookings are paid on Stripe's own secure Checkout page. To turn it on:
    services, total inc. VAT and how they pay) for card, cash and bank
    transfer bookings. It goes through Resend, so it is free. Put your bank
    details in Vercel as `BANK_DETAILS` so they show on bank transfer invoices.
+   Invoices come from `INVOICE_FROM_EMAIL` (default info@eicrinlondon.co.uk),
+   so that domain must be verified in Resend (see "Connect email" above).
 
 Test mode and live mode in Stripe each have their own keys and webhook, so
 repeat steps 1 to 3 when you switch to live.
