@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { services, getService, formatPrice, serviceHeroImage, serviceGallery } from "@/lib/services";
+import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
+import { site } from "@/lib/site";
 
 // Ported from the original theme's single-eicr_service.php.
 export const dynamicParams = false;
@@ -20,6 +21,61 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+// "/images/fire-alarm-certificate-closeup.webp" -> "Fire alarm certificate work in a London property"
+function galleryAlt(src: string) {
+  if (src.includes("property-safety-engineers")) return "Our property safety engineers at work in London";
+  const name = src.replace(/^.*\//, "").replace(/(-closeup)?\.\w+$/, "").replace(/^epc-/, "").replace(/-/g, " ");
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} work in a London property`;
+}
+
+// Short legal reminder for landlords (England) on the services it applies to.
+const landlordNotes: Record<string, string> = {
+  "eicr-certificate": "Landlords: an EICR is needed at least every 5 years, or sooner if the last report says so.",
+  "gas-safety": "Landlords: a Gas Safety Certificate is needed every 12 months.",
+  "boiler-gas-safety-combo": "Landlords: a Gas Safety Certificate is needed every 12 months.",
+};
+
+function faqs(s: Service) {
+  return [
+    [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)} including VAT. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
+    ["Can I combine this with another service?", "Yes. Book one service online and add the others in the notes, or request a quote, and we will arrange them together, often in a single visit."],
+    ["Which areas do you cover?", "We arrange residential and commercial property-compliance services throughout London and selected areas near the M25."],
+    ["What should I prepare before the visit?", "Make sure the relevant areas are accessible and tell us about any access instructions or known issues when you book."],
+    ["When will the engineer contact me?", "After confirmation, the attending specialist will contact you before travelling to the property."],
+  ];
+}
+
+// Structured data so search engines can show the service, price and FAQs.
+function schema(s: Service) {
+  const url = `${site.url}/services/${s.slug}/`;
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: s.title,
+      description: s.benefit,
+      url,
+      areaServed: "London",
+      provider: { "@type": "LocalBusiness", name: site.name, url: site.url, telephone: site.phone },
+      offers: { "@type": "Offer", price: s.price, priceCurrency: "GBP" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs(s).map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${site.url}/` },
+        { "@type": "ListItem", position: 2, name: "Services", item: `${site.url}/services/` },
+        { "@type": "ListItem", position: 3, name: s.title, item: url },
+      ],
+    },
+  ];
+}
+
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const s = getService((await params).slug);
   if (!s) notFound();
@@ -27,6 +83,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
   return (
     <main id="main-content">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema(s)) }} />
       <article className="service-detail-page">
         <section className="service-detail-hero">
           <div className="service-detail-wrap service-detail-hero-grid">
@@ -35,14 +92,15 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <h1>{s.title}</h1>
               <p className="service-detail-lead">{s.benefit}</p>
               <div className="service-detail-price">
-                <span className="eicr-current-price">From {formatPrice(s.price)}</span>
+                <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
               </div>
+              {landlordNotes[s.slug] && <p className="service-landlord-note">{landlordNotes[s.slug]}</p>}
               <div className="service-detail-actions">
                 <a className="service-detail-book" href={book}>Book now</a>
                 <a className="service-detail-quote" href={`/request-a-quote/?service=${s.slug}`}>Request a quote</a>
               </div>
             </div>
-            <img src={serviceHeroImage(s.slug)} alt={`${s.title} service in London`} />
+            <img src={serviceHeroImage(s.slug)} alt={`${s.title} service in London`} width={1100} height={600} fetchPriority="high" />
           </div>
         </section>
 
@@ -55,8 +113,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <p>{s.benefit}</p>
                 <p>We cover residential and commercial properties throughout London. Send the property details and required scope so the appropriate specialist and appointment can be arranged.</p>
               </div>
-              <h3>What this service provides</h3>
-              <p>{s.benefit}</p>
             </div>
             <aside className="service-detail-included">
               <h2>What you can expect</h2>
@@ -78,7 +134,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <p className="service-detail-kicker">Simple and organised</p>
             <h2>How the service works</h2>
             <div className="service-process">
-              <div><b>01</b><h3>Choose the service</h3><p>Select the property details and any additional services required.</p></div>
+              <div><b>01</b><h3>Send your request</h3><p>Tell us the property details and any additional services required.</p></div>
               <div><b>02</b><h3>Confirm access</h3><p>Provide the address, preferred date and useful access information.</p></div>
               <div><b>03</b><h3>Professional visit</h3><p>The appropriate specialist completes the agreed inspection or work.</p></div>
               <div><b>04</b><h3>Receive the outcome</h3><p>Get the relevant report, record or recommendations for next steps.</p></div>
@@ -101,7 +157,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <ul>
                 <li>Residential and commercial appointments</li>
                 <li>Multiple services can be combined in one request</li>
-                <li>Clear prices and visible additional charges</li>
+                <li>Clear prices confirmed before the visit</li>
                 <li>Responsive booking and customer support</li>
               </ul>
             </div>
@@ -113,8 +169,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <p className="service-detail-kicker">Our work</p>
             <h2>{s.title} gallery</h2>
             <div className="service-detail-gallery">
-              {serviceGallery(s.slug).map((src, i) => (
-                <img key={src} src={src} alt={`${s.title} working image ${i + 1}`} loading="lazy" />
+              {serviceGallery(s.slug).map((src) => (
+                <img key={src} src={src} alt={galleryAlt(src)} width={1100} height={600} loading="lazy" />
               ))}
             </div>
           </div>
@@ -124,18 +180,19 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <div className="service-detail-wrap service-faq-wrap">
             <p className="service-detail-kicker">Useful information</p>
             <h2>Frequently asked questions</h2>
-            <details><summary>How much does {s.title} cost?</summary><p>Prices start from {formatPrice(s.price)}. The final amount depends on the selected property details, scope and visible booking charges.</p></details>
-            <details><summary>Can I combine this with another service?</summary><p>Yes. The booking page allows multiple services to be selected in one request.</p></details>
-            <details><summary>Which areas do you cover?</summary><p>We arrange residential and commercial property-compliance services throughout London.</p></details>
-            <details><summary>What should I prepare before the visit?</summary><p>Make sure the relevant areas are accessible and add any access instructions or known issues in Notes For Engineer.</p></details>
-            <details><summary>When will the engineer contact me?</summary><p>After confirmation, the attending specialist will contact you before travelling to the property.</p></details>
+            {faqs(s).map(([q, a]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
           </div>
         </section>
 
         <section className="service-detail-cta">
           <div className="service-detail-wrap">
             <h2>Ready to arrange {s.title}?</h2>
-            <p>Select the property information and preferred appointment time online.</p>
+            <p>Send your property details and preferred date, and we will confirm your appointment.</p>
             <a href={book}>Book this service</a>
           </div>
         </section>

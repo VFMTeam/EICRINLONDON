@@ -3,6 +3,7 @@ import { readPartial, pageMeta } from "@/lib/content";
 import { site } from "@/lib/site";
 import { tracking, consentDefaultsScript } from "@/lib/tracking";
 import CookieConsent from "@/components/CookieConsent";
+import MobileContactBar from "@/components/MobileContactBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,8 @@ const localBusiness = {
   url: site.url,
   telephone: site.phone,
   email: site.email,
-  address: { "@type": "PostalAddress", streetAddress: site.address, addressLocality: "Dagenham", addressCountry: "GB" },
+  image: `${site.url}/images/logo.png`,
+  address: { "@type": "PostalAddress", streetAddress: site.address, addressLocality: "Dagenham", postalCode: "RM10 8PS", addressCountry: "GB" },
   areaServed: "London",
 };
 
@@ -47,6 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: header }} />
         {children}
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: footer }} />
+        <MobileContactBar />
         <CookieConsent gaId={tracking.gaId} adsId={tracking.adsId} />
       </body>
     </html>
