@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Reviews from "@/components/Reviews";
 import { gbp, servicePrice, type Settings } from "@/lib/pricing";
 import { getSettings, renderPartial } from "@/lib/settings";
 import { logosHtml, verifyHtml } from "@/components/VerifyRegistration";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const home = (bedrooms: number) => ({ kind: "residential" as const, bedrooms, floors: 1, commercialType: "other" });
 

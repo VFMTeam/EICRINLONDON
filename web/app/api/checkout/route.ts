@@ -54,28 +54,26 @@ export async function POST(request: Request) {
   const mode = paymentMode();
   const offline = isOffline(booking.pay) || mode === "request";
   if (offline) {
-    if (mode !== "demo") {
-      const rows = [
-        ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
-        ...booking.quote.lines.map((l) => [l.title, gbp(l.price)]),
-        ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, `-${gbp(booking.quote.discount)}`]] : []),
-        ["Parking", booking.quote.parking ? gbp(booking.quote.parking) : "Free parking"],
-        ["Congestion charge", booking.quote.congestion ? gbp(booking.quote.congestion) : "No"],
-        ["Total", gbp(booking.quote.total)],
-        ["Payment", booking.pay === "cash" ? "Cash to the engineer on the day" : booking.pay === "bank" ? "Bank transfer – email our bank details" : "Not paid online – call to take payment"],
-        ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
-        ["Property", booking.kind === "residential" ? `Residential, ${booking.bedrooms ? `${booking.bedrooms} bedrooms` : "studio"}, ${booking.floors} storey(s)` : `Commercial, ${booking.commercialType}`],
-        ["Address", `${booking.address}, ${booking.postcode}`],
-        ["Notes", booking.notes || "None"],
-      ];
-      const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
-      if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
-      if (isOffline(booking.pay)) {
-        await emailInvoice({
-          number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,
-          date: booking.date, slot: booking.slot, lines: quoteLines(booking.quote), total: booking.quote.total, method: booking.pay === "cash" ? "cash" : "bank",
-        });
-      }
+    const rows = [
+      ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
+      ...booking.quote.lines.map((l) => [l.title, gbp(l.price)]),
+      ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, `-${gbp(booking.quote.discount)}`]] : []),
+      ["Parking", booking.quote.parking ? gbp(booking.quote.parking) : "Free parking"],
+      ["Congestion charge", booking.quote.congestion ? gbp(booking.quote.congestion) : "No"],
+      ["Total", gbp(booking.quote.total)],
+      ["Payment", booking.pay === "cash" ? "Cash to the engineer on the day" : booking.pay === "bank" ? "Bank transfer – email our bank details" : "Not paid online – call to take payment"],
+      ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
+      ["Property", booking.kind === "residential" ? `Residential, ${booking.bedrooms ? `${booking.bedrooms} bedrooms` : "studio"}, ${booking.floors} storey(s)` : `Commercial, ${booking.commercialType}`],
+      ["Address", `${booking.address}, ${booking.postcode}`],
+      ["Notes", booking.notes || "None"],
+    ];
+    const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
+    if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+    if (isOffline(booking.pay)) {
+      await emailInvoice({
+        number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,
+        date: booking.date, slot: booking.slot, lines: quoteLines(booking.quote), total: booking.quote.total, method: booking.pay === "cash" ? "cash" : "bank",
+      });
     }
     return NextResponse.json({ url: `/booking/confirmed/?booked=${encodeBooking(booking)}` });
   }
