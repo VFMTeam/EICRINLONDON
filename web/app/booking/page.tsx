@@ -27,7 +27,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             <h1>Book Online</h1>
           </header>
           <p className="core-page-intro">
-            See your price and book in two steps. Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
+            See your price and book in two steps. Prefer to talk? <a href={telHref}>Call {site.phone}</a> (24/7 call out) or{" "}
             <a href={`https://wa.me/${site.whatsapp}`}>message us on WhatsApp</a>.
           </p>
           {quoteOnly && (

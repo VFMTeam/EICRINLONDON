@@ -28,7 +28,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
   const deposit = Math.min(DEPOSIT, total);
   const payNow = pay === "cash" ? 0 : pay === "full" ? total : deposit;
   const payOptions: { id: Pay; title: string; text: string; amount: number }[] = [
-    { id: "deposit", title: "Deposit now", text: `Rest (${gbp(total - deposit)}) after the visit`, amount: deposit },
+    { id: "deposit", title: "Deposit now", text: `Rest (${gbp(total - deposit)}) on the day, cash or payment link`, amount: deposit },
     { id: "full", title: "Pay in full now", text: "Card, Apple Pay or Google Pay", amount: total },
     { id: "cash", title: "Cash on the day", text: "Pay the engineer at the visit", amount: total },
   ];

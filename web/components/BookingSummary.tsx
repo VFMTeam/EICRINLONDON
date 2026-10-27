@@ -23,7 +23,7 @@ export default function BookingSummary({ b, status }: { b: Booking; status: "due
       ) : (
         <>
           <p className="bk-paynow"><span>{status === "paid" ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>
-          {rest > 0 && <p className="bk-note">Remaining {gbp(rest)} is paid after the visit.</p>}
+          {rest > 0 && <p className="bk-note">Remaining {gbp(rest)}: pay the engineer in cash on the day, or by the secure payment link we email you after the visit.</p>}
         </>
       )}
     </aside>
