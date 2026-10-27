@@ -502,14 +502,6 @@ body {
   background: #fff;
   padding: 3px;
 }
-.sc-test {
-  border-radius: 4px;
-  padding: 2px 6px;
-  background: #ffde92;
-  color: #a04100;
-  font-size: 10px;
-  font-weight: 800;
-}
 .sc-label {
   margin-top: 36px;
   color: #a3acc2;
@@ -919,4 +911,24 @@ body {
   font-size: 0.875rem;
   font-weight: 900;
   color: #020617;
+}
+
+.eicr-header-book {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .eicr-header-book {
+    display: inline-flex;
+    margin-left: 18px;
+    border-radius: 12px;
+    padding: 11px 20px;
+    background: var(--eicr-accent, #c35a2e);
+    color: #fff;
+    font-weight: 900;
+    white-space: nowrap;
+    transition: transform 0.2s;
+  }
+  .eicr-header-book:hover {
+    transform: translateY(-2px);
+  }
 }

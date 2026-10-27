@@ -24,7 +24,7 @@ export default function DemoPayForm({ amount, booking, email, name, postcode }: 
   function pay(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const card = String(new FormData(e.currentTarget).get("card") ?? "").replace(/\D/g, "");
-    if (card !== "4242424242424242") return setError("Your card was declined. In test mode use 4242 4242 4242 4242.");
+    if (card !== "4242424242424242") return setError("Your card was declined. Please check the card number and try again.");
     finish();
   }
 
