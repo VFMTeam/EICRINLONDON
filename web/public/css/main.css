@@ -427,23 +427,44 @@
 .area-links a{display:inline-flex;border:1px solid #e2e8f0;border-radius:999px;padding:.3rem .7rem;color:#334155;font-size:.8rem;font-weight:700}
 .area-links a:hover{border-color:#c35a2e;color:#9a3f20}
 .area-more{margin-top:.9rem;font-size:.85rem;font-weight:800}
-.area-more a,.reviews-more{color:#9a3f20;text-decoration:underline}
+.area-more a{color:#9a3f20;text-decoration:underline}
 .guide-cta{margin:1.6rem 0 .4rem}
-.reviews-section{background:#fff;padding:3.5rem 0}
-.reviews-wrap{width:min(1180px,calc(100% - 32px));margin:auto}
-.reviews-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.4rem}
-.reviews-head h2{margin:.3rem 0 0;color:#0f172a;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900}
-.reviews-score{color:#475569;font-size:.9rem}
-.reviews-score b{color:#0f172a;font-size:1.4rem}
-.reviews-score span,.reviews-stars{color:#f5a623;letter-spacing:.08em}
-.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-.reviews-grid figure{margin:0;border:1px solid #e2e8f0;border-radius:1rem;padding:1.1rem}
-.reviews-grid blockquote{margin:.5rem 0 .8rem;color:#334155;font-size:.88rem;line-height:1.65}
-.reviews-grid figcaption{color:#64748b;font-size:.78rem;font-weight:700}
-.reviews-more{display:inline-block;margin-top:1rem;font-size:.85rem;font-weight:800}
-@media(max-width:900px){.reviews-grid{grid-template-columns:1fr}}
-.eicr-review-form:not(.eicr-review-complete) .eicr-review-again{display:none!important}
 .service-detail-included .area-links{margin-bottom:1rem}
 .service-detail-included .area-links li{padding:0!important;border:0!important}
 .core-copy section h2{margin-top:1.5rem!important}
 .core-copy p+p{margin-top:.6rem}
+
+.rv-section{width:min(1280px,100%);margin:auto;padding:4rem 1rem}
+.rv-head{max-width:42rem;margin:auto;text-align:center}
+.rv-kicker{color:#d97706;font-size:.8rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.rv-head h2{margin-top:.5rem;font-size:clamp(1.9rem,3.5vw,2.25rem);font-weight:900}
+.rv-count{margin-top:.75rem;color:#475569;font-weight:700}
+.rv-count span{color:#d97706}
+.rv-row{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:2rem}
+.rv-viewport{margin-top:2rem;overflow:hidden;-webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent)}
+.rv-marquee{display:flex;width:max-content;gap:1rem;animation:rv-scroll var(--rv-duration,36s) linear infinite}
+.rv-marquee:hover,.rv-marquee:focus-within{animation-play-state:paused}
+.rv-set{display:flex;flex:none;gap:1rem}
+@keyframes rv-scroll{to{transform:translate3d(calc(-50% - .5rem),0,0)}}
+@media(prefers-reduced-motion:reduce){.rv-viewport{overflow-x:auto}.rv-marquee{animation:none}.rv-set[aria-hidden]{display:none}}
+.rv-card{display:flex;flex-direction:column;width:290px;height:12rem;flex-shrink:0;margin:0;border:1px solid #e2e8f0;border-radius:1rem;background:#fff;padding:1.25rem}
+@media(min-width:640px){.rv-card{width:330px}}
+.rv-card-top{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.rv-stars{color:#f59e0b;font-size:.875rem;letter-spacing:.05em}
+.rv-label{color:#047857;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+.rv-card blockquote{display:-webkit-box;margin:.75rem 0 0;overflow:hidden;color:#475569;font-size:.875rem;line-height:1.5rem;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.rv-card figcaption{display:flex;align-items:center;gap:.6rem;margin-top:auto}
+.rv-card strong{display:block;color:#0f172a;font-size:.875rem}
+.rv-card small{color:#64748b;font-size:.75rem}
+.rv-initial{display:grid;place-items:center;width:2.25rem;height:2.25rem;border-radius:999px;background:var(--gold,#c35a2e);color:#0f172a;font-size:.875rem;font-weight:900}
+.rv-actions{margin-top:1.25rem;text-align:center}
+.rv-add{display:inline-flex;align-items:center;border-radius:.75rem;background:#020617;padding:.625rem 1.25rem;color:#fff;font-size:.875rem;font-weight:900}
+.rv-add:hover{background:#1e293b}
+.rv-dialog-title{margin-top:.5rem;font-size:1.5rem;font-weight:900}
+.eicr-review-modal{position:fixed;z-index:100;inset:0;background:rgba(2,6,23,.72);padding:1rem;overflow:auto}
+.eicr-review-dialog{text-align:left;position:relative;width:min(680px,100%);margin:5vh auto;background:#fff;border-radius:1.5rem;padding:1.5rem}
+.eicr-review-dialog .eicr-form{margin:1rem 0 0;max-width:none;box-shadow:none;padding:0;border:0}
+.eicr-review-close{position:absolute;right:1rem;top:1rem;width:2.25rem;height:2.25rem;border-radius:999px;background:#f1f5f9;font-size:1.5rem;line-height:1}
+.rv-done{margin-top:1rem;text-align:center}
+.rv-done p{border:1px solid #bbf7d0;border-radius:1rem;background:#f0fdf4;padding:1.1rem;color:#166534;font-size:.95rem;line-height:1.7}
+.rv-done button{margin-top:.8rem;border-radius:12px;background:var(--gold,#c35a2e);padding:13px 20px;font-weight:900}
