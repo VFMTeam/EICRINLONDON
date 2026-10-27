@@ -132,7 +132,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
       <aside className="adm-side">
         <a className="adm-brand" href="/" target="_blank" rel="noopener">
           <img src="/images/logo.png" alt="" width={40} height={34} />
-          <span>EICR_LONDON<small>root@admin</small></span>
+          <span>EICR in London<small>root@admin</small></span>
         </a>
         <nav>
           {TABS.map(([id, label, d]) => (
@@ -158,6 +158,19 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab === "overview" && (
           <div className="adm-grid">
+            <section className="adm-term">
+              {[
+                ["blob storage", canSave ? "online" : "offline", canSave],
+                ["payments", s.payments.requestOnly ? "email only" : keys.stripeSecretKey.source ? "stripe live" : "demo", Boolean(keys.stripeSecretKey.source) && !s.payments.requestOnly],
+                ["email", keys.resendApiKey.source ? "connected" : "not set", Boolean(keys.resendApiKey.source)],
+                ["analytics", s.tracking.gaId || "not set", Boolean(s.tracking.gaId)],
+                ["reviews pending", String(pendingReviews), pendingReviews === 0],
+              ].map(([k, v, ok], i) => (
+                <p key={k as string} style={{ "--d": i } as React.CSSProperties}>
+                  <span>root@eicr:~$</span> status {k as string} <b className={ok ? "ok" : "warn"}>[{v as string}]</b>
+                </p>
+              ))}
+            </section>
             {bookings}
             <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
               <small>Multi-service offer</small>
