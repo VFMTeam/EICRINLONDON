@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { emailTeam } from "@/lib/email";
+import { emailInvoice, invoiceNumber, unpackLines } from "@/lib/invoice";
 
 // Stripe calls this after each Checkout payment, and the booking is emailed
 // to the team. Needs STRIPE_WEBHOOK_SECRET (Stripe > Developers > Webhooks,
@@ -53,12 +54,24 @@ export async function POST(request: Request) {
   const rows = [
     ["Paid online", amount],
     ["Email", email || "Not given"],
-    ...Object.entries(meta).filter(([, v]) => v).map(([k, v]) => [label(k), v]),
+    ...Object.entries(meta).filter(([k, v]) => v && k !== "invoice").map(([k, v]) => [label(k), v]),
     ["Stripe payment", session.id],
   ];
   const what = meta.services ?? meta.service ?? "Booking";
   const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
   // Anything but "sent" makes Stripe retry later, so the booking isn't lost.
   if (sent !== "sent") return new Response("Email failed", { status: 500 });
+
+  if (email && session.amount_total != null) {
+    const total = session.amount_total / 100;
+    const lines = unpackLines(meta.invoice ?? "");
+    await emailInvoice(
+      {
+        number: invoiceNumber(session.id), name: meta.name ?? "", email, address: [meta.address, meta.postcode].filter(Boolean).join(", "),
+        date: meta.date ?? "", slot: meta.slot ?? "", lines: lines.length ? lines : [[meta.services ?? "Booking", total]], total, method: "card",
+      },
+      `invoice-${session.id}`,
+    );
+  }
   return new Response("OK", { status: 200 });
 }
