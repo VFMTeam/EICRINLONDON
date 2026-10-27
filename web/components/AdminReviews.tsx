@@ -26,7 +26,7 @@ export default function AdminReviews({ pending, approved }: { pending: Review[];
     <div className="adm-stack">
       <section className="adm-card">
         <h2>Reviews waiting for approval</h2>
-        {pending.length ? pending.map((r) => <Item key={r.id} review={r} actions={[["approve", "Approve"], ["reject", "Reject"]]} />) : <p className="adm-hint">No new reviews.</p>}
+        {pending.length ? pending.map((r) => <Item key={r.id} review={r} actions={[["approve", "Approve"], ["reject", "Reject"]]} />) : <p className="adm-empty">0</p>}
       </section>
       {approved.length > 0 && (
         <section className="adm-card">

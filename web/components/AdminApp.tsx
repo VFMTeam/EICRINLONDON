@@ -56,11 +56,10 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-function Card({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Card({ title, wide, children }: { title: string; wide?: boolean; children: React.ReactNode }) {
   return (
-    <section className="adm-card">
+    <section className={wide ? "adm-card wide" : "adm-card"}>
       <h2>{title}</h2>
-      {hint && <p className="adm-hint">{hint}</p>}
       {children}
     </section>
   );
@@ -98,7 +97,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
       <aside className="adm-side">
         <a className="adm-brand" href="/" target="_blank" rel="noopener">
           <img src="/images/logo.png" alt="" width={40} height={34} />
-          <span>EICR in London<small>Admin</small></span>
+          <span>EICR_LONDON<small>root@admin</small></span>
         </a>
         <nav>
           {TABS.map(([id, label, d]) => (
@@ -117,9 +116,10 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
       <div className="adm-main">
         <header className="adm-top">
-          <h1>{title}</h1>
+          <h1><span>~/admin/</span>{title.toLowerCase().replace(/[^a-z]+/g, "-")}<i aria-hidden="true" /></h1>
+          <span className="adm-live"><b />online</span>
         </header>
-        {!canSave && <p className="adm-alert">Saving is off until a Blob store is connected in Vercel, Storage.</p>}
+        {!canSave && <p className="adm-alert">Blob store offline. Saving disabled.</p>}
 
         {tab === "overview" && (
           <div className="adm-grid">
@@ -140,29 +140,19 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
               <small>EICR from</small>
               <b>£{s.prices["eicr-certificate"]}</b>
             </button>
-            <Card title="What you can change here">
-              <ul className="adm-list">
-                <li><b>Prices</b> for every service, bedroom extras, parking and congestion fees.</li>
-                <li><b>Offers & banner</b>: the multi-service discount and a message bar at the top of every page.</li>
-                <li><b>Website text</b>: headings and text on the home page.</li>
-                <li><b>Contact details</b>: phone, WhatsApp, email, address, Facebook, Instagram and TikTok links, and your Google Analytics ID.</li>
-                <li><b>Reviews</b>: approve or remove customer reviews.</li>
-              </ul>
-              <p className="adm-hint">Press Save after a change. The website updates straight away.</p>
-            </Card>
           </div>
         )}
 
         {tab === "prices" && (
           <div className="adm-stack">
-            <Card title="Service prices" hint="Starting price inc. VAT, used on every page and in booking.">
+            <Card title="Service prices" wide>
               <div className="adm-cols">
                 {services.map((svc) => (
                   <Money key={svc.slug} label={svc.title} value={s.prices[svc.slug]} onChange={(n) => update((d) => void (d.prices[svc.slug] = n))} />
                 ))}
               </div>
             </Card>
-            <Card title="Extra by property size" hint="Added to the starting price for homes.">
+            <Card title="Extra by property size">
               <div className="adm-cols">
                 {(["eicr", "epc", "asbestos"] as const).map((k) => (
                   <div key={k}>
@@ -186,7 +176,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
                 <Money label="Congestion charge" value={s.fees.congestion} onChange={(n) => update((d) => void (d.fees.congestion = n))} />
               </div>
             </Card>
-            <Card title="Commercial properties" hint="Prices are multiplied by the premises type, e.g. 1.2 adds 20%.">
+            <Card title="Commercial properties">
               <div className="adm-cols">
                 <div>
                   {COMMERCIAL_TYPES.map(([id, label]) => (
@@ -213,14 +203,14 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab === "offers" && (
           <div className="adm-stack">
-            <Card title="Multi-service offer" hint="A discount when a customer books more than one service. It shows on the booking form and in the total.">
+            <Card title="Multi-service offer">
               <Toggle label="Offer is on" checked={s.offer.enabled} onChange={(on) => update((d) => void (d.offer.enabled = on))} />
               <div className="adm-cols">
                 <Money label="2 services" unit="% off" step="1" value={s.offer.two} onChange={(n) => update((d) => void (d.offer.two = n))} />
                 <Money label="3 or more services" unit="% off" step="1" value={s.offer.threePlus} onChange={(n) => update((d) => void (d.offer.threePlus = n))} />
               </div>
             </Card>
-            <Card title="Top banner" hint="A short message across the top of every page, e.g. a seasonal offer.">
+            <Card title="Top banner">
               <Toggle label="Show the banner" checked={s.announcement.enabled} onChange={(on) => update((d) => void (d.announcement.enabled = on))} />
               <Words label="Message" value={s.announcement.text} onChange={(t) => update((d) => void (d.announcement.text = t))} />
               <Words label="Opens this page when clicked" value={s.announcement.link} onChange={(t) => update((d) => void (d.announcement.link = t))} />
@@ -243,18 +233,18 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab === "contact" && (
           <div className="adm-stack">
-            <Card title="Contact details" hint="Shown in the header, footer, contact page, buttons and Google business data.">
+            <Card title="Contact details">
               <Words label="Phone" value={s.business.phone} fallback={DEFAULT_SETTINGS.business.phone} onChange={(t) => update((d) => void (d.business.phone = t))} />
               <Words label="WhatsApp number (country code, numbers only)" value={s.business.whatsapp} fallback={DEFAULT_SETTINGS.business.whatsapp} onChange={(t) => update((d) => void (d.business.whatsapp = t))} />
               <Words label="Email" value={s.business.email} fallback={DEFAULT_SETTINGS.business.email} onChange={(t) => update((d) => void (d.business.email = t))} />
               <Words label="Address" value={s.business.address} fallback={DEFAULT_SETTINGS.business.address} onChange={(t) => update((d) => void (d.business.address = t))} />
             </Card>
-            <Card title="Social media" hint="Paste the full link to your page. Its icon appears in the footer and on the contact page. Leave empty to hide it.">
+            <Card title="Social media">
               {SOCIAL.map(([key, label]) => (
                 <Words key={key} label={label} value={s.business[key]} onChange={(t) => update((d) => void (d.business[key] = t))} />
               ))}
             </Card>
-            <Card title="Google Analytics" hint="Paste your Measurement ID from Google Analytics (Admin, Data streams). It starts with G-. Visitors are only counted after they accept analytics cookies.">
+            <Card title="Google Analytics">
               <Words label="Measurement ID" value={s.tracking.gaId} onChange={(t) => update((d) => void (d.tracking.gaId = t))} />
             </Card>
           </div>
@@ -264,8 +254,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab !== "overview" && tab !== "reviews" && (
           <div className={`adm-bar${dirty ? " dirty" : ""}`}>
-            <p className={status?.ok === false ? "bad" : ""} aria-live="polite">{status?.message ?? (dirty ? "You have unsaved changes." : "All changes saved.")}</p>
-            <button type="button" onClick={submit} disabled={saving || !canSave || !dirty}>{saving ? "Saving…" : "Save changes"}</button>
+            <p className={status?.ok === false ? "bad" : ""} aria-live="polite">{status?.message ?? (dirty ? "Unsaved changes" : "Synced")}</p>
+            <button type="button" onClick={submit} disabled={saving || !canSave || !dirty}>{saving ? "Saving…" : "Save"}</button>
           </div>
         )}
       </div>
