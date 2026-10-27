@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isAdmin, logIn, logOut } from "@/lib/admin";
+import { isAdmin, lockedOut, logIn, logOut } from "@/lib/admin";
 import { normaliseSettings, type Settings } from "@/lib/pricing";
 import { approveReview, deleteReview } from "@/lib/reviews";
 import { saveSettings } from "@/lib/settings";
 
 export async function login(_: string, form: FormData) {
+  if (await lockedOut()) return "Too many wrong passwords. Try again in 15 minutes.";
   if (await logIn(String(form.get("password") ?? ""))) redirect("/admin/");
   await new Promise((r) => setTimeout(r, 1000));
   return "Wrong password.";
