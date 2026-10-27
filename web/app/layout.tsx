@@ -16,6 +16,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
+// Changes every deploy, so browsers can cache /css and /js for a year.
+const v = process.env.ASSET_VERSION;
+
 // Settings read by public/js/main.js (menus, scroll animations, forms).
 const clientData = { ajax: "/api/forms/", adsId: tracking.adsId, adsLabel: tracking.adsLabel };
 
@@ -41,13 +44,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en-GB">
       <head>
-        <link rel="stylesheet" href="/css/site-ui.css" />
-        <link rel="stylesheet" href="/css/main.css" />
-        <link rel="stylesheet" href="/css/theme-vars.css" />
-        <link rel="icon" href="/images/logo.png" />
+        <link rel="stylesheet" href={`/css/site-ui.css?v=${v}`} />
+        <link rel="stylesheet" href={`/css/main.css?v=${v}`} />
+        <link rel="stylesheet" href={`/css/theme-vars.css?v=${v}`} />
+        <link rel="icon" href="/images/favicon.png" />
         <script dangerouslySetInnerHTML={{ __html: consentDefaultsScript }} />
         <script dangerouslySetInnerHTML={{ __html: `window.EICR_DATA=${JSON.stringify(clientData)};` }} />
-        <script defer src="/js/main.js" />
+        <script defer src={`/js/main.js?v=${v}`} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusiness(site)) }} />
       </head>
       <body>
