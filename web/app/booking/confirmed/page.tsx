@@ -37,6 +37,8 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
               <div className="bk-main bk-confirmed">
                 {offline?.pay === "cash" ? (
                   <p>Thank you. Please pay the engineer {gbp(offline.quote.total)} in cash on the day. Nothing has been charged online. We will call you to confirm the visit.</p>
+                ) : offline?.pay === "bank" ? (
+                  <p>Thank you. We will email you our bank details to pay {gbp(offline.quote.total)} and call you to confirm the visit.</p>
                 ) : offline ? (
                   <p>We will call you shortly to confirm the appointment and take payment. Nothing has been charged yet.</p>
                 ) : (
@@ -51,7 +53,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
                   <h2>Your booking</h2>
                   <dl>
                     <dt>Service</dt>
-                    <dd>{session.metadata.service} · {session.metadata.option}</dd>
+                    <dd>{session.metadata.services}</dd>
                     <dt>Appointment</dt>
                     <dd>{prettyDate(session.metadata.date)}, {slotLabel(session.metadata.slot)}</dd>
                   </dl>

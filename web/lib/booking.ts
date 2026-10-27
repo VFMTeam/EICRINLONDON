@@ -1,59 +1,76 @@
-import { quote, DEPOSIT, type Quote } from "@/lib/pricing";
+import { quote, DEPOSIT, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind } from "@/lib/pricing";
 import { isBookable } from "@/lib/slots";
 
+export type Pay = "deposit" | "full" | "bank" | "cash";
+
 export type BookingInput = {
-  service: string;
-  option: string;
-  items?: number;
+  kind: PropertyKind;
+  bedrooms: number;
+  floors: number;
+  commercialType: string;
+  services: string[];
   date: string;
   slot: string;
-  propertyType: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
   address: string;
   postcode: string;
-  name: string;
-  phone: string;
-  email: string;
+  parking: string;
+  congestion: boolean;
   notes?: string;
-  pay: "deposit" | "full" | "cash";
+  pay: Pay;
 };
 
-export type Booking = BookingInput & { quote: Quote; payNow: number };
-
-export const PROPERTY_TYPES = ["Flat", "House", "HMO", "Commercial", "Other"];
+export type Booking = BookingInput & { quote: Quote; payNow: number; name: string };
 
 const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i;
+const PAYS: Pay[] = ["deposit", "full", "bank", "cash"];
+
+export const isOffline = (pay: Pay) => pay === "bank" || pay === "cash";
 
 // Returns an error message for the customer, or the checked booking.
 export function checkBooking(raw: unknown): Booking | string {
   const b = (raw ?? {}) as Record<string, unknown>;
   const text = (k: string, max: number) => String(b[k] ?? "").trim().slice(0, max);
+  const num = (k: string, min: number, max: number) => Math.min(Math.max(Math.floor(Number(b[k])) || min, min), max);
+  const kind: PropertyKind = b.kind === "commercial" ? "commercial" : "residential";
   const input: BookingInput = {
-    service: text("service", 80),
-    option: text("option", 40),
-    items: Number(b.items) || 0,
+    kind,
+    bedrooms: num("bedrooms", 0, 6),
+    floors: num("floors", 1, 5),
+    commercialType: COMMERCIAL_TYPES.some(([id]) => id === b.commercialType) ? String(b.commercialType) : "other",
+    services: Array.isArray(b.services) ? b.services.slice(0, 20).map((s) => String(s).slice(0, 80)) : [],
     date: text("date", 10),
     slot: text("slot", 4),
-    propertyType: text("propertyType", 20),
+    firstName: text("firstName", 60),
+    lastName: text("lastName", 60),
+    email: text("email", 254),
+    phone: text("phone", 50),
     address: text("address", 200),
     postcode: text("postcode", 10).toUpperCase(),
-    name: text("name", 100),
-    phone: text("phone", 50),
-    email: text("email", 254),
+    parking: PARKING.some(([id]) => id === b.parking) ? String(b.parking) : "",
+    congestion: b.congestion === true,
     notes: text("notes", 1000),
-    pay: b.pay === "full" || b.pay === "cash" ? b.pay : "deposit",
+    pay: PAYS.includes(b.pay as Pay) ? (b.pay as Pay) : "deposit",
   };
-  const q = quote(input.service, input.option, input.items);
-  if (!q) return "Please choose a service and property size.";
-  if (!isBookable(input.date, input.slot)) return "Please choose a date and time for the visit.";
-  if (!PROPERTY_TYPES.includes(input.propertyType)) return "Please choose the property type.";
+  const q = quote(input.services, input, input.parking, input.congestion);
+  if (!q) return "Please select at least one service.";
+  if (!isBookable(input.date, input.slot)) return "Please choose a date and arrival window.";
+  if (!input.firstName || !input.lastName || !input.phone) return "Please enter your name and phone number.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) return "Please enter a valid email.";
   if (!input.address || !UK_POSTCODE.test(input.postcode)) return "Please enter the property address and a valid UK postcode.";
-  if (!input.name || !input.phone) return "Please enter your name and phone number.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) return "Please enter a valid email for your receipt.";
-  const payNow = input.pay === "cash" ? 0 : input.pay === "full" ? q.total : Math.min(DEPOSIT, q.total);
-  return { ...input, items: q.items, quote: q, payNow };
+  if (!input.parking) return "Please tell us about parking at the address.";
+  const payNow = isOffline(input.pay) ? 0 : input.pay === "full" ? q.total : Math.min(DEPOSIT, q.total);
+  return { ...input, services: q.lines.map((l) => l.slug), quote: q, payNow, name: `${input.firstName} ${input.lastName}` };
 }
 
-export const encodeBooking = (b: BookingInput) => Buffer.from(JSON.stringify(b)).toString("base64url");
+export const encodeBooking = (b: BookingInput) => {
+  const { kind, bedrooms, floors, commercialType, services, date, slot, firstName, lastName, email, phone, address, postcode, parking, congestion, notes, pay } = b;
+  const input: BookingInput = { kind, bedrooms, floors, commercialType, services, date, slot, firstName, lastName, email, phone, address, postcode, parking, congestion, notes, pay };
+  return Buffer.from(JSON.stringify(input)).toString("base64url");
+};
 export function decodeBooking(s: string | undefined) {
   if (!s) return null;
   try {

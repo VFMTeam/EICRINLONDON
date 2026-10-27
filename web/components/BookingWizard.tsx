@@ -1,200 +1,272 @@
 "use client";
 
 import { useState } from "react";
-import { pricedServices, quote, gbp, DEPOSIT } from "@/lib/pricing";
-import { SLOTS, prettyDate } from "@/lib/slots";
-import { PROPERTY_TYPES, type PaymentMode } from "@/lib/booking";
+import { BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, DEPOSIT, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
+import { SLOTS } from "@/lib/slots";
+import type { Pay, PaymentMode } from "@/lib/booking";
 
-type Pay = "deposit" | "full" | "cash";
+const icons = {
+  bank: <path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 18h18M12 3l9 5H3l9-5Z" />,
+  card: <><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="M3 10h18M7 15h3" /></>,
+  cash: <><rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M7 9H6v1m11-1h1v1M7 15H6v-1m11 1h1v-1" /></>,
+};
+const methodLabel = { bank: "Bank Transfer", card: "Debit/Credit Card", cash: "Cash to Engineer" };
 
-// initialService is a slug, optionally with an option: "gas-safety:with-boiler-service".
 export default function BookingWizard({ minDate, maxDate, initialService, mode }: { minDate: string; maxDate: string; initialService?: string; mode: PaymentMode }) {
-  const [startSlug, startOption] = (initialService ?? "").split(":");
-  const start = pricedServices.find((s) => s.slug === startSlug) ?? pricedServices[0];
-  const [step, setStep] = useState(1);
-  const [service, setService] = useState(start.slug);
-  const [option, setOption] = useState(start.options.find((o) => o.id === startOption)?.id ?? start.options[0].id);
-  const [items, setItems] = useState(start.extra?.included ?? 0);
+  const [part, setPart] = useState(1);
+  const [kind, setKind] = useState<PropertyKind>(initialService === "commercial-eicr" ? "commercial" : "residential");
+  const [bedrooms, setBedrooms] = useState(0);
+  const [floors, setFloors] = useState(1);
+  const [commercialType, setCommercialType] = useState("pub-restaurant");
+  const [picked, setPicked] = useState<Record<PropertyKind, string[]>>(() => {
+    const has = (k: PropertyKind) => BOOKING_SERVICES[k].some(([slug]) => slug === initialService);
+    return {
+      residential: [has("residential") ? initialService! : "eicr-certificate"],
+      commercial: [has("commercial") ? initialService! : "commercial-eicr"],
+    };
+  });
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState<string>(SLOTS[0].id);
-  const [form, setForm] = useState({ propertyType: "", address: "", postcode: "", name: "", phone: "", email: "", notes: "" });
-  const [pay, setPay] = useState<Pay>(mode === "request" ? "cash" : "deposit");
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", address: "", postcode: "", notes: "" });
+  const [parking, setParking] = useState("");
+  const [congestion, setCongestion] = useState<boolean | null>(null);
+  const [method, setMethod] = useState<"bank" | "card" | "cash" | "">("");
+  const [cardPay, setCardPay] = useState<"deposit" | "full">("deposit");
+  const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  const svc = pricedServices.find((s) => s.slug === service)!;
-  const q = quote(service, option, items);
+  const property = { kind, bedrooms, floors, commercialType };
+  const services = picked[kind];
+  const q = quote(services, property, parking, congestion === true);
   const total = q?.total ?? 0;
-  const deposit = Math.min(DEPOSIT, total);
-  const payNow = pay === "cash" ? 0 : pay === "full" ? total : deposit;
-  const payOptions: { id: Pay; title: string; text: string; amount: number }[] = [
-    { id: "deposit", title: "Deposit now", text: `Rest (${gbp(total - deposit)}) on the day, cash or payment link`, amount: deposit },
-    { id: "full", title: "Pay in full now", text: "Card, Apple Pay or Google Pay", amount: total },
-    { id: "cash", title: "Cash on the day", text: "Pay the engineer at the visit", amount: total },
-  ];
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-    setForm({ ...form, [k]: e.target.value });
+  const pay: Pay = method === "card" ? cardPay : method || "cash";
+  const payNow = method === "card" ? (cardPay === "full" ? total : Math.min(DEPOSIT, total)) : 0;
+  const methods = (["bank", "card", "cash"] as const).filter((m) => mode !== "request" || m !== "card");
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
 
-  function chooseService(slug: string) {
-    const s = pricedServices.find((x) => x.slug === slug)!;
-    setService(slug);
-    setOption(s.options[0].id);
-    setItems(s.extra?.included ?? 0);
-  }
-
-  function next(e: React.FormEvent) {
-    e.preventDefault();
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  function toggle(slug: string) {
+    setPicked({ ...picked, [kind]: services.includes(slug) ? services.filter((s) => s !== slug) : [...services, slug] });
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    if (part === 1) {
+      if (!services.length) return setMessage("Select at least one service.");
+      setMessage("");
+      setPart(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    setMessage("");
     setSending(true);
     try {
       const res = await fetch("/api/checkout/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ service, option, items, date, slot, pay, ...form }),
+        body: JSON.stringify({ ...property, services, date, slot, parking, congestion: congestion === true, pay, ...form }),
       });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
         return;
       }
-      setError(data.error ?? "Please try again.");
+      setMessage(data.error ?? "Please try again.");
     } catch {
-      setError("Connection problem. Please try again.");
+      setMessage("Connection problem. Please try again.");
     }
     setSending(false);
   }
 
-  const summary = (
-    <section className="bk-summary" aria-label="Booking summary">
-      <h2>Your booking</h2>
-      <dl>
-        <dt>Service</dt>
-        <dd>{svc.title}</dd>
-        <dt>Property</dt>
-        <dd>{q?.option.label}{svc.extra ? `, ${q?.items} items` : ""}</dd>
-        {date && (<><dt>Visit</dt><dd>{prettyDate(date)}, {SLOTS.find((s) => s.id === slot)?.label.toLowerCase()}</dd></>)}
-      </dl>
-      <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(total)}</b></p>
-      {step === 2 && (
-        <p className="bk-paynow">
-          <span>{pay === "cash" ? "Pay on the day" : "Pay now"}</span>
-          <b>{gbp(pay === "cash" ? total : payNow)}</b>
-        </p>
-      )}
-    </section>
-  );
-
   return (
-    <div className="bk">
-      <ol className="bk-steps" aria-label="Booking steps">
-        {["Service & date", "Your details"].map((label, i) => (
-          <li key={label} className={step === i + 1 ? "is-current" : step > i + 1 ? "is-done" : ""}>
-            <b>{i + 1}</b> {label}
-          </li>
-        ))}
-      </ol>
-
-      <div className="bk-main">
-        {step === 1 && (
-          <form onSubmit={next}>
-            <label className="bk-field">
-              Service
-              <select value={service} onChange={(e) => chooseService(e.target.value)}>
-                {pricedServices.map((s) => (
-                  <option key={s.slug} value={s.slug}>{s.title}</option>
-                ))}
-              </select>
-            </label>
-            <fieldset className="bk-options">
-              <legend>Property size</legend>
-              {svc.options.map((o) => (
-                <label key={o.id} className={option === o.id ? "is-selected" : ""}>
-                  <input type="radio" name="option" value={o.id} checked={option === o.id} onChange={() => setOption(o.id)} />
-                  <span>{o.label}</span>
-                  <b>{gbp(o.price)}</b>
-                </label>
-              ))}
-            </fieldset>
-            {svc.extra && (
-              <label className="bk-field">
-                {svc.extra.label} ({gbp(svc.extra.each)} each after {svc.extra.included})
-                <input type="number" min={svc.extra.included} max={500} value={items || svc.extra.included} onChange={(e) => setItems(Number(e.target.value))} />
-              </label>
-            )}
-            <div className="bk-grid">
-              <label className="bk-field">
-                Preferred date
-                <input type="date" required min={minDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)} />
-              </label>
-              <label className="bk-field">
-                Time
-                <select value={slot} onChange={(e) => setSlot(e.target.value)}>
-                  {SLOTS.map((s) => (
-                    <option key={s.id} value={s.id}>{s.label} ({s.time})</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <p className="bk-note">
-              Other services? <a href="/request-a-quote/">Request a quote</a>.
+    <div className="booking-compact bg-gradient-to-b from-amber-50 via-mist to-white px-3 py-6 sm:px-4">
+      <form onSubmit={submit} className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-line bg-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.35)]">
+        <header className="relative overflow-hidden bg-ink p-5 text-white sm:p-6">
+          <div className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-gold/10"></div>
+          <div className="relative">
+            <p className="text-xs font-black uppercase tracking-[.2em] text-gold">London inspection request</p>
+            <h1 className="mt-1 text-2xl font-black sm:text-3xl">{part === 1 ? "Build your property booking" : "Your details and payment"}</h1>
+            <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-300 sm:text-sm">
+              {part === 1 ? "Tell us about the property, tick every check you need and choose a visit window." : "Tell us who to contact and where the work is, then choose how to pay."}
             </p>
-            {summary}
-            <div className="bk-nav bk-nav-end">
-              <button type="submit" className="bk-next">Continue</button>
-            </div>
-          </form>
-        )}
-
-        {step === 2 && (
-          <form onSubmit={submit}>
-            <div className="bk-grid">
-              <label className="bk-field">Full name *<input required autoComplete="name" value={form.name} onChange={set("name")} /></label>
-              <label className="bk-field">Phone *<input required type="tel" autoComplete="tel" value={form.phone} onChange={set("phone")} /></label>
-              <label className="bk-field">Email *<input required type="email" autoComplete="email" value={form.email} onChange={set("email")} /></label>
-              <label className="bk-field">
-                Property type *
-                <select required value={form.propertyType} onChange={set("propertyType")}>
-                  <option value="">Select</option>
-                  {PROPERTY_TYPES.map((t) => <option key={t}>{t}</option>)}
-                </select>
-              </label>
-              <label className="bk-field">Address *<input required autoComplete="street-address" value={form.address} onChange={set("address")} /></label>
-              <label className="bk-field">Postcode *<input required autoComplete="postal-code" value={form.postcode} onChange={set("postcode")} /></label>
-            </div>
-            <label className="bk-field">Notes (access, parking, other services)<textarea rows={2} value={form.notes} onChange={set("notes")} /></label>
-
-            <fieldset className="bk-paycards">
-              <legend>Payment</legend>
-              {payOptions.filter((o) => mode !== "request" || o.id === "cash").map((o) => (
-                <label key={o.id} className={pay === o.id ? "is-selected" : ""}>
-                  <input type="radio" name="pay" value={o.id} checked={pay === o.id} onChange={() => setPay(o.id)} />
-                  <span className="bk-paytext">
-                    <b>{o.title}</b>
-                    <small>{o.text}</small>
-                  </span>
-                  <span className="bk-payamount">{gbp(o.amount)}</span>
+          </div>
+        </header>
+        <div className="p-4 sm:p-5">
+          {part === 1 && (
+            <div data-part="1">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <label>
+                  <span className="label">Booking for</span>
+                  <select className="field" value={kind} onChange={(e) => setKind(e.target.value as PropertyKind)}>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                  </select>
                 </label>
-              ))}
-            </fieldset>
-
-            {summary}
-            {error && <p className="bk-error" role="alert">{error}</p>}
-            <div className="bk-nav">
-              <button type="button" className="bk-back" onClick={() => setStep(1)}>Back</button>
-              <button type="submit" className="bk-next" disabled={sending}>
-                {sending ? "Please wait…" : pay === "cash" ? "Confirm booking" : `Pay ${gbp(payNow)}`}
-              </button>
+                {kind === "residential" ? (
+                  <>
+                    <label>
+                      <span className="label">Bedroom count</span>
+                      <select className="field" value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))}>
+                        <option value={0}>Studio Flat</option>
+                        {[1, 2, 3, 4, 5, 6].map((i) => <option key={i} value={i}>{i} Bedroom{i > 1 ? "s" : ""}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="label">Number of storeys</span>
+                      <select className="field" value={floors} onChange={(e) => setFloors(Number(e.target.value))}>
+                        {[1, 2, 3, 4, 5].map((i) => <option key={i} value={i}>{i}</option>)}
+                      </select>
+                    </label>
+                  </>
+                ) : (
+                  <label>
+                    <span className="label">Commercial premises category</span>
+                    <select className="field" value={commercialType} onChange={(e) => setCommercialType(e.target.value)}>
+                      {COMMERCIAL_TYPES.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                    </select>
+                  </label>
+                )}
+              </div>
+              <section data-service-set={kind} className="mt-5">
+                <p className="text-sm font-bold text-muted">Available checks for this {kind} property</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {BOOKING_SERVICES[kind].map(([slug, label]) => (
+                    <label key={slug} className="service-option flex cursor-pointer gap-2 rounded-xl border border-line bg-white p-2.5">
+                      <input type="checkbox" checked={services.includes(slug)} onChange={() => toggle(slug)} />
+                      <span className="min-w-0">
+                        <b className="block text-xs leading-4 sm:text-sm sm:leading-5">{label}</b>
+                        <small className="text-xs font-semibold">From {gbp(servicePrice(slug, property) ?? 0)}</small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+              <p className="booking-multi-note"><b>Need more than one check?</b> Tick them all and we will do them in one visit.</p>
+              <section className="mt-5 rounded-2xl border border-line bg-white p-4">
+                <h2 className="text-lg font-black">Preferred visit</h2>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label>
+                    <span className="label">Preferred date</span>
+                    <input className="field" type="date" min={minDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)} required />
+                  </label>
+                  <label>
+                    <span className="label">Arrival window</span>
+                    <select className="field" value={slot} onChange={(e) => setSlot(e.target.value)}>
+                      {SLOTS.map((s) => <option key={s.id} value={s.id}>{s.time}</option>)}
+                    </select>
+                  </label>
+                </div>
+              </section>
             </div>
-            {mode === "demo" && pay !== "cash" && <p className="bk-note">Demo mode: no real payment is taken.</p>}
-          </form>
-        )}
-      </div>
+          )}
+
+          {part === 2 && (
+            <div data-part="2" className="grid gap-4">
+              <section className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+                <h2 className="text-lg font-black">Who should we contact?</h2>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <label><span className="label">First Name</span><input className="field" value={form.firstName} onChange={set("firstName")} autoComplete="given-name" required /></label>
+                  <label><span className="label">Last Name</span><input className="field" value={form.lastName} onChange={set("lastName")} autoComplete="family-name" required /></label>
+                  <label><span className="label">Email</span><input className="field" type="email" value={form.email} onChange={set("email")} autoComplete="email" required /></label>
+                  <label><span className="label">Phone</span><input className="field" type="tel" value={form.phone} onChange={set("phone")} autoComplete="tel" required /></label>
+                </div>
+              </section>
+              <section className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+                <h2 className="text-lg font-black">Where is the work required?</h2>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <label><span className="label">Street Address</span><input className="field" value={form.address} onChange={set("address")} autoComplete="street-address" required /></label>
+                  <label><span className="label">Post Code</span><input className="field" value={form.postcode} onChange={set("postcode")} autoComplete="postal-code" required /></label>
+                  <fieldset>
+                    <legend className="label">Parking at the address</legend>
+                    <div className="grid gap-2">
+                      {PARKING.map(([id, label, fee]) => (
+                        <label key={id} className="booking-radio">
+                          <input type="radio" name="parking" checked={parking === id} onChange={() => setParking(id)} required />
+                          <span>{label}{fee ? ` – add ${gbp(fee)}` : ""}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <small>The £5.00 allowance covers paid parking where free parking is not available.</small>
+                  </fieldset>
+                  <fieldset>
+                    <legend className="label">London congestion charge</legend>
+                    <div className="grid gap-2">
+                      <label className="booking-radio"><input type="radio" name="congestion" checked={congestion === false} onChange={() => setCongestion(false)} required /><span>No</span></label>
+                      <label className="booking-radio"><input type="radio" name="congestion" checked={congestion === true} onChange={() => setCongestion(true)} /><span>Yes – {gbp(CONGESTION_FEE)}</span></label>
+                    </div>
+                  </fieldset>
+                </div>
+              </section>
+              <section className="grid overflow-hidden rounded-2xl border border-line bg-white lg:grid-cols-[1.35fr_.65fr]">
+                <div className="p-4 text-slate-900 sm:p-5">
+                  <h2 className="font-black text-slate-950">Your requested work</h2>
+                  <div className="mt-3 grid gap-2">
+                    {q?.lines.map((l) => <div key={l.slug} className="flex justify-between border-b pb-2"><span>{l.title}</span><b>{gbp(l.price)}</b></div>)}
+                    {q && q.parking > 0 && <div className="flex justify-between border-b pb-2"><span>Parking</span><b>{gbp(q.parking)}</b></div>}
+                    {q && q.congestion > 0 && <div className="flex justify-between border-b pb-2"><span>Congestion zone</span><b>{gbp(q.congestion)}</b></div>}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-slate-300 pt-3 text-lg">
+                    <b>Total</b>
+                    <b className="text-amber-600">{gbp(total)}</b>
+                  </div>
+                </div>
+                <div className="border-t border-line bg-white p-4 sm:p-5 lg:border-l lg:border-t-0">
+                  <label><span className="label">Notes For Engineer</span><textarea className="field" rows={5} value={form.notes} onChange={set("notes")} /></label>
+                </div>
+              </section>
+              <section className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+                <h2 className="text-lg font-black">How would you like to pay?</h2>
+                <div className="mt-3 grid gap-2 md:grid-cols-3">
+                  {methods.map((m) => (
+                    <label key={m} className="booking-radio payment-choice">
+                      <input type="radio" name="payment_method" checked={method === m} onChange={() => setMethod(m)} required />
+                      <span className="payment-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{icons[m]}</svg></span>
+                      <b>{methodLabel[m]}</b>
+                    </label>
+                  ))}
+                </div>
+                {method === "card" && (
+                  <div className="stripe-card-panel">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <label className="booking-radio">
+                        <input type="radio" name="card_pay" checked={cardPay === "deposit"} onChange={() => setCardPay("deposit")} />
+                        <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now, the rest on the day</span>
+                      </label>
+                      <label className="booking-radio">
+                        <input type="radio" name="card_pay" checked={cardPay === "full"} onChange={() => setCardPay("full")} />
+                        <span>Pay the full {gbp(total)} now</span>
+                      </label>
+                    </div>
+                    {mode === "demo" && <p className="stripe-setup-note mt-3">Demo mode: no real payment is taken.</p>}
+                  </div>
+                )}
+                {method === "bank" && <p className="stripe-setup-note mt-3">We will email you our bank details to pay {gbp(total)}.</p>}
+                {method === "cash" && <p className="stripe-setup-note mt-3">Pay the engineer {gbp(total)} in cash on the day.</p>}
+              </section>
+              <label className="booking-terms-consent">
+                <input type="checkbox" required />
+                <span>I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+              </label>
+            </div>
+          )}
+
+          <p className="mt-4 font-bold" aria-live="polite">{message}</p>
+          <div className="booking-form-actions mt-5 flex items-center justify-between gap-4 border-t border-line pt-6">
+            {part === 1 ? (
+              <>
+                <span className="text-xs font-semibold text-muted">{services.length} selected · {gbp(total)}</span>
+                <button type="submit" className="rounded-xl bg-gold px-5 py-2.5 text-sm font-black">Continue</button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={() => setPart(1)} className="rounded-xl border border-line px-5 py-2.5 text-sm font-black">Back</button>
+                <button type="submit" disabled={sending} className="rounded-xl bg-ink px-5 py-2.5 text-sm font-black text-white">
+                  {sending ? "Please wait…" : method === "card" ? `Pay ${gbp(payNow)}` : "Submit"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
