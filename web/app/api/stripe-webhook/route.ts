@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { recordBooking } from "@/lib/bookings";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, unpackLines } from "@/lib/invoice";
 
@@ -61,6 +62,13 @@ export async function POST(request: Request) {
   const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
   // Anything but "sent" makes Stripe retry later, so the booking isn't lost.
   if (sent !== "sent") return new Response("Email failed", { status: 500 });
+  await recordBooking(
+    {
+      visit: meta.date ?? "", services: what.split(" + "), total: (session.amount_total ?? 0) / 100,
+      method: "card", name: meta.name ?? email, postcode: meta.postcode ?? "",
+    },
+    session.id,
+  );
 
   if (email && session.amount_total != null) {
     const total = session.amount_total / 100;
