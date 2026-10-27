@@ -30,8 +30,8 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
   {
     title: "Experience",
     fields: [
-      ["experienceTitle", "Heading", "10+ years of London property safety work"],
-      ["experienceText", "Text", "We have worked on London homes, rentals and business premises for over ten years. We know the boroughs, the parking, and what letting agents and councils expect to see on a certificate."],
+      ["experienceTitle", "Heading", "London property safety, borough by borough"],
+      ["experienceText", "Text", "We work on London homes, rentals and business premises every day. We know the boroughs, the parking, and what letting agents and councils expect to see on a certificate."],
     ],
   },
   {
