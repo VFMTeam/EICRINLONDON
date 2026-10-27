@@ -66,7 +66,7 @@ function Card({ title, hint, children }: { title: string; hint?: string; childre
   );
 }
 
-export default function AdminApp({ initial, canSave, pendingReviews, reviews }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode }) {
+export default function AdminApp({ initial, canSave, pendingReviews, reviews, bookings }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode; bookings: React.ReactNode }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [s, setS] = useState(initial);
   const [saved, setSaved] = useState(initial);
@@ -123,6 +123,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews }: 
 
         {tab === "overview" && (
           <div className="adm-grid">
+            {bookings}
             <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
               <small>Multi-service offer</small>
               <b className={s.offer.enabled ? "good" : ""}>{s.offer.enabled ? `On · ${s.offer.two}% / ${s.offer.threePlus}%` : "Off"}</b>

@@ -68,13 +68,13 @@ body {
   left: 20px;
   bottom: 20px;
   z-index: 60;
-  width: min(440px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 32px));
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   border: 1px solid var(--eicr-border, #e4ddd6);
-  border-top: 5px solid var(--eicr-accent, #c35a2e);
-  border-radius: 20px;
-  padding: 22px;
+  border-top: 4px solid var(--eicr-accent, #c35a2e);
+  border-radius: 16px;
+  padding: 16px 18px;
   background: #fff;
   color: var(--eicr-body, #202020);
   box-shadow: 0 30px 80px -30px rgba(18, 24, 38, 0.55);
@@ -94,31 +94,16 @@ body {
     animation: none;
   }
 }
-.eicr-cookie-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.eicr-cookie-icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--eicr-accent-soft, #fff0e8);
-  color: var(--eicr-accent, #c35a2e);
-}
 .eicr-cookie h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--eicr-heading, #000);
 }
 .eicr-cookie p {
-  margin: 12px 0 0;
-  font-size: 14px;
-  line-height: 1.6;
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
 }
 .eicr-cookie p a {
   font-weight: 800;
@@ -161,17 +146,17 @@ body {
 .eicr-cookie-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 12px;
 }
 .eicr-cookie-btn {
   border: 1px solid var(--eicr-dark, #121826);
-  border-radius: 12px;
-  padding: 11px 14px;
+  border-radius: 10px;
+  padding: 8px 12px;
   background: #fff;
   color: var(--eicr-dark, #121826);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s, background 0.2s;

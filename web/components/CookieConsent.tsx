@@ -81,7 +81,7 @@ export default function CookieConsent({ gaId, adsId }: { gaId: string; adsId: st
     if (saved) {
       setChoice(saved);
       applyChoice(saved, gaId, adsId);
-    } else {
+    } else if (gaId || adsId) {
       setOpen(true);
     }
     const onClick = (e: MouseEvent) => {
@@ -112,18 +112,9 @@ export default function CookieConsent({ gaId, adsId }: { gaId: string; adsId: st
 
   return (
     <div className="eicr-cookie" role="dialog" aria-labelledby="eicr-cookie-title" aria-describedby="eicr-cookie-text" tabIndex={-1} ref={panel}>
-      <div className="eicr-cookie-head">
-        <span className="eicr-cookie-icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
-            <path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01" />
-          </svg>
-        </span>
-        <h2 id="eicr-cookie-title">Your cookie choices</h2>
-      </div>
+      <h2 id="eicr-cookie-title">Cookies</h2>
       <p id="eicr-cookie-text">
-        We use essential cookies to run this website. With your permission, we also use Google Analytics to understand visits and Google Ads cookies to
-        measure our adverts. Nothing optional is used unless you agree. Read our <a href="/cookies/">cookie policy</a>.
+        We use essential cookies to run this site. With your OK, we also use Google cookies to see how the site is used. <a href="/cookies/">Cookie policy</a>
       </p>
 
       {details && (
@@ -142,13 +133,15 @@ export default function CookieConsent({ gaId, adsId }: { gaId: string; adsId: st
             </span>
             <input type="checkbox" checked={choice.analytics} onChange={(e) => setChoice({ ...choice, analytics: e.target.checked })} />
           </label>
-          <label className="eicr-cookie-option">
-            <span>
-              <b>Advertising</b>
-              <small>Google Ads: measures which adverts lead to enquiries and bookings.</small>
-            </span>
-            <input type="checkbox" checked={choice.ads} onChange={(e) => setChoice({ ...choice, ads: e.target.checked })} />
-          </label>
+          {adsId && (
+            <label className="eicr-cookie-option">
+              <span>
+                <b>Advertising</b>
+                <small>Google Ads: measures which adverts lead to enquiries and bookings.</small>
+              </span>
+              <input type="checkbox" checked={choice.ads} onChange={(e) => setChoice({ ...choice, ads: e.target.checked })} />
+            </label>
+          )}
         </div>
       )}
 

@@ -212,6 +212,20 @@ body:has(.adm-page) .eicr-cookie {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 2rem;
 }
+.adm-grid .adm-half {
+  grid-column: span 2;
+}
+.adm-table small {
+  display: block;
+  color: var(--adm-muted);
+  margin-top: 0.1rem;
+}
+.adm-cta {
+  margin-top: 0.9rem;
+}
+.adm-cta .adm-btn {
+  display: inline-block;
+}
 .adm-list {
   display: grid;
   gap: 0.4rem;
@@ -476,6 +490,9 @@ body:has(.adm-page) .eicr-cookie {
   }
   .adm-cols {
     grid-template-columns: 1fr;
+  }
+  .adm-grid .adm-half {
+    grid-column: 1 / -1;
   }
   .adm-bar {
     left: 0.75rem;

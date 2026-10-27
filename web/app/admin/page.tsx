@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import AdminApp from "@/components/AdminApp";
+import AdminBookings from "@/components/AdminBookings";
 import AdminLogin from "@/components/AdminLogin";
 import AdminReviews from "@/components/AdminReviews";
 import { adminConfigured, isAdmin } from "@/lib/admin";
+import { listBookings } from "@/lib/bookings";
 import { listReviews } from "@/lib/reviews";
 import { getSettings, storageReady } from "@/lib/settings";
 import "./admin.css";
@@ -29,10 +31,18 @@ export default async function AdminPage() {
       </main>
     );
   }
-  const [pending, approved] = await Promise.all([listReviews("pending").catch(() => []), listReviews("approved").catch(() => [])]);
+  const [pending, approved, bookings, settings] = await Promise.all([
+    listReviews("pending").catch(() => []),
+    listReviews("approved").catch(() => []),
+    listBookings().catch(() => []),
+    getSettings(),
+  ]);
   return (
     <main id="main-content" className="adm-page">
-      <AdminApp initial={await getSettings()} canSave={storageReady()} pendingReviews={pending.length} reviews={<AdminReviews pending={pending} approved={approved} />} />
+      <AdminApp
+        initial={settings}
+        bookings={<AdminBookings bookings={bookings} gaId={settings.tracking.gaId} />}
+        canSave={storageReady()} pendingReviews={pending.length} reviews={<AdminReviews pending={pending} approved={approved} />} />
     </main>
   );
 }
