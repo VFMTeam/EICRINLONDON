@@ -1,5 +1,5 @@
 :root{
- --eicr-accent:#c35a2e;
+ --eicr-accent:#b4532a;
  --eicr-accent-hover:#9a3f20;
  --eicr-accent-soft:#fff0e8;
  --eicr-heading:#000000;
@@ -12,7 +12,7 @@
  --eicr-on-accent:#ffffff;
  --eicr-success:#1f8a5b;
  --eicr-error:#dc2626;
- --gold:#c35a2e;
+ --gold:#b4532a;
  --ink:#000000;
  --muted:#202020;
  --mist:#f7f4f1;
@@ -23,15 +23,15 @@ body,.service-detail-page{background:var(--eicr-page);color:var(--eicr-body)}
 .text-ink,.text-black,.text-slate-900,.text-slate-950{color:var(--eicr-heading)!important}
 .text-muted,.text-slate-600,.text-slate-700,.text-slate-800{color:var(--eicr-body)!important}
 .bg-gold{background-color:var(--eicr-accent)!important;color:var(--eicr-on-accent)!important}
-.bg-gold\/10{background-color:rgba(195,90,46,0.1)!important}
+.bg-gold\/10{background-color:rgba(180,83,42,0.1)!important}
 .bg-amber-50{background-color:var(--eicr-accent-soft)!important}
 .bg-mist,.bg-slate-50,.bg-slate-50\/70{background-color:var(--eicr-soft)!important}
 .bg-ink,.bg-slate-900,.bg-slate-950,.service-detail-hero,footer{background-color:var(--eicr-dark)!important}
 .bg-white,.card,.eicr-form,.core-copy,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{background-color:var(--eicr-page)!important}
 .border-gold,.border-amber-400{border-color:var(--eicr-accent)!important}
-.border-gold\/40{border-color:rgba(195,90,46,0.4)!important}
-.ring-gold\/20{--tw-ring-color:rgba(195,90,46,0.2)!important}
-.shadow-gold{--tw-shadow-color:rgba(195,90,46,0.4)!important}
+.border-gold\/40{border-color:rgba(180,83,42,0.4)!important}
+.ring-gold\/20{--tw-ring-color:rgba(180,83,42,0.2)!important}
+.shadow-gold{--tw-shadow-color:rgba(180,83,42,0.4)!important}
 .from-amber-50{--tw-gradient-from:var(--eicr-accent-soft) var(--tw-gradient-from-position)!important;--tw-gradient-to:transparent var(--tw-gradient-to-position)!important}
 .via-mist{--tw-gradient-stops:var(--tw-gradient-from),var(--eicr-soft) var(--tw-gradient-via-position),var(--tw-gradient-to)!important}
 .to-white{--tw-gradient-to:var(--eicr-page) var(--tw-gradient-to-position)!important}
@@ -39,14 +39,14 @@ body,.service-detail-page{background:var(--eicr-page);color:var(--eicr-body)}
 .hover\:bg-amber-50:hover,.hover\:bg-mist:hover{background-color:var(--eicr-accent-soft)!important}
 .hover\:border-amber-300:hover,.hover\:border-gold:hover{border-color:var(--eicr-accent)!important}
 .hover\:text-amber-600:hover,.hover\:text-amber-700:hover,.hover\:text-amber-800:hover,.hover\:text-gold:hover{color:var(--eicr-accent-hover)!important}
-:focus-visible{outline-color:rgba(195,90,46,0.4)!important}
+:focus-visible{outline-color:rgba(180,83,42,0.4)!important}
 .site-header,.site-header a,.eicr-mobile-nav>a,.eicr-mobile-group-toggle{color:var(--eicr-heading)}
 .eicr-mobile-group-toggle:hover,.eicr-mobile-nav>a:hover,.eicr-mobile-submenu a:hover{background:var(--eicr-accent-soft)!important;color:var(--eicr-accent-hover)!important}
 .eicr-mobile-submenu{border-left-color:var(--eicr-accent)!important}
 .booking-type-card:hover,.booking-radio:hover,.booking-compact .service-option:hover{border-color:var(--eicr-accent)!important;background:var(--eicr-accent-soft)!important}
 .booking-type-card:has(input:checked),.booking-radio:has(input:checked),.service-option:has(input:checked){border-color:var(--eicr-accent)!important;background:var(--eicr-accent-soft)!important;box-shadow:inset 0 0 0 1px var(--eicr-accent)!important}
 .payment-icon{background:var(--eicr-accent-soft)!important;color:var(--eicr-accent-hover)!important}
-.stripe-card-panel{border-color:rgba(195,90,46,0.2)!important;background:var(--eicr-soft)!important}
+.stripe-card-panel{border-color:rgba(180,83,42,0.2)!important;background:var(--eicr-soft)!important}
 .stripe-card-panel [data-stripe-element-wrap],.stripe-card-panel #eicr-card-number,.stripe-card-panel #eicr-card-expiry,.stripe-card-panel #eicr-card-cvc{background:#fff!important}
 .stripe-setup-note,.booking-success-card .booking-success-call,.booking-multi-note{background:var(--eicr-accent-soft)!important;color:var(--eicr-heading)!important;border-color:var(--eicr-accent)!important}
 .service-detail-book,.service-detail-included>a,.service-detail-cta,.core-book,.core-cta{background:var(--eicr-accent)!important;color:var(--eicr-on-accent)!important}

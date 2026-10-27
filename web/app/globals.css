@@ -55,7 +55,7 @@ body {
   border-radius: 12px;
   padding: 12px 20px;
   font-weight: 800;
-  background: var(--eicr-accent, #c35a2e);
+  background: var(--eicr-accent, #b4532a);
   color: #fff;
 }
 .notice-page .notice-actions a.secondary {
@@ -72,7 +72,7 @@ body {
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   border: 1px solid var(--eicr-border, #e4ddd6);
-  border-top: 4px solid var(--eicr-accent, #c35a2e);
+  border-top: 4px solid var(--eicr-accent, #b4532a);
   border-radius: 16px;
   padding: 16px 18px;
   background: #fff;
@@ -107,7 +107,7 @@ body {
 }
 .eicr-cookie p a {
   font-weight: 800;
-  color: var(--eicr-accent, #c35a2e);
+  color: var(--eicr-accent, #b4532a);
   text-decoration: underline;
 }
 .eicr-cookie-options {
@@ -141,7 +141,7 @@ body {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  accent-color: var(--eicr-accent, #c35a2e);
+  accent-color: var(--eicr-accent, #b4532a);
 }
 .eicr-cookie-actions {
   display: grid;
@@ -165,7 +165,7 @@ body {
   transform: translateY(-1px);
 }
 .eicr-cookie-btn:focus-visible {
-  outline: 3px solid var(--eicr-accent, #c35a2e);
+  outline: 3px solid var(--eicr-accent, #b4532a);
   outline-offset: 2px;
 }
 .eicr-cookie-wide {
@@ -179,8 +179,8 @@ body {
   color: var(--eicr-dark-text, #fff);
 }
 .eicr-cookie-accept {
-  border-color: var(--eicr-accent, #c35a2e);
-  background: var(--eicr-accent, #c35a2e);
+  border-color: var(--eicr-accent, #b4532a);
+  background: var(--eicr-accent, #b4532a);
   color: var(--eicr-on-accent, #fff);
 }
 .eicr-cookie-accept:hover {
@@ -227,7 +227,7 @@ body {
     text-decoration: none;
   }
   .mobile-contact-bar a.primary {
-    background: var(--eicr-accent, #c35a2e);
+    background: var(--eicr-accent, #b4532a);
     color: #111827;
   }
   body {
@@ -250,9 +250,9 @@ body {
 
 .service-landlord-note {
   margin-top: 14px;
-  border-left: 4px solid var(--eicr-accent, #c35a2e);
+  border-left: 4px solid var(--eicr-accent, #b4532a);
   padding: 8px 12px;
-  background: rgba(195, 90, 46, 0.08);
+  background: rgba(180,83,42, 0.08);
   border-radius: 0 10px 10px 0;
   font-size: 0.9rem;
   font-weight: 700;
@@ -276,7 +276,7 @@ body {
 .bk-summary {
   margin-top: 1.25rem;
   border: 1px solid var(--eicr-border, #e4ddd6);
-  border-top: 4px solid var(--eicr-accent, #c35a2e);
+  border-top: 4px solid var(--eicr-accent, #b4532a);
   border-radius: 12px;
   padding: 1rem 1.1rem;
   background: #fff;
@@ -326,7 +326,7 @@ body {
   cursor: pointer;
 }
 .bk-next {
-  background: var(--eicr-accent, #c35a2e);
+  background: var(--eicr-accent, #b4532a);
   color: #fff;
 }
 .bk-next:disabled {
@@ -395,7 +395,7 @@ body {
 .bk-quote-only,
 .bk-demo-banner {
   margin: 0 0 1.2rem;
-  border-left: 4px solid var(--eicr-accent, #c35a2e);
+  border-left: 4px solid var(--eicr-accent, #b4532a);
   border-radius: 0 10px 10px 0;
   padding: 10px 14px;
   background: var(--eicr-accent-soft, #fff0e8);
@@ -516,7 +516,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(195, 90, 46, 0.18);
+  background: rgba(180,83,42, 0.18);
   color: #f0a07d;
 }
 .sc-line-name {
@@ -627,8 +627,8 @@ body {
 }
 .sc-field input:focus {
   outline: none;
-  border-color: #c35a2e;
-  box-shadow: 0 0 0 3px rgba(195, 90, 46, 0.2);
+  border-color: #b4532a;
+  box-shadow: 0 0 0 3px rgba(180,83,42, 0.2);
 }
 .sc-card {
   overflow: hidden;
@@ -680,7 +680,7 @@ body {
   border: 0;
   border-radius: 8px;
   background: linear-gradient(180deg, #d0663a, #b7522a);
-  box-shadow: 0 8px 20px -10px rgba(195, 90, 46, 0.8);
+  box-shadow: 0 8px 20px -10px rgba(180,83,42, 0.8);
   color: #fff;
   font: inherit;
   font-size: 16px;
@@ -771,7 +771,7 @@ body {
     margin-left: 18px;
     border-radius: 12px;
     padding: 11px 20px;
-    background: var(--eicr-accent, #c35a2e);
+    background: var(--eicr-accent, #b4532a);
     color: #fff;
     font-weight: 900;
     white-space: nowrap;
