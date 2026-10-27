@@ -24,6 +24,8 @@ body:has(.adm-page) {
   --adm-warn: #fbbf24;
   --adm-bad: #fb7185;
   --adm-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+  /* The site theme forces "main h1, h2, h3, label" to this colour. */
+  --eicr-heading: var(--adm-ink);
   min-height: 100vh;
   background:
     radial-gradient(900px 500px at 100% 0, rgba(122, 162, 255, 0.12), transparent 60%),
