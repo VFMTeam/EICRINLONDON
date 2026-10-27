@@ -1,4 +1,0 @@
-<?php
-if(!defined('ABSPATH'))exit;
-function eicr_public_request_fingerprint(){$address=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'unknown';return hash_hmac('sha256',$address,wp_salt('nonce'));}
-function eicr_public_rate_limit($action,$limit=8,$window=600){if(is_user_logged_in()&&current_user_can('manage_options'))return true;$key='eicr_rl_'.sanitize_key($action).'_'.substr(eicr_public_request_fingerprint(),0,32);$record=get_transient($key);$record=is_array($record)?$record:['count'=>0];$record['count']=(int)$record['count']+1;set_transient($key,$record,max(60,(int)$window));if($record['count']>(int)$limit)wp_send_json_error(['message'=>'Too many requests. Please wait a few minutes and try again.'],429);return true;}
