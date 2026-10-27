@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { get, put } from "@vercel/blob";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { blobConfigured } from "@/lib/blob";
 import { normaliseSettings, type Settings } from "@/lib/pricing";
 import { readPartial } from "@/lib/content";
 import { services, type Service } from "@/lib/services";
@@ -14,10 +15,10 @@ const BLOB_PATH = "admin/settings.json";
 const LOCAL_FILE = path.join(process.cwd(), ".data", "settings.json");
 const TAG = "site-settings";
 
-export const storageReady = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN) || process.env.NODE_ENV !== "production";
+export const storageReady = () => blobConfigured() || process.env.NODE_ENV !== "production";
 
 async function readStored(): Promise<unknown> {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConfigured()) {
     let failures = 0;
     for (const access of ["private", "public"] as const) {
       try {
@@ -47,7 +48,7 @@ export async function getSettings(): Promise<Settings> {
 
 export async function saveSettings(settings: Settings) {
   const body = JSON.stringify(normaliseSettings(settings), null, 2);
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConfigured()) {
     let saved = false;
     for (const access of ["private", "public"] as const) {
       try {

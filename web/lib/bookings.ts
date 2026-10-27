@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { get, list, put } from "@vercel/blob";
+import { blobConfigured } from "@/lib/blob";
 import { revalidateTag, unstable_cache } from "next/cache";
 
 // A short record of each booking for the admin overview, one JSON file per
@@ -12,7 +13,7 @@ export type BookingRecord = { id: string; at: string; visit: string; services: s
 const LOCAL_DIR = path.join(process.cwd(), ".data", "bookings");
 const ACCESS = ["private", "public"] as const;
 const TAG = "bookings";
-const blob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const blob = blobConfigured;
 
 export async function recordBooking(input: Omit<BookingRecord, "id" | "at">, id = `${Date.now().toString(36)}-${randomBytes(4).toString("hex")}`) {
   const record: BookingRecord = { ...input, id: id.replace(/[^\w-]/g, "").slice(0, 80), at: new Date().toISOString() };
