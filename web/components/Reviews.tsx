@@ -1,56 +1,49 @@
-import { reviews, type Review } from "@/lib/reviews";
-import { services } from "@/lib/services";
 import ReviewForm from "@/components/ReviewForm";
+import { approvedReviews, reviewStorageReady, type Review } from "@/lib/reviews";
+import { services } from "@/lib/services";
 
-function Card({ r }: { r: Review }) {
-  const rating = Math.max(1, Math.min(5, Math.round(r.rating)));
+const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
+
+function ReviewCard({ review }: { review: Review }) {
   return (
-    <figure className="rv-card">
-      <div className="rv-card-top">
-        <span className="rv-stars" aria-label={`${rating} out of 5 stars`}>
-          {"★".repeat(rating) + "☆".repeat(5 - rating)}
-        </span>
-        <span className="rv-label">Customer review</span>
-      </div>
-      <blockquote>&ldquo;{r.text}&rdquo;</blockquote>
+    <figure className="review-card">
+      <span className="review-stars" aria-label={`${review.rating} out of 5 stars`}>{stars(review.rating)}</span>
+      <blockquote>&ldquo;{review.text}&rdquo;</blockquote>
       <figcaption>
-        <span className="rv-initial">{r.name.charAt(0).toUpperCase()}</span>
+        <span className="review-initial" aria-hidden="true">{review.name.charAt(0).toUpperCase()}</span>
         <span>
-          <strong>{r.name}</strong>
-          <small>{r.service || "Customer"}</small>
+          <strong>{review.name}</strong>
+          <small>{review.service}</small>
         </span>
       </figcaption>
     </figure>
   );
 }
 
-export default function Reviews() {
-  const cards = reviews.map((r, i) => <Card key={i} r={r} />);
+export default async function Reviews() {
+  const reviews = await approvedReviews();
+  const scrolling = reviews.length >= 4;
+  const cards = reviews.map((r) => <ReviewCard key={r.id} review={r} />);
+  if (!reviews.length && !reviewStorageReady()) return null;
+
   return (
-    <section id="customer-reviews" className="rv-section" aria-labelledby="eicr-reviews-title">
-      <div className="rv-head">
-        <p className="rv-kicker">Feedback from our London customers</p>
-        <h2 id="eicr-reviews-title">Recent customer experiences</h2>
-        {reviews.length > 0 && (
-          <p className="rv-count">
-            <span>{reviews.length}</span> {reviews.length === 1 ? "published review" : "published reviews"}
-          </p>
-        )}
+    <section id="customer-reviews" className="reviews-section" aria-labelledby="reviews-title">
+      <div className="reviews-head">
+        <p>Feedback from our London customers</p>
+        <h2 id="reviews-title">Recent customer experiences</h2>
       </div>
-      {cards.length > 0 &&
-        (cards.length < 4 ? (
-          <div className="rv-row">{cards}</div>
-        ) : (
-          <div className="rv-viewport">
-            <div className="rv-marquee" style={{ "--rv-duration": `${Math.max(36, Math.min(180, cards.length * 6))}s` } as React.CSSProperties}>
-              <div className="rv-set">{cards}</div>
-              <div className="rv-set" aria-hidden="true">{cards}</div>
+      {reviews.length > 0 &&
+        (scrolling ? (
+          <div className="reviews-viewport">
+            <div className="reviews-marquee" style={{ "--reviews-duration": `${Math.min(180, Math.max(36, reviews.length * 6))}s` } as React.CSSProperties}>
+              <div className="reviews-set">{cards}</div>
+              <div className="reviews-set" aria-hidden="true">{cards}</div>
             </div>
           </div>
+        ) : (
+          <div className="reviews-static">{cards}</div>
         ))}
-      <div className="rv-actions">
-        <ReviewForm services={services.map((s) => s.title)} />
-      </div>
+      {reviewStorageReady() && <ReviewForm services={services.map((s) => s.title)} />}
     </section>
   );
 }

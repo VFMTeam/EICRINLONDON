@@ -124,7 +124,7 @@
   }
   function setupAjaxForms() {
     document
-      .querySelectorAll(".eicr-form:not(.eicr-review-form)")
+      .querySelectorAll(".eicr-form")
       .forEach(function (f) {
         f.addEventListener("submit", async function (e) {
           e.preventDefault();

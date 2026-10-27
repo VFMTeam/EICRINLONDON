@@ -1,25 +1,28 @@
+import { Fragment } from "react";
 import { gbp } from "@/lib/pricing";
 import { prettyDate, slotLabel } from "@/lib/slots";
-import type { Booking } from "@/lib/booking";
+import { isOffline, type Booking } from "@/lib/booking";
 
-// Booking details shown on the payment and confirmation pages.
-export default function BookingSummary({ b, paid, requested }: { b: Booking; paid?: boolean; requested?: boolean }) {
+export default function BookingSummary({ b, status }: { b: Booking; status: "due" | "paid" | "offline" }) {
   return (
-    <aside className="bk-summary">
+    <section className="bk-summary">
       <h2>Your booking</h2>
       <dl>
-        <dt>Service</dt>
-        <dd>{b.quote.service.title}</dd>
-        <dt>Property</dt>
-        <dd>{b.quote.option.label}{b.quote.service.extra ? `, ${b.quote.items} items` : ""} · {b.propertyType}</dd>
+        {b.quote.lines.map((l) => (<Fragment key={l.slug}><dt>{l.title}</dt><dd>{gbp(l.price)}</dd></Fragment>))}
+        {b.quote.discount > 0 && (<><dt>Multi-service offer ({b.quote.discountPercent}% off)</dt><dd>-{gbp(b.quote.discount)}</dd></>)}
+        {b.quote.parking > 0 && (<><dt>Parking</dt><dd>{gbp(b.quote.parking)}</dd></>)}
+        {b.quote.congestion > 0 && (<><dt>Congestion zone</dt><dd>{gbp(b.quote.congestion)}</dd></>)}
         <dt>Address</dt>
         <dd>{b.address}, {b.postcode}</dd>
         <dt>Appointment</dt>
         <dd>{prettyDate(b.date)}, {slotLabel(b.slot)}</dd>
       </dl>
       <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(b.quote.total)}</b></p>
-      {!requested && <p className="bk-paynow"><span>{paid ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>}
-      {!requested && b.payNow < b.quote.total && <p className="bk-note">Remaining {gbp(b.quote.total - b.payNow)} is paid after the visit.</p>}
-    </aside>
+      {status === "offline" || isOffline(b.pay) ? (
+        <p className="bk-paynow"><span>{b.pay === "bank" ? "Pay by bank transfer" : "Pay the engineer in cash"}</span><b>{gbp(b.quote.total)}</b></p>
+      ) : (
+        <p className="bk-paynow"><span>{status === "paid" ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>
+      )}
+    </section>
   );
 }

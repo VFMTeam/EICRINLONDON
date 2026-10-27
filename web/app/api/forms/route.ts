@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
-import { emailTeam } from "@/lib/email";
 
 // Receives the quote form (public/js/main.js posts it here) and emails it to
 // the business through Resend. Needs RESEND_API_KEY; see web/README.md.
@@ -34,21 +33,18 @@ export async function POST(request: Request) {
   }
   const field = (name: string, max: number) => String(form.get(name) ?? "").trim().slice(0, max);
 
-  const action = field("action", 40);
-  if (action !== "eicr_quote" && action !== "eicr_submit_review") return reply(false, "Unknown form.", 400);
+  if (field("action", 40) !== "eicr_quote") return reply(false, "Unknown form.", 400);
   // Hidden honeypot field: real visitors leave it empty, spam bots fill it in.
   if (field("company_website", 200)) return NextResponse.json({ success: true, data: { message: "Thank you. Our team will be in touch shortly.", suppressed: true } });
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (rateLimited(ip)) return reply(false, "Too many requests. Please wait a few minutes or call us.", 429);
-  if (action === "eicr_submit_review") return submitReview(field);
 
   const name = field("name", 100);
   const email = field("email", 254);
   const phone = field("phone", 50);
   const service = field("service", 120);
   const details = field("details", 5000);
-  // Optional booking details. Anything outside the form's own choices is dropped.
   const pick = (name: string, options: string[]) => (options.includes(field(name, 40)) ? field(name, 40) : "");
   const propertyType = pick("property_type", ["Flat", "House", "HMO", "Commercial", "Other"]);
   const bedrooms = pick("bedrooms", ["Studio", "1", "2", "3", "4", "5", "6+", "Not applicable"]);
@@ -88,22 +84,4 @@ export async function POST(request: Request) {
     return reply(false, `Sorry, we could not send your request. Please call ${site.phone}.`, 502);
   }
   return reply(true, "Thank you. Your quote request has been sent and our team will be in touch shortly.");
-}
-
-async function submitReview(field: (name: string, max: number) => string) {
-  const name = field("name", 80);
-  const service = field("service", 120);
-  const rating = Number(field("rating", 1));
-  const review = field("review", 1500);
-  if (!name || !review || ![1, 2, 3, 4, 5].includes(rating) || !services.some((s) => s.title === service)) {
-    return reply(false, "Please add your name, choose a service, select a rating and write your review.", 400);
-  }
-  const sent = await emailTeam(`New review: ${rating}/5 – ${name}`, "New customer review", [
-    ["Name", name],
-    ["Service", service],
-    ["Rating", `${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)`],
-    ["Review", review],
-  ]);
-  if (sent !== "sent") return reply(false, `Sorry, we could not send your review just now. Please try again later.`, 503);
-  return reply(true, "Thank you for your review! We truly appreciate your feedback and look forward to welcoming you back whenever you need our services again.");
 }

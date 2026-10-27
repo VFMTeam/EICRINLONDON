@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
+import { pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
 
 // Ported from the original theme's single-eicr_service.php.
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return services.map((s) => ({ slug: s.slug }));
 }
@@ -21,14 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-// "/images/fire-alarm-certificate-closeup.webp" -> "Fire alarm certificate work in a London property"
 function galleryAlt(src: string) {
   if (src.includes("property-safety-engineers")) return "Our property safety engineers at work in London";
   const name = src.replace(/^.*\//, "").replace(/(-closeup)?\.\w+$/, "").replace(/^epc-/, "").replace(/-/g, " ");
   return `${name.charAt(0).toUpperCase()}${name.slice(1)} work in a London property`;
 }
 
-// Short legal reminder for landlords (England) on the services it applies to.
 const landlordNotes: Record<string, string> = {
   "eicr-certificate": "Landlords: an EICR is needed at least every 5 years, or sooner if the last report says so.",
   "gas-safety": "Landlords: a Gas Safety Certificate is needed every 12 months.",
@@ -45,7 +42,6 @@ function faqs(s: Service) {
   ];
 }
 
-// Structured data so search engines can show the service, price and FAQs.
 function schema(s: Service) {
   const url = `${site.url}/services/${s.slug}/`;
   return [
@@ -77,7 +73,7 @@ function schema(s: Service) {
 }
 
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
-  const s = getService((await params).slug);
+  const s = await pricedService((await params).slug);
   if (!s) notFound();
   const book = `/booking/?service=${s.slug}`;
 
@@ -108,36 +104,34 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <div className="service-detail-wrap service-detail-two">
             <div>
               <p className="service-detail-kicker">Service overview</p>
-              <h2>Professional {s.title}</h2>
+              <h2>{s.title} in London</h2>
               <div className="service-detail-editor">
                 <p>{s.benefit}</p>
-                <p>We cover residential and commercial properties throughout London. Send the property details and required scope so the appropriate specialist and appointment can be arranged.</p>
+                <p>We cover homes and businesses across London. Tell us about the property and we will book the right engineer.</p>
               </div>
             </div>
             <aside className="service-detail-included">
-              <h2>What you can expect</h2>
+              <h2>What you get</h2>
               <ul>
-                <li>Clear appointment confirmation</li>
-                <li>A suitable specialist for the agreed scope</li>
-                <li>Systematic inspection or service work</li>
-                <li>Plain-English explanation of key findings</li>
-                <li>Digital records where included</li>
-                <li>Practical recommendations and next actions</li>
+                <li>A confirmed date and time</li>
+                <li>A qualified engineer for the job</li>
+                <li>Findings explained in plain English</li>
+                <li>Your certificate or report by email</li>
               </ul>
-              <a href={book}>Arrange this service</a>
+              <a href={book}>Book now</a>
             </aside>
           </div>
         </section>
 
         <section className="service-detail-section service-detail-soft">
           <div className="service-detail-wrap">
-            <p className="service-detail-kicker">Simple and organised</p>
-            <h2>How the service works</h2>
+            <p className="service-detail-kicker">How it works</p>
+            <h2>Four simple steps</h2>
             <div className="service-process">
-              <div><b>01</b><h3>Send your request</h3><p>Tell us the property details and any additional services required.</p></div>
-              <div><b>02</b><h3>Confirm access</h3><p>Provide the address, preferred date and useful access information.</p></div>
-              <div><b>03</b><h3>Professional visit</h3><p>The appropriate specialist completes the agreed inspection or work.</p></div>
-              <div><b>04</b><h3>Receive the outcome</h3><p>Get the relevant report, record or recommendations for next steps.</p></div>
+              <div><b>01</b><h3>Book</h3><p>Book online or call us with the property details.</p></div>
+              <div><b>02</b><h3>Confirm</h3><p>We confirm the date, time and access with you.</p></div>
+              <div><b>03</b><h3>Visit</h3><p>The engineer carries out the inspection or work.</p></div>
+              <div><b>04</b><h3>Certificate</h3><p>You receive the certificate or report and any next steps.</p></div>
             </div>
           </div>
         </section>
@@ -151,14 +145,14 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <p>Never work on live electrical systems, gas appliances or suspected asbestos-containing materials without the appropriate competence and controls.</p>
             </div>
             <div className="service-why">
-              <p className="service-detail-kicker">Why clients choose us</p>
-              <h2>London-focused support</h2>
+              <p className="service-detail-kicker">Why us</p>
+              <h2>Local London engineers</h2>
               <p>{s.why}</p>
               <ul>
-                <li>Residential and commercial appointments</li>
-                <li>Multiple services can be combined in one request</li>
-                <li>Clear prices confirmed before the visit</li>
-                <li>Responsive booking and customer support</li>
+                <li>Homes, landlords and businesses</li>
+                <li>Book several services in one visit</li>
+                <li>Prices confirmed before the visit</li>
+                <li>Quick replies by phone and WhatsApp</li>
               </ul>
             </div>
           </div>

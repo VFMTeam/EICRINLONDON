@@ -3,8 +3,6 @@ import { site } from "@/lib/site";
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]!);
 
-// Emails a table of form answers to the business through Resend. Needs
-// RESEND_API_KEY. Returns "not-configured", "failed" or "sent".
 export async function emailTeam(subject: string, heading: string, rows: string[][], replyTo?: string) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return "not-configured";

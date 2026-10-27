@@ -1,30 +1,29 @@
 import { NextResponse } from "next/server";
-import { checkBooking, encodeBooking, paymentMode, type Booking } from "@/lib/booking";
+import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } from "@/lib/booking";
 import { emailTeam } from "@/lib/email";
 import { gbp } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import { site } from "@/lib/site";
 
-// Starts payment for an online booking (components/BookingWizard.tsx).
-// See paymentMode() in lib/booking.ts for the three ways this works.
-
 async function stripeCheckout(b: Booking, origin: string, key: string) {
-  const description = `${b.quote.option.label}${b.quote.items ? `, ${b.quote.items} items` : ""} · ${prettyDate(b.date)}, ${slotLabel(b.slot)}`;
+  const services = b.quote.lines.map((l) => l.title).join(" + ");
+  const description = `${b.address}, ${b.postcode} · ${prettyDate(b.date)}, ${slotLabel(b.slot)}`;
   const params = new URLSearchParams({
     mode: "payment",
     customer_email: b.email,
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "gbp",
     "line_items[0][price_data][unit_amount]": String(Math.round(b.payNow * 100)),
-    "line_items[0][price_data][product_data][name]": `${b.quote.service.title}${b.pay === "deposit" ? " (deposit)" : ""}`,
+    "line_items[0][price_data][product_data][name]": services.slice(0, 250),
     "line_items[0][price_data][product_data][description]": description,
     success_url: `${origin}/booking/confirmed/?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/booking/?service=${b.service}`,
+    cancel_url: `${origin}/booking/`,
   });
   const meta: Record<string, string> = {
-    service: b.quote.service.title, option: b.quote.option.label, items: String(b.quote.items), date: b.date, slot: b.slot,
-    property_type: b.propertyType, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
-    total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
+    services, property: b.kind === "residential" ? `${b.bedrooms} bed, ${b.floors} storey` : b.commercialType,
+    date: b.date, slot: b.slot, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
+    parking: b.parking, congestion: b.congestion ? "yes" : "no", discount: String(b.quote.discount), total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
   };
   for (const [k, v] of Object.entries(meta)) params.set(`metadata[${k}]`, v.slice(0, 500));
 
@@ -47,24 +46,32 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Please complete the form and try again." }, { status: 400 });
   }
-  const booking = checkBooking(body);
+  const booking = checkBooking(body, await getSettings());
   if (typeof booking === "string") return NextResponse.json({ error: booking }, { status: 400 });
 
   const mode = paymentMode();
-  if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
-  if (mode === "request") {
-    const rows = [
-      ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
-      ["Service", `${booking.quote.service.title} – ${booking.quote.option.label}${booking.quote.items ? `, ${booking.quote.items} items` : ""}`],
-      ["Price", `${gbp(booking.quote.total)} inc. VAT (not paid online)`],
-      ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
-      ["Property", `${booking.propertyType}, ${booking.address}, ${booking.postcode}`],
-      ["Notes", booking.notes || "None"],
-    ];
-    const sent = await emailTeam(`Booking request: ${booking.quote.service.title} – ${booking.name}`, "New booking request", rows, booking.email);
-    if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
-    return NextResponse.json({ url: `/booking/confirmed/?request=${encodeBooking(booking)}` });
+  const offline = isOffline(booking.pay) || mode === "request";
+  if (offline) {
+    if (mode !== "demo") {
+      const rows = [
+        ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
+        ...booking.quote.lines.map((l) => [l.title, gbp(l.price)]),
+        ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, `-${gbp(booking.quote.discount)}`]] : []),
+        ["Parking", booking.quote.parking ? gbp(booking.quote.parking) : "Free parking"],
+        ["Congestion charge", booking.quote.congestion ? gbp(booking.quote.congestion) : "No"],
+        ["Total", gbp(booking.quote.total)],
+        ["Payment", booking.pay === "cash" ? "Cash to the engineer on the day" : booking.pay === "bank" ? "Bank transfer – email our bank details" : "Not paid online – call to take payment"],
+        ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
+        ["Property", booking.kind === "residential" ? `Residential, ${booking.bedrooms ? `${booking.bedrooms} bedrooms` : "studio"}, ${booking.floors} storey(s)` : `Commercial, ${booking.commercialType}`],
+        ["Address", `${booking.address}, ${booking.postcode}`],
+        ["Notes", booking.notes || "None"],
+      ];
+      const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
+      if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+    }
+    return NextResponse.json({ url: `/booking/confirmed/?booked=${encodeBooking(booking)}` });
   }
+  if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
 
   const origin = new URL(request.url).origin;
   const key = process.env.STRIPE_SECRET_KEY!;

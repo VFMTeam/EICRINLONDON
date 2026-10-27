@@ -42,3 +42,6 @@ next-env.d.ts
 
 # example settings file is safe to commit
 !.env.example
+
+# prices saved from /admin/ during local development
+/.data

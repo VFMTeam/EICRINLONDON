@@ -1,14 +1,10 @@
-// Appointment times for online booking. The team has enough engineers to take
-// every booking, so customers simply choose a day (from tomorrow, up to 30 days
-// ahead, seven days a week) and morning or afternoon.
 export const SLOTS = [
-  { id: "am", label: "Morning", time: "8am – 12pm" },
-  { id: "pm", label: "Afternoon", time: "12pm – 5pm" },
+  { id: "am", label: "Morning", time: "08:00 AM – 01:00 PM" },
+  { id: "pm", label: "Afternoon", time: "01:00 PM – 06:00 PM" },
 ] as const;
 
 const DAYS_AHEAD = 30;
 
-// "YYYY-MM-DD" dates in London time, starting tomorrow.
 export function bookableDates() {
   return Array.from({ length: DAYS_AHEAD }, (_, i) =>
     new Date(Date.now() + (i + 1) * 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/London" }),

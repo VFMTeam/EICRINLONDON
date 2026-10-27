@@ -1,7 +1,5 @@
 import { site, telHref } from "@/lib/site";
 
-// Simple notice page (used for missing pages). Visitors can still reach the
-// team straight away.
 export default function NoticePage({ title, text }: { title: string; text: string }) {
   return (
     <main id="main-content">

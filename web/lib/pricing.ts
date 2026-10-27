@@ -1,100 +1,178 @@
-// Online booking prices, taken from the price tables on the home page
-// (content/pages/home.html). All prices include VAT. Services not listed here
-// need a quote first.
-export type PriceOption = { id: string; label: string; price: number };
-export type PricedService = {
-  slug: string;
-  title: string;
-  options: PriceOption[];
-  // Extra items charged on top of an option, e.g. detectors after the first three.
-  extra?: { label: string; included: number; each: number };
+import { services } from "@/lib/services";
+
+// Booking prices follow the original site's rules (EICR-London/inc/booking-v2.php).
+export type PropertyKind = "residential" | "commercial";
+export type Property = { kind: PropertyKind; bedrooms: number; floors: number; commercialType: string };
+
+export const BOOKING_SERVICES: Record<PropertyKind, [slug: string, label: string][]> = {
+  residential: [
+    ["eicr-certificate", "EICR – Electrical Certificate"],
+    ["gas-safety", "Gas Safety Certificate"],
+    ["epc", "Energy Performance Certificate"],
+    ["pat-testing", "PAT Testing"],
+    ["fuse-box-installation", "Fuse Box Installation & Replacement"],
+    ["fire-alarm-certificate", "Fire Alarm Panel Service & Certification"],
+    ["fire-risk", "Fire Risk Assessment"],
+    ["fire-safety-certificate", "Fire Safety Certificate"],
+    ["emergency-lighting", "Emergency Lighting Certificate"],
+    ["smoke-detector-certificate", "Smoke Detector Certificate"],
+    ["fire-extinguisher-check", "Fire Extinguisher Check"],
+    ["asbestos-survey", "Asbestos Survey"],
+    ["health-safety-service", "Health & Safety Service"],
+    ["boiler-service", "Boiler Service"],
+    ["boiler-gas-safety-combo", "Boiler Service + Gas Safety Certificate (2 Appliances)"],
+  ],
+  commercial: [
+    ["commercial-eicr", "EICR – Electrical Certificate"],
+    ["gas-safety", "Gas Safety Certificate"],
+    ["epc", "Energy Performance Certificate"],
+    ["pat-testing", "PAT Testing"],
+    ["fuse-box-installation", "Fuse Box Installation & Replacement"],
+    ["fire-alarm-certificate", "Fire Alarm Panel Service & Certification"],
+    ["fire-risk", "Fire Risk Assessment"],
+    ["fire-safety-certificate", "Fire Safety Certificate"],
+    ["emergency-lighting", "Emergency Lighting Certificate"],
+    ["smoke-detector-certificate", "Smoke Detector Certificate"],
+    ["fire-extinguisher-check", "Fire Extinguisher Check"],
+    ["asbestos-survey", "Asbestos Survey"],
+    ["health-safety-service", "Health & Safety Service"],
+    ["boiler-service", "Boiler Service"],
+  ],
 };
 
-export const pricedServices: PricedService[] = [
-  {
-    slug: "eicr-certificate",
-    title: "EICR – Electrical Certificate",
-    options: [
-      { id: "studio", label: "Studio property", price: 79 },
-      { id: "1-2-bed", label: "One or two bedrooms", price: 99 },
-      { id: "3-4-bed", label: "Three or four bedrooms", price: 119 },
-      { id: "5-6-bed", label: "Five or six bedrooms", price: 149 },
-    ],
-  },
-  {
-    slug: "gas-safety",
-    title: "Gas Safety Certificate",
-    options: [
-      { id: "1-2-appliances", label: "One or two gas appliances", price: 69 },
-      { id: "with-boiler-service", label: "Combined visit: gas record and boiler service", price: 149 },
-    ],
-  },
-  {
-    slug: "epc",
-    title: "Energy Performance Certificate",
-    options: [
-      { id: "1-3-bed", label: "One to three bedrooms", price: 89 },
-      { id: "4-bed", label: "Four bedrooms", price: 99 },
-      { id: "5-bed", label: "Five bedrooms", price: 109 },
-      { id: "6-bed", label: "Six bedrooms", price: 119 },
-    ],
-  },
-  {
-    slug: "fire-risk",
-    title: "Fire Risk Assessment (FRA)",
-    options: [
-      { id: "residential", label: "Homes and residential buildings", price: 79 },
-      { id: "business", label: "Workplaces and business premises", price: 159 },
-    ],
-  },
-  {
-    slug: "fire-safety-certificate",
-    title: "Fire Safety Certificate",
-    options: [{ id: "standard", label: "Up to three detectors", price: 79 }],
-    extra: { label: "Number of detectors", included: 3, each: 15 },
-  },
-  {
-    slug: "pat-testing",
-    title: "PAT Testing",
-    options: [{ id: "standard", label: "Up to ten appliances", price: 59 }],
-    extra: { label: "Number of appliances", included: 10, each: 1.5 },
-  },
-  {
-    slug: "emergency-lighting",
-    title: "Emergency Lighting Certificate",
-    options: [
-      { id: "1-3", label: "One to three fittings", price: 59 },
-      { id: "4-6", label: "Four to six fittings", price: 79 },
-      { id: "7-12", label: "Seven to twelve fittings", price: 129 },
-    ],
-  },
-  {
-    slug: "asbestos-survey",
-    title: "Asbestos Survey",
-    options: [
-      { id: "communal-1-2", label: "Communal area, one or two storeys", price: 249 },
-      { id: "communal-3-4", label: "Communal area, three or four storeys", price: 279.99 },
-      { id: "home-1-2-bed", label: "Home with no more than two bedrooms", price: 249.99 },
-      { id: "home-3-5-bed", label: "Home with three to five bedrooms", price: 299.99 },
-    ],
-  },
+export const COMMERCIAL_TYPES: [id: string, label: string][] = [
+  ["pub-restaurant", "Pub/Restaurant"],
+  ["shop", "Shop"],
+  ["warehouse", "Warehouse"],
+  ["office", "Office"],
+  ["other", "Other"],
+];
+export const COMMERCIAL_MINIMUM_SERVICES = ["commercial-eicr", "fire-risk", "asbestos-survey", "fuse-box-installation"];
+
+export const BEDROOM_PRICED = ["eicr-certificate", "epc", "asbestos-survey", "fire-risk"];
+
+export const PARKING: [id: "free" | "paid" | "none", label: string][] = [
+  ["free", "Free parking can be provided"],
+  ["paid", "Paid parking nearby"],
+  ["none", "No allocated parking"],
 ];
 
-// Amount taken online when the customer chooses to pay a deposit.
-export const DEPOSIT = 30;
+// Extra prices shown only in the home page price tables.
+export const HOME_TABLE_PRICES: [key: string, label: string, price: number][] = [
+  ["fire-safety-detector", "Fire Safety Certificate: each extra detector", 15],
+  ["pat-appliance", "PAT Testing: each extra appliance", 1.5],
+  ["lighting-4-6", "Emergency Lighting: four to six fittings", 79],
+  ["lighting-7-12", "Emergency Lighting: seven to twelve fittings", 129],
+  ["asbestos-communal-3-4", "Asbestos: communal area, three or four storeys", 279.99],
+  ["asbestos-home-1-2", "Asbestos: home with up to two bedrooms", 249.99],
+  ["asbestos-home-3-5", "Asbestos: home with three to five bedrooms", 299.99],
+];
 
-export type Quote = { service: PricedService; option: PriceOption; items: number; total: number };
+export type Settings = {
+  prices: Record<string, number>;
+  bedrooms: { eicr: number[]; epc: number[]; asbestos: number[] };
+  fireRisk: { perStorey: number; perBedroom: number };
+  commercial: { factors: Record<string, number>; minimums: Record<string, number> };
+  fees: { paidParking: number; noParking: number; congestion: number };
+  homeTable: Record<string, number>;
+  offer: { enabled: boolean; two: number; threePlus: number };
+};
 
-// Works out the price from the customer's choices. Returns null for anything
-// that is not on the price list, so the server never trusts a price sent by
-// the browser.
-export function quote(slug: string, optionId: string, items = 0): Quote | null {
-  const service = pricedServices.find((s) => s.slug === slug);
-  const option = service?.options.find((o) => o.id === optionId);
-  if (!service || !option) return null;
-  const count = service.extra ? Math.min(Math.max(Math.floor(items) || service.extra.included, service.extra.included), 500) : 0;
-  const extraCost = service.extra ? (count - service.extra.included) * service.extra.each : 0;
-  return { service, option, items: count, total: Math.round((option.price + extraCost) * 100) / 100 };
+export const BEDROOM_BANDS = {
+  eicr: ["Studio", "1–2 bedrooms", "3–4 bedrooms", "5–6 bedrooms"],
+  epc: ["1–3 bedrooms", "4 bedrooms", "5 bedrooms", "6 bedrooms"],
+  asbestos: ["Studio to 2 bedrooms", "3–5 bedrooms", "6 bedrooms"],
+};
+
+export const DEFAULT_SETTINGS: Settings = {
+  prices: Object.fromEntries(services.map((s) => [s.slug, s.price])),
+  bedrooms: { eicr: [0, 20, 40, 70], epc: [0, 10, 20, 30], asbestos: [0, 50, 100] },
+  fireRisk: { perStorey: 20, perBedroom: 10 },
+  commercial: {
+    factors: { "pub-restaurant": 1.2, shop: 1, warehouse: 1.35, office: 1.1, other: 1.1 },
+    minimums: { "commercial-eicr": 345, "fire-risk": 159, "asbestos-survey": 249, "fuse-box-installation": 350 },
+  },
+  fees: { paidParking: 5, noParking: 5, congestion: 18 },
+  homeTable: Object.fromEntries(HOME_TABLE_PRICES.map(([k, , p]) => [k, p])),
+  offer: { enabled: false, two: 10, threePlus: 15 },
+};
+
+const money = (v: unknown, fallback: number, max = 100000) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 && n <= max ? Math.round(n * 100) / 100 : fallback;
+};
+const record = (stored: unknown, defaults: Record<string, number>, max?: number) => {
+  const s = (stored ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(Object.entries(defaults).map(([k, d]) => [k, money(s[k], d, max)]));
+};
+const list = (stored: unknown, defaults: number[]) => defaults.map((d, i) => money(Array.isArray(stored) ? stored[i] : undefined, d));
+
+// Fills any missing or invalid value with the default, so a bad save can never break pricing.
+export function normaliseSettings(raw: unknown): Settings {
+  const r = (raw ?? {}) as Partial<Record<keyof Settings, Record<string, unknown>>>;
+  const d = DEFAULT_SETTINGS;
+  return {
+    prices: record(r.prices, d.prices),
+    bedrooms: { eicr: list(r.bedrooms?.eicr, d.bedrooms.eicr), epc: list(r.bedrooms?.epc, d.bedrooms.epc), asbestos: list(r.bedrooms?.asbestos, d.bedrooms.asbestos) },
+    fireRisk: record(r.fireRisk, d.fireRisk) as Settings["fireRisk"],
+    commercial: {
+      factors: record((r.commercial?.factors as unknown), d.commercial.factors, 10),
+      minimums: record((r.commercial?.minimums as unknown), d.commercial.minimums),
+    },
+    fees: record(r.fees, d.fees) as Settings["fees"],
+    homeTable: record(r.homeTable, d.homeTable),
+    offer: {
+      enabled: r.offer?.enabled === true,
+      two: money(r.offer?.two, d.offer.two, 90),
+      threePlus: money(r.offer?.threePlus, d.offer.threePlus, 90),
+    },
+  };
+}
+
+const round = (n: number) => Math.round(n * 100) / 100;
+
+export const parkingFee = (id: string, s: Settings) => (id === "paid" ? s.fees.paidParking : id === "none" ? s.fees.noParking : 0);
+
+export function offerPercent(count: number, s: Settings) {
+  if (!s.offer.enabled || count < 2) return 0;
+  return count >= 3 ? s.offer.threePlus : s.offer.two;
+}
+
+export function servicePrice(slug: string, p: Property, s: Settings): number | null {
+  const base = s.prices[slug];
+  if (base === undefined || !BOOKING_SERVICES[p.kind].some(([slug2]) => slug2 === slug)) return null;
+  if (p.kind === "commercial") {
+    const factor = s.commercial.factors[p.commercialType] ?? s.commercial.factors.other;
+    return round(Math.max(base, s.commercial.minimums[slug] ?? base) * factor);
+  }
+  const b = p.bedrooms;
+  const { eicr, epc, asbestos } = s.bedrooms;
+  if (slug === "eicr-certificate") return round(base + eicr[b <= 0 ? 0 : b <= 2 ? 1 : b <= 4 ? 2 : 3]);
+  if (slug === "epc") return round(base + epc[b <= 3 ? 0 : b === 4 ? 1 : b === 5 ? 2 : 3]);
+  if (slug === "asbestos-survey") return round(base + asbestos[b <= 2 ? 0 : b <= 5 ? 1 : 2]);
+  if (slug === "fire-risk") return round(base + Math.max(0, p.floors - 1) * s.fireRisk.perStorey + Math.max(0, b - 2) * s.fireRisk.perBedroom);
+  return base;
+}
+
+export type QuoteLine = { slug: string; title: string; price: number };
+export type Quote = { lines: QuoteLine[]; discount: number; discountPercent: number; parking: number; congestion: number; total: number };
+
+// The server always prices from these rules, never from the browser.
+export function quote(slugs: string[], p: Property, parking: string, congestion: boolean, s: Settings): Quote | null {
+  const lines: QuoteLine[] = [];
+  for (const slug of new Set(slugs)) {
+    const price = servicePrice(slug, p, s);
+    const title = BOOKING_SERVICES[p.kind].find(([slug2]) => slug2 === slug)?.[1];
+    if (price === null || !title) return null;
+    lines.push({ slug, title, price });
+  }
+  if (!lines.length) return null;
+  const subtotal = lines.reduce((t, l) => t + l.price, 0);
+  const discountPercent = offerPercent(lines.length, s);
+  const discount = round((subtotal * discountPercent) / 100);
+  const parkingCost = parkingFee(parking, s);
+  const congestionFee = congestion ? s.fees.congestion : 0;
+  return { lines, discount, discountPercent, parking: parkingCost, congestion: congestionFee, total: round(subtotal - discount + parkingCost + congestionFee) };
 }
 
 export const gbp = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
