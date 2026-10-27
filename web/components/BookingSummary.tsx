@@ -4,7 +4,6 @@ import { prettyDate, slotLabel } from "@/lib/slots";
 import { isOffline, type Booking } from "@/lib/booking";
 
 export default function BookingSummary({ b, status }: { b: Booking; status: "due" | "paid" | "offline" }) {
-  const rest = b.quote.total - b.payNow;
   return (
     <section className="bk-summary">
       <h2>Your booking</h2>
@@ -21,10 +20,7 @@ export default function BookingSummary({ b, status }: { b: Booking; status: "due
       {status === "offline" || isOffline(b.pay) ? (
         <p className="bk-paynow"><span>{b.pay === "bank" ? "Pay by bank transfer" : "Pay the engineer in cash"}</span><b>{gbp(b.quote.total)}</b></p>
       ) : (
-        <>
-          <p className="bk-paynow"><span>{status === "paid" ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>
-          {rest > 0 && <p className="bk-note">Remaining {gbp(rest)}: pay the engineer in cash on the day, or by the secure payment link we email you after the visit.</p>}
-        </>
+        <p className="bk-paynow"><span>{status === "paid" ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>
       )}
     </section>
   );

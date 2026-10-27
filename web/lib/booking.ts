@@ -1,7 +1,7 @@
-import { quote, DEPOSIT, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind } from "@/lib/pricing";
+import { quote, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind } from "@/lib/pricing";
 import { isBookable } from "@/lib/slots";
 
-export type Pay = "deposit" | "full" | "bank" | "cash";
+export type Pay = "full" | "bank" | "cash";
 
 export type BookingInput = {
   kind: PropertyKind;
@@ -26,7 +26,7 @@ export type BookingInput = {
 export type Booking = BookingInput & { quote: Quote; payNow: number; name: string };
 
 const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i;
-const PAYS: Pay[] = ["deposit", "full", "bank", "cash"];
+const PAYS: Pay[] = ["full", "bank", "cash"];
 
 export const isOffline = (pay: Pay) => pay === "bank" || pay === "cash";
 
@@ -53,7 +53,7 @@ export function checkBooking(raw: unknown): Booking | string {
     parking: PARKING.some(([id]) => id === b.parking) ? String(b.parking) : "",
     congestion: b.congestion === true,
     notes: text("notes", 1000),
-    pay: PAYS.includes(b.pay as Pay) ? (b.pay as Pay) : "deposit",
+    pay: PAYS.includes(b.pay as Pay) ? (b.pay as Pay) : "full",
   };
   const q = quote(input.services, input, input.parking, input.congestion);
   if (!q) return "Please select at least one service.";
@@ -62,7 +62,7 @@ export function checkBooking(raw: unknown): Booking | string {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) return "Please enter a valid email.";
   if (!input.address || !UK_POSTCODE.test(input.postcode)) return "Please enter the property address and a valid UK postcode.";
   if (!input.parking) return "Please tell us about parking at the address.";
-  const payNow = isOffline(input.pay) ? 0 : input.pay === "full" ? q.total : Math.min(DEPOSIT, q.total);
+  const payNow = isOffline(input.pay) ? 0 : q.total;
   return { ...input, services: q.lines.map((l) => l.slug), quote: q, payNow, name: `${input.firstName} ${input.lastName}` };
 }
 

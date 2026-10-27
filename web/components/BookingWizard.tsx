@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, DEPOSIT, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
+import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
 import { SLOTS } from "@/lib/slots";
 import type { Pay, PaymentMode } from "@/lib/booking";
 
@@ -32,7 +32,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
   const [parking, setParking] = useState("");
   const [congestion, setCongestion] = useState<boolean | null>(null);
   const [method, setMethod] = useState<"bank" | "card" | "cash" | "">("");
-  const [cardPay, setCardPay] = useState<"deposit" | "full">("deposit");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -42,8 +41,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
   const showFloors = kind === "residential" && services.includes("fire-risk");
   const q = quote(services, property, parking, congestion === true);
   const total = q?.total ?? 0;
-  const pay: Pay = method === "card" ? cardPay : method || "cash";
-  const payNow = method === "card" ? (cardPay === "full" ? total : Math.min(DEPOSIT, total)) : 0;
+  const pay: Pay = method === "card" ? "full" : method || "cash";
   const methods = (["bank", "card", "cash"] as const).filter((m) => mode !== "request" || m !== "card");
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
 
@@ -223,23 +221,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                     </label>
                   ))}
                 </div>
-                {method === "card" && (
-                  <div className="stripe-card-panel">
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <label className="booking-radio">
-                        <input type="radio" name="card_pay" checked={cardPay === "deposit"} onChange={() => setCardPay("deposit")} />
-                        <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now, the rest on the day</span>
-                      </label>
-                      <label className="booking-radio">
-                        <input type="radio" name="card_pay" checked={cardPay === "full"} onChange={() => setCardPay("full")} />
-                        <span>Pay the full {gbp(total)} now</span>
-                      </label>
-                    </div>
-                    {mode === "demo" && <p className="stripe-setup-note mt-3">Demo mode: no real payment is taken.</p>}
-                  </div>
-                )}
-                {method === "bank" && <p className="stripe-setup-note mt-3">We will email you our bank details to pay {gbp(total)}.</p>}
-                {method === "cash" && <p className="stripe-setup-note mt-3">Pay the engineer {gbp(total)} in cash on the day.</p>}
               </section>
               <label className="booking-terms-consent">
                 <input type="checkbox" required />
@@ -259,13 +240,19 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
               <>
                 <button type="button" onClick={() => setPart(1)} className="rounded-xl border border-line px-5 py-2.5 text-sm font-black">Back</button>
                 <button type="submit" disabled={sending} className="rounded-xl bg-ink px-5 py-2.5 text-sm font-black text-white">
-                  {sending ? "Please wait…" : method === "card" ? `Pay ${gbp(payNow)}` : "Submit"}
+                  {method === "card" ? `Pay ${gbp(total)}` : "Confirm booking"}
                 </button>
               </>
             )}
           </div>
         </div>
       </form>
+      {sending && (
+        <div className="pay-overlay" role="status">
+          <span className="pay-spinner" />
+          <p>{method === "card" ? "Taking you to secure payment…" : "Confirming your booking…"}</p>
+        </div>
+      )}
     </div>
   );
 }

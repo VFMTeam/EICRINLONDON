@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 // Demo only: card 4242 4242 4242 4242 succeeds, anything else is declined.
-export default function DemoPayForm({ amount, booking }: { amount: string; booking: string }) {
+export default function DemoPayForm({ amount, booking, email, name, postcode }: { amount: string; booking: string; email: string; name: string; postcode: string }) {
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
 
@@ -11,27 +11,42 @@ export default function DemoPayForm({ amount, booking }: { amount: string; booki
     e.preventDefault();
     const card = String(new FormData(e.currentTarget).get("card") ?? "").replace(/\D/g, "");
     if (card !== "4242424242424242") {
-      setError("Card declined. In demo mode use 4242 4242 4242 4242.");
+      setError("Your card was declined. In test mode use 4242 4242 4242 4242.");
       return;
     }
+    setError("");
     setPaying(true);
-    setTimeout(() => (window.location.href = `/booking/confirmed/?demo=${booking}`), 900);
+    setTimeout(() => (window.location.href = `/booking/confirmed/?demo=${booking}`), 1200);
   }
 
   return (
-    <form className="bk-demo-pay" onSubmit={pay}>
-      <div className="bk-wallets">
-        <button type="button" onClick={() => setError("Apple Pay and Google Pay appear here once the real payment account is connected.")}>Apple Pay</button>
-        <button type="button" onClick={() => setError("Apple Pay and Google Pay appear here once the real payment account is connected.")}>Google Pay</button>
+    <form className="sc-form" onSubmit={pay}>
+      <label className="sc-field">
+        Email
+        <input type="email" defaultValue={email} autoComplete="email" required />
+      </label>
+      <div className="sc-field">
+        Card information
+        <div className="sc-card">
+          <input name="card" inputMode="numeric" autoComplete="cc-number" placeholder="1234 1234 1234 1234" aria-label="Card number" required />
+          <div>
+            <input name="exp" placeholder="MM / YY" autoComplete="cc-exp" aria-label="Expiry" required />
+            <input name="cvc" inputMode="numeric" placeholder="CVC" autoComplete="cc-csc" aria-label="CVC" required />
+          </div>
+        </div>
       </div>
-      <p className="bk-or">or pay by card</p>
-      <label className="bk-field">Card number<input name="card" inputMode="numeric" autoComplete="cc-number" placeholder="4242 4242 4242 4242" required /></label>
-      <div className="bk-grid">
-        <label className="bk-field">Expiry<input name="exp" placeholder="MM / YY" autoComplete="cc-exp" required /></label>
-        <label className="bk-field">CVC<input name="cvc" inputMode="numeric" placeholder="123" autoComplete="cc-csc" required /></label>
-      </div>
-      {error && <p className="bk-error" role="alert">{error}</p>}
-      <button type="submit" className="bk-next" disabled={paying}>{paying ? "Processing…" : `Pay ${amount}`}</button>
+      <label className="sc-field">
+        Cardholder name
+        <input defaultValue={name} autoComplete="cc-name" required />
+      </label>
+      <label className="sc-field">
+        Postcode
+        <input defaultValue={postcode} autoComplete="postal-code" required />
+      </label>
+      {error && <p className="sc-error" role="alert">{error}</p>}
+      <button type="submit" className="sc-button" disabled={paying}>
+        {paying ? <span className="pay-spinner sc-button-spinner" /> : `Pay ${amount}`}
+      </button>
     </form>
   );
 }

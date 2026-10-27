@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import BookingSummary from "@/components/BookingSummary";
 import DemoPayForm from "@/components/DemoPayForm";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
@@ -12,23 +11,28 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
   const { b } = await searchParams;
   const booking = decodeBooking(b);
   if (!booking || !b) redirect("/booking/");
+  const lines = [
+    ...booking.quote.lines.map((l) => [l.title, l.price] as const),
+    ...(booking.quote.parking ? [["Parking", booking.quote.parking] as const] : []),
+    ...(booking.quote.congestion ? [["Congestion zone", booking.quote.congestion] as const] : []),
+  ];
 
   return (
-    <main id="main-content">
-      <section className="core-page-shell">
-        <div className="core-page-wrap">
-          <header className="core-page-header">
-            <p>Secure payment</p>
-            <h1>Pay {gbp(booking.payNow)}</h1>
-          </header>
-          <p className="bk-demo-banner">Demo mode: no real payment is taken. Use card 4242 4242 4242 4242, any future date and any CVC.</p>
-          <div>
-            <div className="bk-main">
-              <DemoPayForm amount={gbp(booking.payNow)} booking={b} />
-            </div>
-            <BookingSummary b={booking} status="due" />
-          </div>
-        </div>
+    <main id="main-content" className="sc-page">
+      <section className="sc-order">
+        <a className="sc-back" href="/booking/">← EICR in London <span className="sc-test">TEST MODE</span></a>
+        <p className="sc-label">Pay EICR in London</p>
+        <p className="sc-amount">{gbp(booking.payNow)}</p>
+        <ul className="sc-lines">
+          {lines.map(([name, price]) => (
+            <li key={name}><span>{name}</span><span>{gbp(price)}</span></li>
+          ))}
+        </ul>
+        <p className="sc-total"><span>Total due</span><span>{gbp(booking.payNow)}</span></p>
+      </section>
+      <section className="sc-pay">
+        <DemoPayForm amount={gbp(booking.payNow)} booking={b} email={booking.email} name={booking.name} postcode={booking.postcode} />
+        <p className="sc-powered">Powered by <b>stripe</b> · <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></p>
       </section>
     </main>
   );
