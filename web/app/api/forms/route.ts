@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 import { emailTeam } from "@/lib/email";
 
 // Receives the quote form (public/js/main.js posts it here) and emails it to
-// the business through Resend. Needs RESEND_API_KEY; see web/SETUP.md.
+// the business through Resend. Needs RESEND_API_KEY; see web/README.md.
 
 const reply = (success: boolean, message: string, status = 200) =>
   NextResponse.json({ success, data: { message } }, { status });
@@ -16,7 +16,10 @@ const escapeHtml = (s: string) =>
 const recent = new Map<string, number[]>();
 function rateLimited(ip: string) {
   const now = Date.now();
-  const hits = (recent.get(ip) ?? []).filter((t) => now - t < 10 * 60 * 1000);
+  const windowMs = 10 * 60 * 1000;
+  // Forget visitors whose last request is outside the window, so the map stays small.
+  if (recent.size > 1000) for (const [key, times] of recent) if (now - times[times.length - 1] >= windowMs) recent.delete(key);
+  const hits = (recent.get(ip) ?? []).filter((t) => now - t < windowMs);
   hits.push(now);
   recent.set(ip, hits);
   return hits.length > 5;
