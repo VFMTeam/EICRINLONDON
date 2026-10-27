@@ -15,7 +15,7 @@ function rateLimited(ip: string) {
   return hits.length > 4;
 }
 
-const THANKS = "Thank you for your review. It will appear on the website once it has been checked.";
+const THANKS = "Thank you for your review!";
 
 export async function POST(request: Request) {
   const site = await getSite();
