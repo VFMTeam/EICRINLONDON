@@ -9,7 +9,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 export type ReviewStatus = "pending" | "approved";
 export type Review = { id: string; name: string; service: string; rating: number; text: string; createdAt: string };
 
-const TAG = "approved-reviews";
+const TAGS = { pending: "pending-reviews", approved: "approved-reviews" } as const;
 const LOCAL_DIR = path.join(process.cwd(), ".data", "reviews");
 const ACCESS = ["private", "public"] as const;
 const blob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
@@ -66,18 +66,20 @@ export async function listReviews(status: ReviewStatus): Promise<Review[]> {
   return reviews.filter((r): r is Review => Boolean(r?.id)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-const cachedApproved = unstable_cache(() => listReviews("approved"), [TAG], { tags: [TAG], revalidate: 3600 });
-export const approvedReviews = () => cachedApproved().catch(() => [] as Review[]);
+const cached = (status: ReviewStatus) => unstable_cache(() => listReviews(status), [TAGS[status]], { tags: [TAGS[status]], revalidate: 86400 });
+export const cachedReviews = { pending: cached("pending"), approved: cached("approved") };
+export const approvedReviews = () => cachedReviews.approved().catch(() => [] as Review[]);
 
 export async function addReview(input: Omit<Review, "id" | "createdAt">) {
   const review: Review = { ...input, id: `${Date.now().toString(36)}-${randomBytes(4).toString("hex")}`, createdAt: new Date().toISOString() };
   await writeReview("pending", review);
+  revalidateTag(TAGS.pending);
   return review;
 }
 
-function refresh() {
-  revalidateTag(TAG);
-  revalidatePath("/");
+function refresh(status: ReviewStatus) {
+  revalidateTag(TAGS[status]);
+  if (status === "approved") revalidatePath("/");
 }
 
 export async function approveReview(id: string) {
@@ -85,11 +87,12 @@ export async function approveReview(id: string) {
   if (!review) return false;
   await writeReview("approved", review);
   await removeReview("pending", id);
-  refresh();
+  refresh("pending");
+  refresh("approved");
   return true;
 }
 
 export async function deleteReview(status: ReviewStatus, id: string) {
   await removeReview(status, id);
-  if (status === "approved") refresh();
+  refresh(status);
 }
