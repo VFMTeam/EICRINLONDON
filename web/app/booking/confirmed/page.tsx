@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BookingSummary from "@/components/BookingSummary";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import { site, telHref } from "@/lib/site";
 
@@ -19,9 +20,10 @@ async function stripeSession(id: string) {
 export default async function ConfirmedPage({ searchParams }: { searchParams: Promise<{ session_id?: string; demo?: string; booked?: string }> }) {
   const { session_id, demo, booked } = await searchParams;
   const mode = paymentMode();
+  const settings = await getSettings();
   const session = session_id ? await stripeSession(session_id) : null;
-  const offline = decodeBooking(booked);
-  const booking = offline ?? (mode === "demo" ? decodeBooking(demo) : null);
+  const offline = decodeBooking(booked, settings);
+  const booking = offline ?? (mode === "demo" ? decodeBooking(demo, settings) : null);
   const ok = (session && session.payment_status === "paid") || booking;
 
   return (

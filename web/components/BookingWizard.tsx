@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, DEPOSIT, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
+import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, gbp, parkingFee, quote, servicePrice, type PropertyKind, type Settings } from "@/lib/pricing";
 import { SLOTS } from "@/lib/slots";
 import type { Pay, PaymentMode } from "@/lib/booking";
 
@@ -12,7 +12,7 @@ const icons = {
 };
 const methodLabel = { bank: "Bank Transfer", card: "Debit/Credit Card", cash: "Cash to Engineer" };
 
-export default function BookingWizard({ minDate, maxDate, initialService, mode }: { minDate: string; maxDate: string; initialService?: string; mode: PaymentMode }) {
+export default function BookingWizard({ minDate, maxDate, initialService, mode, settings }: { minDate: string; maxDate: string; initialService?: string; mode: PaymentMode; settings: Settings }) {
   const [part, setPart] = useState(1);
   const [kind, setKind] = useState<PropertyKind>(initialService === "commercial-eicr" ? "commercial" : "residential");
   const [bedrooms, setBedrooms] = useState(0);
@@ -40,10 +40,10 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
   const services = picked[kind];
   const showBedrooms = kind === "residential" && services.some((s) => BEDROOM_PRICED.includes(s));
   const showFloors = kind === "residential" && services.includes("fire-risk");
-  const q = quote(services, property, parking, congestion === true);
+  const q = quote(services, property, parking, congestion === true, settings);
   const total = q?.total ?? 0;
   const pay: Pay = method === "card" ? cardPay : method || "cash";
-  const payNow = method === "card" ? (cardPay === "full" ? total : Math.min(DEPOSIT, total)) : 0;
+  const payNow = method === "card" ? (cardPay === "full" ? total : Math.min(settings.fees.deposit, total)) : 0;
   const methods = (["bank", "card", "cash"] as const).filter((m) => mode !== "request" || m !== "card");
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
 
@@ -129,13 +129,16 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
               </div>
               <section data-service-set={kind} className="mt-5">
                 <p className="text-sm font-bold text-muted">Available checks for this {kind} property</p>
+                {settings.offer.enabled && (
+                  <p className="booking-offer">Offer: {settings.offer.two}% off 2 services, {settings.offer.threePlus}% off 3 or more</p>
+                )}
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {BOOKING_SERVICES[kind].map(([slug, label]) => (
                     <label key={slug} className="service-option flex cursor-pointer gap-2 rounded-xl border border-line bg-white p-2.5">
                       <input type="checkbox" checked={services.includes(slug)} onChange={() => toggle(slug)} />
                       <span className="min-w-0">
                         <b className="block text-xs leading-4 sm:text-sm sm:leading-5">{label}</b>
-                        <small className="text-xs font-semibold">From {gbp(servicePrice(slug, property) ?? 0)}</small>
+                        <small className="text-xs font-semibold">From {gbp(servicePrice(slug, property, settings) ?? 0)}</small>
                       </span>
                     </label>
                   ))}
@@ -178,10 +181,10 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                   <fieldset>
                     <legend className="label">Parking at the address</legend>
                     <div className="grid gap-2">
-                      {PARKING.map(([id, label, fee]) => (
+                      {PARKING.map(([id, label]) => (
                         <label key={id} className="booking-radio">
                           <input type="radio" name="parking" checked={parking === id} onChange={() => setParking(id)} required />
-                          <span>{label}{fee ? ` – add ${gbp(fee)}` : ""}</span>
+                          <span>{label}{parkingFee(id, settings) ? ` – add ${gbp(parkingFee(id, settings))}` : ""}</span>
                         </label>
                       ))}
                     </div>
@@ -190,7 +193,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                     <legend className="label">London congestion charge</legend>
                     <div className="grid gap-2">
                       <label className="booking-radio"><input type="radio" name="congestion" checked={congestion === false} onChange={() => setCongestion(false)} required /><span>No</span></label>
-                      <label className="booking-radio"><input type="radio" name="congestion" checked={congestion === true} onChange={() => setCongestion(true)} /><span>Yes – {gbp(CONGESTION_FEE)}</span></label>
+                      <label className="booking-radio"><input type="radio" name="congestion" checked={congestion === true} onChange={() => setCongestion(true)} /><span>Yes – {gbp(settings.fees.congestion)}</span></label>
                     </div>
                   </fieldset>
                 </div>
@@ -200,6 +203,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                   <h2 className="font-black text-slate-950">Your requested work</h2>
                   <div className="mt-3 grid gap-2">
                     {q?.lines.map((l) => <div key={l.slug} className="flex justify-between border-b pb-2"><span>{l.title}</span><b>{gbp(l.price)}</b></div>)}
+                    {q && q.discount > 0 && <div className="flex justify-between border-b pb-2 text-emerald-700"><span>Multi-service offer ({q.discountPercent}% off)</span><b>-{gbp(q.discount)}</b></div>}
                     {q && q.parking > 0 && <div className="flex justify-between border-b pb-2"><span>Parking</span><b>{gbp(q.parking)}</b></div>}
                     {q && q.congestion > 0 && <div className="flex justify-between border-b pb-2"><span>Congestion zone</span><b>{gbp(q.congestion)}</b></div>}
                   </div>
@@ -228,7 +232,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                     <div className="grid gap-2 sm:grid-cols-2">
                       <label className="booking-radio">
                         <input type="radio" name="card_pay" checked={cardPay === "deposit"} onChange={() => setCardPay("deposit")} />
-                        <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now, the rest on the day</span>
+                        <span>Pay {gbp(Math.min(settings.fees.deposit, total))} deposit now, the rest on the day</span>
                       </label>
                       <label className="booking-radio">
                         <input type="radio" name="card_pay" checked={cardPay === "full"} onChange={() => setCardPay("full")} />

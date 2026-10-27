@@ -4,13 +4,15 @@ import BookingSummary from "@/components/BookingSummary";
 import DemoPayForm from "@/components/DemoPayForm";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "Payment", robots: { index: false } };
 
 export default async function DemoPayPage({ searchParams }: { searchParams: Promise<{ b?: string }> }) {
   if (paymentMode() !== "demo") redirect("/booking/");
   const { b } = await searchParams;
-  const booking = decodeBooking(b);
+  const settings = await getSettings();
+  const booking = decodeBooking(b, settings);
   if (!booking || !b) redirect("/booking/");
 
   return (

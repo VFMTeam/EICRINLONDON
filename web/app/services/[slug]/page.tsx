@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
+import { pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
 
 // Ported from the original theme's single-eicr_service.php.
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return services.map((s) => ({ slug: s.slug }));
 }
@@ -74,7 +73,7 @@ function schema(s: Service) {
 }
 
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
-  const s = getService((await params).slug);
+  const s = await pricedService((await params).slug);
   if (!s) notFound();
   const book = `/booking/?service=${s.slug}`;
 
