@@ -568,3 +568,6 @@
 .trust-verify p{margin-top:.4rem;color:#475569;font-size:.8rem}
 .trust-verify a{color:#9a3f20;font-weight:800;text-decoration:underline}
 .core-copy ul{margin:.4rem 0 0 1.2rem;list-style:disc;color:#475569;font-size:.9rem;line-height:1.8}
+.trust-logos{display:flex;gap:.75rem;margin-top:1rem}
+.trust-logos img{width:84px;height:84px;border-radius:.75rem;background:#fff;border:1px solid #e2e8f0;padding:.25rem;transition:transform .3s}
+.trust-logos img:hover{transform:translateY(-3px)}
