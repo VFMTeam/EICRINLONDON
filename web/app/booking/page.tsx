@@ -26,7 +26,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
           {quoteOnly.title} is priced by quote. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a> or book another service below.
         </p>
       )}
-      <BookingWizard minDate={dates[0]} maxDate={dates[dates.length - 1]} initialService={slug} mode={paymentMode()} settings={await getSettings()} />
+      <BookingWizard minDate={dates[0]} maxDate={dates[dates.length - 1]} initialService={slug} mode={await paymentMode()} settings={await getSettings()} />
     </main>
   );
 }

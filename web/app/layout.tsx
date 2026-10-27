@@ -19,8 +19,6 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 // Changes every deploy, so browsers can cache /css and /js for a year.
 const v = process.env.ASSET_VERSION;
 
-// Settings read by public/js/main.js (menus, scroll animations, forms).
-const clientData = { ajax: "/api/forms/", adsId: tracking.adsId, adsLabel: tracking.adsLabel };
 
 const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
   "@context": "https://schema.org",
@@ -38,6 +36,8 @@ const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const { announcement, tracking: saved } = await getSettings();
+  const adsId = saved.adsId || tracking.adsId;
+  const clientData = { ajax: "/api/forms/", adsId, adsLabel: saved.adsLabel || tracking.adsLabel };
   const site = await getSite();
   const header = await renderPartial("header");
   const footer = (await renderPartial("footer")).replace(/__YEAR__/g, String(new Date().getFullYear()));
@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {children}
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: footer }} />
         <MobileContactBar telHref={site.telHref} whatsapp={site.whatsapp} />
-        <CookieConsent gaId={saved.gaId || tracking.gaId} adsId={tracking.adsId} />
+        <CookieConsent gaId={saved.gaId || tracking.gaId} adsId={adsId} />
       </body>
     </html>
   );

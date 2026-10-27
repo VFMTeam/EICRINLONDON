@@ -13,7 +13,7 @@ const Icon = ({ d }: { d: string }) => (
 );
 
 export default async function DemoPayPage({ searchParams }: { searchParams: Promise<{ b?: string }> }) {
-  if (paymentMode() !== "demo") redirect("/booking/");
+  if ((await paymentMode()) !== "demo") redirect("/booking/");
   const { b } = await searchParams;
   const settings = await getSettings();
   const booking = decodeBooking(b, settings);

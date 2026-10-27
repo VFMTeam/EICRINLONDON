@@ -26,7 +26,7 @@ function Rows({ rows, empty }: { rows: [string, number][]; empty: string }) {
   );
 }
 
-export default function AdminBookings({ bookings, gaId }: { bookings: BookingRecord[]; gaId: string }) {
+export default function AdminBookings({ bookings }: { bookings: BookingRecord[] }) {
   const today = london(new Date());
   const [y, m, d] = today.split("-").map(Number);
   const weekday = (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7;
@@ -80,16 +80,6 @@ export default function AdminBookings({ bookings, gaId }: { bookings: BookingRec
         ) : (
           <p className="adm-empty">0</p>
         )}
-      </section>
-      <section className="adm-card">
-        <h2>Visitors</h2>
-        <div className="adm-row">
-          <span>Google Analytics</span>
-          <b>{gaId || "—"}</b>
-        </div>
-        <p className="adm-cta">
-          <a className="adm-btn" href="https://analytics.google.com/" target="_blank" rel="noopener">Open Analytics</a>
-        </p>
       </section>
     </>
   );

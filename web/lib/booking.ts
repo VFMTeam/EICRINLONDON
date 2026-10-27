@@ -1,4 +1,6 @@
 import { quote, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind, type Settings } from "@/lib/pricing";
+import { getSecret } from "@/lib/secrets";
+import { getSettings } from "@/lib/settings";
 import { isBookable } from "@/lib/slots";
 
 export type Pay = "full" | "bank" | "cash";
@@ -81,9 +83,11 @@ export function decodeBooking(s: string | undefined, settings: Settings) {
   }
 }
 
-// Demo (test card 4242) until STRIPE_SECRET_KEY is set. BOOKING_REQUEST_ONLY=1 emails bookings without payment.
+// Demo (test card 4242) until a Stripe key is set. "Bookings without card payment" (admin) or
+// BOOKING_REQUEST_ONLY=1 emails bookings without payment.
 export type PaymentMode = "stripe" | "demo" | "request";
-export function paymentMode(): PaymentMode {
-  if (process.env.STRIPE_SECRET_KEY) return "stripe";
+export async function paymentMode(): Promise<PaymentMode> {
+  if ((await getSettings()).payments.requestOnly) return "request";
+  if (await getSecret("stripeSecretKey")) return "stripe";
   return process.env.BOOKING_REQUEST_ONLY === "1" ? "request" : "demo";
 }
