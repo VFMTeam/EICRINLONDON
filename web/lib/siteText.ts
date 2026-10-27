@@ -8,8 +8,8 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
   {
     title: "Top of the home page",
     fields: [
-      ["heroTitle", "Headline", "Inspections and Safety Reports for"],
-      ["heroTitleGold", "Headline, gold part", "London Properties"],
+      ["heroTitle", "Headline", "EICR & Landlord Safety Certificates in"],
+      ["heroTitleGold", "Headline, gold part", "London"],
       ["heroText", "Text under the headline", "Arrange electrical, gas, energy and fire-safety work through one London team. We match each property to the right engineer, coordinate the visit and provide clear digital paperwork when the agreed work is complete."],
     ],
   },
@@ -24,7 +24,7 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
     title: "The right engineer",
     fields: [
       ["engineerTitle", "Heading", "The right engineer for each service"],
-      ["engineerText", "Text", "Electrical, gas, energy, fire-safety and asbestos work require different competence and registrations. We review the requested scope before confirming the appointment and assign a suitable professional for the agreed work."],
+      ["engineerText", "Text", "Electrical work is done by our NICEIC registered electricians, gas work by Gas Safe engineers, and EPCs by accredited energy assessors. We check what you need before we confirm the booking."],
     ],
   },
   {
@@ -38,7 +38,7 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
     title: "How it works",
     fields: [
       ["processTitle", "Heading", "How It Works"],
-      ["processText", "Text", "Each stage has a defined purpose, from selecting the scope to receiving the completed record."],
+      ["processText", "Text", "Four steps from booking to certificate."],
     ],
   },
   {

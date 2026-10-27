@@ -2,6 +2,8 @@
 // /admin/; read them with getSite() from lib/settings.
 export const site = {
   name: "EICR in London",
+  company: "Group Tech Solutions UK Ltd",
+  niceic: "D612270",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.eicrinlondon.co.uk",
   phone: "+44 7878 655350",
   email: "info@eicrinlondon.co.uk",

@@ -1,6 +1,7 @@
 import Reviews from "@/components/Reviews";
 import { gbp, servicePrice, type Settings } from "@/lib/pricing";
 import { getSettings, renderPartial } from "@/lib/settings";
+import { verifyHtml } from "@/components/VerifyRegistration";
 
 const home = (bedrooms: number) => ({ kind: "residential" as const, bedrooms, floors: 1, commercialType: "other" });
 
@@ -14,7 +15,7 @@ function homePrice(key: string, s: Settings) {
 
 export default async function HomePage() {
   const settings = await getSettings();
-  const html = (await renderPartial("pages/home")).replace(/\{\{([\w@/-]+)(:hourly)?\}\}/g, (token, key: string, hourly?: string) => {
+  const html = (await renderPartial("pages/home")).replace("{{verify}}", verifyHtml).replace(/\{\{([\w@/-]+)(:hourly)?\}\}/g, (token, key: string, hourly?: string) => {
     const price = homePrice(key, settings);
     if (price == null) return token;
     return hourly ? `£${Number.isInteger(price) ? price : price.toFixed(2)}/hr` : gbp(price);

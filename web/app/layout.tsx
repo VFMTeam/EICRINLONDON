@@ -23,6 +23,7 @@ const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: site.name,
+  legalName: site.company,
   url: site.url,
   telephone: site.phone,
   email: site.email,

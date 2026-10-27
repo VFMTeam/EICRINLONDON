@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
 import { getSite, pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
+import { serviceDetails } from "@/lib/serviceDetails";
+import VerifyRegistration from "@/components/VerifyRegistration";
 
 // Ported from the original theme's single-eicr_service.php.
 export function generateStaticParams() {
@@ -12,9 +14,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const s = getService((await params).slug);
   if (!s) return {};
+  const d = serviceDetails[s.slug];
   return {
-    title: { absolute: `${s.title} in London | EICR in London` },
-    description: s.benefit,
+    title: { absolute: d?.title ?? `${s.title} in London | EICR in London` },
+    description: d?.description ?? s.benefit,
     alternates: { canonical: `/services/${s.slug}/` },
     openGraph: { images: [serviceHeroImage(s.slug)] },
   };
@@ -32,13 +35,14 @@ const landlordNotes: Record<string, string> = {
   "boiler-gas-safety-combo": "Landlords: a Gas Safety Certificate is needed every 12 months.",
 };
 
-function faqs(s: Service) {
+function faqs(s: Service): [string, string][] {
   return [
+    ...(serviceDetails[s.slug]?.faqs ?? []),
     [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)} including VAT. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
     ["Can I combine this with another service?", "Yes. Book one service online and add the others in the notes, or request a quote, and we will arrange them together, often in a single visit."],
-    ["Which areas do you cover?", "We arrange residential and commercial property-compliance services throughout London and selected areas near the M25."],
+    ["Which areas do you cover?", "All 32 London boroughs, the City of London and selected towns near the M25."],
     ["What should I prepare before the visit?", "Make sure the relevant areas are accessible and tell us about any access instructions or known issues when you book."],
-    ["When will the engineer contact me?", "After confirmation, the attending specialist will contact you before travelling to the property."],
+    ["When will the engineer contact me?", "The engineer calls you on the day before they set off."],
   ];
 }
 
@@ -76,6 +80,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const s = await pricedService((await params).slug);
   if (!s) notFound();
   const book = `/booking/?service=${s.slug}`;
+  const d = serviceDetails[s.slug];
 
   return (
     <main id="main-content">
@@ -84,8 +89,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <section className="service-detail-hero">
           <div className="service-detail-wrap service-detail-hero-grid">
             <div>
-              <p className="service-detail-kicker">London property compliance service</p>
-              <h1>{s.title}</h1>
+              <p className="service-detail-kicker">NICEIC registered · 10+ years in London</p>
+              <h1>{d?.h1 ?? `${s.title} in London`}</h1>
               <p className="service-detail-lead">{s.benefit}</p>
               <div className="service-detail-price">
                 <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
@@ -106,17 +111,16 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <p className="service-detail-kicker">Service overview</p>
               <h2>{s.title} in London</h2>
               <div className="service-detail-editor">
-                <p>{s.benefit}</p>
+                {d ? d.intro.map((p) => <p key={p}>{p}</p>) : <p>{s.benefit}</p>}
                 <p>We cover homes and businesses across London. Tell us about the property and we will book the right engineer.</p>
               </div>
             </div>
             <aside className="service-detail-included">
-              <h2>What you get</h2>
+              <h2>{d ? "What the engineer checks" : "What you get"}</h2>
               <ul>
-                <li>A confirmed date and time</li>
-                <li>A qualified engineer for the job</li>
-                <li>Findings explained in plain English</li>
-                <li>Your certificate or report by email</li>
+                {(d?.checks ?? ["A confirmed date and time", "A qualified engineer for the job", "Findings explained in plain English", "Your certificate or report by email"]).map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
               </ul>
               <a href={book}>Book now</a>
             </aside>
@@ -154,6 +158,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <li>Prices confirmed before the visit</li>
                 <li>Quick replies by phone and WhatsApp</li>
               </ul>
+              <VerifyRegistration />
             </div>
           </div>
         </section>

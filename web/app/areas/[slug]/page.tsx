@@ -7,7 +7,6 @@ import { site } from "@/lib/site";
 
 const featured = ["eicr-certificate", "gas-safety", "boiler-gas-safety-combo", "epc", "fire-risk", "pat-testing", "fire-safety-certificate", "commercial-eicr"];
 
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return areas.map((a) => ({ slug: a.slug }));

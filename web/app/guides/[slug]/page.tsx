@@ -6,8 +6,6 @@ import { formatPrice } from "@/lib/services";
 import { pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
 }
