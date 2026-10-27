@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, list, put } from "@vercel/blob";
+import { blobConfigured } from "@/lib/blob";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 // Each review is one JSON file in Vercel Blob under reviews/pending/ or
@@ -12,7 +13,7 @@ export type Review = { id: string; name: string; service: string; rating: number
 const TAGS = { pending: "pending-reviews", approved: "approved-reviews" } as const;
 const LOCAL_DIR = path.join(process.cwd(), ".data", "reviews");
 const ACCESS = ["private", "public"] as const;
-const blob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const blob = blobConfigured;
 const fileName = (status: ReviewStatus, id: string) => `reviews/${status}/${id}.json`;
 
 export const reviewStorageReady = () => blob() || process.env.NODE_ENV !== "production";

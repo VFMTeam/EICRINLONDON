@@ -21,7 +21,7 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 
 ## Environment variables (set in Vercel, never in code or chat)
 
-`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BOOKING_REQUEST_ONLY`, `RESEND_API_KEY`, `FORM_TO_EMAIL`, `FORM_FROM_EMAIL`, `INVOICE_FROM_EMAIL`, `BANK_DETAILS`, `ADMIN_PASSWORD`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LABEL`, `NEXT_PUBLIC_GOOGLE_REVIEW_URL`. See `web/.env.example`. The site builds and runs without any of them.
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BOOKING_REQUEST_ONLY`, `RESEND_API_KEY`, `FORM_TO_EMAIL`, `FORM_FROM_EMAIL`, `INVOICE_FROM_EMAIL`, `BANK_DETAILS`, `ADMIN_PASSWORD`, `BLOB_READ_WRITE_TOKEN` or `BLOB_STORE_ID` (set when a Blob store is connected; the SDK then uses Vercel OIDC), `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LABEL`, `NEXT_PUBLIC_GOOGLE_REVIEW_URL`. See `web/.env.example`. The site builds and runs without any of them.
 
 ## Commands (run in `web/`)
 
