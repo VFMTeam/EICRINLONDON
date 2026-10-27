@@ -80,6 +80,7 @@ export type Settings = {
   text: Record<string, string>;
   business: Business;
   announcement: Announcement;
+  tracking: { gaId: string };
 };
 
 export const BEDROOM_BANDS = {
@@ -102,6 +103,7 @@ export const DEFAULT_SETTINGS: Settings = {
   text: DEFAULT_TEXT,
   business: DEFAULT_BUSINESS,
   announcement: DEFAULT_ANNOUNCEMENT,
+  tracking: { gaId: "" },
 };
 
 const money = (v: unknown, fallback: number, max = 100000) => {
@@ -155,6 +157,9 @@ export function normaliseSettings(raw: unknown): Settings {
       enabled: r.announcement?.enabled === true,
       text: typeof r.announcement?.text === "string" ? r.announcement.text.replace(/\s+/g, " ").trim().slice(0, 160) : "",
       link: typeof r.announcement?.link === "string" && /^\/[\w\-/?=&#.]*$/.test(r.announcement.link.trim()) ? r.announcement.link.trim() : d.announcement.link,
+    },
+    tracking: {
+      gaId: /^G-[A-Z0-9]{4,16}$/.test(String(r.tracking?.gaId ?? "").trim().toUpperCase()) ? String(r.tracking!.gaId).trim().toUpperCase() : "",
     },
   };
 }

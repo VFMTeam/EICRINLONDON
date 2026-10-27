@@ -144,7 +144,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews }: 
                 <li><b>Prices</b> for every service, bedroom extras, parking and congestion fees.</li>
                 <li><b>Offers & banner</b>: the multi-service discount and a message bar at the top of every page.</li>
                 <li><b>Website text</b>: headings and text on the home page.</li>
-                <li><b>Contact details</b>: phone, WhatsApp, email, address and Facebook, Instagram and TikTok links.</li>
+                <li><b>Contact details</b>: phone, WhatsApp, email, address, Facebook, Instagram and TikTok links, and your Google Analytics ID.</li>
                 <li><b>Reviews</b>: approve or remove customer reviews.</li>
               </ul>
               <p className="adm-hint">Press Save after a change. The website updates straight away.</p>
@@ -252,6 +252,9 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews }: 
               {SOCIAL.map(([key, label]) => (
                 <Words key={key} label={label} value={s.business[key]} onChange={(t) => update((d) => void (d.business[key] = t))} />
               ))}
+            </Card>
+            <Card title="Google Analytics" hint="Paste your Measurement ID from Google Analytics (Admin, Data streams). It starts with G-. Visitors are only counted after they accept analytics cookies.">
+              <Words label="Measurement ID" value={s.tracking.gaId} onChange={(t) => update((d) => void (d.tracking.gaId = t))} />
             </Card>
           </div>
         )}

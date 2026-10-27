@@ -34,7 +34,7 @@ const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
 });
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { announcement } = await getSettings();
+  const { announcement, tracking: saved } = await getSettings();
   const site = await getSite();
   const header = await renderPartial("header");
   const footer = (await renderPartial("footer")).replace(/__YEAR__/g, String(new Date().getFullYear()));
@@ -58,7 +58,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {children}
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: footer }} />
         <MobileContactBar telHref={site.telHref} whatsapp={site.whatsapp} />
-        <CookieConsent gaId={tracking.gaId} adsId={tracking.adsId} />
+        <CookieConsent gaId={saved.gaId || tracking.gaId} adsId={tracking.adsId} />
       </body>
     </html>
   );
