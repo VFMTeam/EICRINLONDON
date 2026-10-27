@@ -64,3 +64,20 @@ export async function listBookings(): Promise<BookingRecord[]> {
 }
 
 export const cachedBookings = unstable_cache(listBookings, [TAG], { tags: [TAG], revalidate: 86400 });
+
+async function countBookings() {
+  if (blob()) {
+    let count = 0;
+    let cursor: string | undefined;
+    do {
+      const page = await list({ prefix: "bookings/", cursor });
+      count += page.blobs.length;
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+    return count;
+  }
+  if (process.env.NODE_ENV === "production") return 0;
+  return (await readdir(LOCAL_DIR).catch(() => [])).length;
+}
+
+export const bookingCount = unstable_cache(countBookings, ["booking-count"], { tags: [TAG], revalidate: 86400 });

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Reviews from "@/components/Reviews";
+import { bookingCount } from "@/lib/bookings";
 import { gbp, servicePrice, type Settings } from "@/lib/pricing";
 import { getSettings, renderPartial } from "@/lib/settings";
 import { logosHtml } from "@/components/VerifyRegistration";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+// Jobs done before online booking; every booking made on the site adds one.
+const JOBS_BEFORE_ONLINE = 148;
 
 const home = (bedrooms: number) => ({ kind: "residential" as const, bedrooms, floors: 1, commercialType: "other" });
 
@@ -18,7 +22,8 @@ function homePrice(key: string, s: Settings) {
 
 export default async function HomePage() {
   const settings = await getSettings();
-  const html = (await renderPartial("pages/home")).replace("{{logos}}", logosHtml).replace(/\{\{([\w@/-]+)(:hourly)?\}\}/g, (token, key: string, hourly?: string) => {
+  const jobsDone = JOBS_BEFORE_ONLINE + (await bookingCount().catch(() => 0));
+  const html = (await renderPartial("pages/home")).replace("{{jobsDone}}", jobsDone.toLocaleString("en-GB")).replace("{{logos}}", logosHtml).replace(/\{\{([\w@/-]+)(:hourly)?\}\}/g, (token, key: string, hourly?: string) => {
     const price = homePrice(key, settings);
     if (price == null) return token;
     return hourly ? `£${Number.isInteger(price) ? price : price.toFixed(2)}/hr` : gbp(price);
