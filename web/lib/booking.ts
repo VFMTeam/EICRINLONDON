@@ -69,11 +69,12 @@ export function decodeBooking(s: string | undefined) {
 
 // How online bookings are paid:
 // - "stripe": STRIPE_SECRET_KEY is set, customers pay by card / Apple Pay.
-// - "demo": Vercel preview without a key, a test payment page (card 4242...).
-// - "request": live site without a key, the booking is emailed to the team,
-//   who call the customer to confirm and take payment. No online payment.
+// - "request": BOOKING_REQUEST_ONLY=1 and no key, the booking is emailed to
+//   the team, who call the customer to confirm and take payment.
+// - "demo": otherwise (the site is not launched yet), a test payment page
+//   (card 4242...). No money is taken.
 export type PaymentMode = "stripe" | "demo" | "request";
 export function paymentMode(): PaymentMode {
   if (process.env.STRIPE_SECRET_KEY) return "stripe";
-  return process.env.VERCEL_ENV === "production" ? "request" : "demo";
+  return process.env.BOOKING_REQUEST_ONLY === "1" ? "request" : "demo";
 }
