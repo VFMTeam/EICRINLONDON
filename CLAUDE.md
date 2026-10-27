@@ -38,4 +38,4 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 - Never add fake reviews, made-up review counts or invented numbers or prices. Use only figures Usman gives.
 - Show prices and totals as "inc. VAT". Do not write "no hidden charges".
 - Show all six accreditation logos (NICEIC, Gas Safe, NAPIT, TrustMark, Elmhurst Energy, City & Guilds). Registration numbers stay discreet: never in the hero.
-- Work on a branch and open a PR. Ask Usman before merging to `main`, because `main` is live.
+- Work on a branch and open a PR, then merge it to `main` (live) once lint and build pass and the Vercel preview deploys. Usman does not need to be asked first.
