@@ -1,3 +1,4 @@
+import Reviews from "@/components/Reviews";
 import { readPartial } from "@/lib/content";
 import { gbp, servicePrice, type Settings } from "@/lib/pricing";
 import { getSettings } from "@/lib/settings";
@@ -19,5 +20,12 @@ export default async function HomePage() {
     if (price == null) return token;
     return hourly ? `£${Number.isInteger(price) ? price : price.toFixed(2)}/hr` : gbp(price);
   });
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: html }} />;
+  const [before, after] = html.split("<!--reviews-->");
+  return (
+    <main id="main-content">
+      <div className="site-shell" dangerouslySetInnerHTML={{ __html: before }} />
+      <Reviews />
+      {after && <div className="site-shell" dangerouslySetInnerHTML={{ __html: after }} />}
+    </main>
+  );
 }
