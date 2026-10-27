@@ -89,7 +89,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <section className="service-detail-hero">
           <div className="service-detail-wrap service-detail-hero-grid">
             <div>
-              <p className="service-detail-kicker">NICEIC registered · 10+ years in London</p>
+              <p className="service-detail-kicker">NICEIC registered · Gas Safe registered</p>
               <h1>{d?.h1 ?? `${s.title} in London`}</h1>
               <p className="service-detail-lead">{s.benefit}</p>
               <div className="service-detail-price">

@@ -58,7 +58,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
             <p className="service-detail-kicker">{a.region} London</p>
             <h1>EICR and Landlord Certificates in {a.name}</h1>
             <p className="service-detail-lead">
-              Electrical, gas, EPC and fire safety certificates for homes, rentals and businesses in {a.places.slice(0, 3).join(", ")} and the rest of {a.name}. 10+ years working on London properties.
+              Electrical, gas, EPC and fire safety certificates for homes, rentals and businesses in {a.places.slice(0, 3).join(", ")} and the rest of {a.name}.
             </p>
             <div className="service-detail-actions">
               <a className="service-detail-book" href="/booking/">Book now</a>
