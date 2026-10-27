@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { emailTeam } from "@/lib/email";
-import { addReview, reviewStorageReady } from "@/lib/reviews";
+import { addReview } from "@/lib/reviews";
 import { services } from "@/lib/services";
 import { getSite } from "@/lib/settings";
 
@@ -42,24 +41,12 @@ export async function POST(request: Request) {
   if (text.length > 1500) return reply(false, "Please keep your review under 1,500 characters.", 400);
   if (form.get("consent") !== "yes") return reply(false, "Please agree to your name and review being shown on the website.", 400);
 
-  const saved = reviewStorageReady();
-  if (saved) {
-    try {
-      await addReview({ name, service, rating, text });
-    } catch (e) {
-      console.error("Saving a review failed", e);
-      return reply(false, `Sorry, your review could not be saved. Please try again or email ${site.email}.`, 503);
-    }
+  try {
+    await addReview({ name, service, rating, text });
+  } catch (e) {
+    console.error("Saving a review failed", e);
+    return reply(false, `Sorry, your review could not be saved. Please try again or email ${site.email}.`, 503);
   }
 
-  const sent = await emailTeam(saved ? `New review waiting: ${rating}/5 – ${name}` : `New review: ${rating}/5 – ${name}`, saved ? "New review waiting for approval" : "New review", [
-    ["Name", name],
-    ["Service", service],
-    ["Rating", `${rating} out of 5`],
-    ["Review", text],
-    ...(saved ? [["Approve", `${site.url}/admin/`]] : []),
-  ]).catch(() => "failed");
-
-  if (!saved && sent !== "sent") return reply(false, `Sorry, your review could not be sent. Please email ${site.email}.`, 503);
-  return reply(true, saved ? THANKS : "Thank you for your review.");
+  return reply(true, THANKS);
 }
