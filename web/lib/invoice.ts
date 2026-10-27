@@ -94,7 +94,7 @@ function invoiceText(inv: Invoice, contact: Business) {
   ].join("\n");
 }
 
-const BRAND = "#c35a2e";
+const BRAND = "#b4532a";
 
 function invoiceHtml(inv: Invoice, contact: Business) {
   const font = "font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#121826";
