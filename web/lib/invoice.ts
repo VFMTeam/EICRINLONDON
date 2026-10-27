@@ -25,15 +25,23 @@ const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/L
 export const invoiceNumber = (ref = randomBytes(3).toString("hex")) =>
   `INV-${today().replace(/-/g, "").slice(2)}-${ref.slice(-6).toUpperCase()}`;
 
+const offerLabel = (percent: number) => `Multi-service offer (${percent}% off)`;
+
 export const quoteLines = (q: Quote): Invoice["lines"] => [
   ...q.lines.map((l) => [l.title, l.price] as [string, number]),
+  ...(q.discount ? [[offerLabel(q.discountPercent), -q.discount] as [string, number]] : []),
   ...(q.parking ? [["Parking", q.parking] as [string, number]] : []),
   ...(q.congestion ? [["Congestion zone", q.congestion] as [string, number]] : []),
 ];
 
 // Stripe metadata values are capped at 500 characters, so lines travel as "slug:price;...".
 export const packLines = (q: Quote) =>
-  [...q.lines.map((l) => `${l.slug}:${l.price}`), ...(q.parking ? [`parking:${q.parking}`] : []), ...(q.congestion ? [`congestion:${q.congestion}`] : [])].join(";");
+  [
+    ...q.lines.map((l) => `${l.slug}:${l.price}`),
+    ...(q.discount ? [`offer${q.discountPercent}:${-q.discount}`] : []),
+    ...(q.parking ? [`parking:${q.parking}`] : []),
+    ...(q.congestion ? [`congestion:${q.congestion}`] : []),
+  ].join(";");
 
 const titles = new Map<string, string>([
   ...Object.values(BOOKING_SERVICES).flat(),
@@ -44,7 +52,9 @@ const titles = new Map<string, string>([
 export const unpackLines = (s: string): Invoice["lines"] =>
   s.split(";").flatMap((part) => {
     const [slug, price] = part.split(":");
-    return titles.has(slug) && Number.isFinite(Number(price)) ? [[titles.get(slug)!, Number(price)] as [string, number]] : [];
+    const offer = /^offer(\d+)$/.exec(slug);
+    const title = offer ? offerLabel(Number(offer[1])) : titles.get(slug);
+    return title && Number.isFinite(Number(price)) ? [[title, Number(price)] as [string, number]] : [];
   });
 
 const METHOD_TEXT: Record<InvoiceMethod, string> = {
@@ -71,7 +81,7 @@ function invoiceText(inv: Invoice) {
     inv.address,
     ...(visit ? [`Visit: ${visit}`] : []),
     "",
-    ...inv.lines.map(([label, price]) => `${label}: ${gbp(price)}`),
+    ...inv.lines.map(([label, price]) => `${label}: ${price < 0 ? `-${gbp(-price)}` : gbp(price)}`),
     `Total inc. VAT: ${gbp(inv.total)}`,
     METHOD_TEXT[inv.method],
     ...(bank ? ["", bank, `Please use ${inv.number} as the payment reference.`] : []),
@@ -89,7 +99,7 @@ function invoiceHtml(inv: Invoice) {
   const cell = "padding:10px 12px;border-bottom:1px solid #e5e7eb";
   const head = "padding:10px 12px;background:#f5f2ef;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#555";
   const rows = inv.lines
-    .map(([label, price]) => `<tr><td style="${cell}">${escapeHtml(label)}</td><td align="right" style="${cell}">${gbp(price)}</td></tr>`)
+    .map(([label, price]) => `<tr><td style="${cell}">${escapeHtml(label)}</td><td align="right" style="${cell}">${price < 0 ? `-${gbp(-price)}` : gbp(price)}</td></tr>`)
     .join("");
   const visit = visitText(inv);
   const bank = bankDetails();

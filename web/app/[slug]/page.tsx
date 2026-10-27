@@ -3,10 +3,8 @@ import { notFound } from "next/navigation";
 import { readPartial, pageMeta, type PageKey } from "@/lib/content";
 
 // Simple content pages carried over from the original site.
-const slugs = ["about", "areas", "contact", "privacy", "cookies", "terms"] as const;
+const slugs = ["about", "contact", "privacy", "cookies", "terms"] as const;
 type Slug = (typeof slugs)[number];
-
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));

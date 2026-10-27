@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CorePage from "@/components/CorePage";
-import { services, formatPrice } from "@/lib/services";
+import { formatPrice } from "@/lib/services";
+import { pricedServices } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: { absolute: "Property Certificate Prices in London | EICR in London" },
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/pricing/" },
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const services = await pricedServices();
   return (
     <CorePage title="Pricing">
       <div className="core-page-intro">

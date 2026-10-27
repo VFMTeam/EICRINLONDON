@@ -3,6 +3,7 @@ import BookingWizard from "@/components/BookingWizard";
 import { paymentMode } from "@/lib/booking";
 import { BOOKING_SERVICES } from "@/lib/pricing";
 import { getService } from "@/lib/services";
+import { getSettings } from "@/lib/settings";
 import { bookableDates } from "@/lib/slots";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
           {quoteOnly.title} is priced by quote. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a> or book another service below.
         </p>
       )}
-      <BookingWizard minDate={dates[0]} maxDate={dates[dates.length - 1]} initialService={slug} mode={paymentMode()} />
+      <BookingWizard minDate={dates[0]} maxDate={dates[dates.length - 1]} initialService={slug} mode={paymentMode()} settings={await getSettings()} />
     </main>
   );
 }
