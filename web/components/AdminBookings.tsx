@@ -13,7 +13,7 @@ function count<T extends string>(items: T[]) {
 }
 
 function Rows({ rows, empty }: { rows: [string, number][]; empty: string }) {
-  if (!rows.length) return <p className="adm-hint">{empty}</p>;
+  if (!rows.length) return <p className="adm-empty">{empty}</p>;
   return (
     <div>
       {rows.map(([label, n]) => (
@@ -57,13 +57,13 @@ export default function AdminBookings({ bookings, gaId }: { bookings: BookingRec
       </div>
       <section className="adm-card adm-half">
         <h2>Services booked this month</h2>
-        <Rows rows={count(month.flatMap((b) => b.services))} empty="No bookings yet this month." />
+        <Rows rows={count(month.flatMap((b) => b.services))} empty="0" />
       </section>
       <section className="adm-card adm-half">
         <h2>Payment method this month</h2>
-        <Rows rows={count(month.map((b) => b.method)).map(([k, n]) => [METHODS[k] ?? k, n])} empty="No bookings yet this month." />
+        <Rows rows={count(month.map((b) => b.method)).map(([k, n]) => [METHODS[k] ?? k, n])} empty="0" />
       </section>
-      <section className="adm-card">
+      <section className="adm-card wide">
         <h2>Latest bookings</h2>
         {bookings.length ? (
           <div className="adm-table">
@@ -78,18 +78,17 @@ export default function AdminBookings({ bookings, gaId }: { bookings: BookingRec
             ))}
           </div>
         ) : (
-          <p className="adm-hint">Bookings made on the website will show here.</p>
+          <p className="adm-empty">0</p>
         )}
       </section>
       <section className="adm-card">
         <h2>Visitors</h2>
-        <p className="adm-hint">
-          {gaId
-            ? `Visitor numbers, where people come from and which pages they read are in Google Analytics (${gaId}).`
-            : "Add your Google Analytics Measurement ID in Contact details to start counting visitors."}
-        </p>
+        <div className="adm-row">
+          <span>Google Analytics</span>
+          <b>{gaId || "—"}</b>
+        </div>
         <p className="adm-cta">
-          <a className="adm-btn" href="https://analytics.google.com/" target="_blank" rel="noopener">Open Google Analytics</a>
+          <a className="adm-btn" href="https://analytics.google.com/" target="_blank" rel="noopener">Open Analytics</a>
         </p>
       </section>
     </>
