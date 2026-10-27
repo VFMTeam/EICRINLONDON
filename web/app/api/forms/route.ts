@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   const pick = (name: string, options: string[]) => (options.includes(field(name, 40)) ? field(name, 40) : "");
   const propertyType = pick("property_type", ["Flat", "House", "HMO", "Commercial", "Other"]);
   const bedrooms = pick("bedrooms", ["Studio", "1", "2", "3", "4", "5", "6+", "Not applicable"]);
-  const preferredTime = pick("preferred_time", ["Morning (8am–12pm)", "Afternoon (12pm–5pm)"]);
+  const preferredTime = pick("preferred_time", ["Morning (8am–1pm)", "Afternoon (1pm–6pm)"]);
   const date = field("preferred_date", 10);
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
   if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date <= today) return reply(false, "Please choose a preferred date from tomorrow onwards.", 400);

@@ -562,3 +562,9 @@
 .service-detail-included .area-links li{padding:0!important;border:0!important}
 .core-copy section h2{margin-top:1.5rem!important}
 .core-copy p+p{margin-top:.6rem}
+.trust-verify{margin-top:.8rem;font-size:.78rem;color:#64748b}
+.trust-verify summary{display:inline;cursor:pointer;text-decoration:underline;text-underline-offset:2px;list-style:none}
+.trust-verify summary::-webkit-details-marker{display:none}
+.trust-verify p{margin-top:.4rem;color:#475569;font-size:.8rem}
+.trust-verify a{color:#9a3f20;font-weight:800;text-decoration:underline}
+.core-copy ul{margin:.4rem 0 0 1.2rem;list-style:disc;color:#475569;font-size:.9rem;line-height:1.8}

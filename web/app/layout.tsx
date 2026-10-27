@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { readPartial, pageMeta } from "@/lib/content";
-import { site } from "@/lib/site";
+import { site, telHref } from "@/lib/site";
 import { tracking, consentDefaultsScript } from "@/lib/tracking";
 import CookieConsent from "@/components/CookieConsent";
 import MobileContactBar from "@/components/MobileContactBar";
@@ -22,8 +22,9 @@ const localBusiness = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: site.name,
+  legalName: site.company,
   url: site.url,
-  telephone: site.phone,
+  telephone: telHref.slice(4),
   email: site.email,
   image: `${site.url}/images/logo.png`,
   address: { "@type": "PostalAddress", streetAddress: site.address, addressLocality: "Dagenham", postalCode: "RM10 8PS", addressCountry: "GB" },

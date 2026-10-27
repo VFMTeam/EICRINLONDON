@@ -5,7 +5,7 @@ export default function CorePage({ title, children }: { title: string; children:
       <section className="core-page-shell">
         <div className="core-page-wrap">
           <header className="core-page-header">
-            <p>Property compliance in London</p>
+            <p>Landlord certificates in London</p>
             <h1>{title}</h1>
           </header>
           <div className="core-page-content">{children}</div>

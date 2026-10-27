@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { areas, getArea, type Area } from "@/lib/areas";
-import { getService, formatPrice } from "@/lib/services";
+import { formatPrice } from "@/lib/services";
+import { pricedService, pricedServices } from "@/lib/settings";
 import { site, telHref } from "@/lib/site";
 
 const featured = ["eicr-certificate", "gas-safety", "boiler-gas-safety-combo", "epc", "fire-risk", "pat-testing", "fire-safety-certificate", "commercial-eicr"];
-
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return areas.map((a) => ({ slug: a.slug }));
@@ -15,7 +14,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const a = getArea((await params).slug);
   if (!a) return {};
-  const from = (slug: string) => formatPrice(getService(slug)?.price ?? 0).replace(".00", "");
+  const priced = await pricedServices();
+  const from = (slug: string) => formatPrice(priced.find((s) => s.slug === slug)?.price ?? 0).replace(".00", "");
   return {
     title: { absolute: `EICR & Landlord Certificates in ${a.name} | EICR in London` },
     description: `EICR from ${from("eicr-certificate")}, gas safety certificates from ${from("gas-safety")} and EPCs from ${from("epc")} in ${a.name} (${a.postcodes.slice(0, 4).join(", ")}). Prices inc. VAT. Book online or call.`,
@@ -38,7 +38,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   const a = getArea((await params).slug);
   if (!a) notFound();
   const nearby = a.nearby.map(getArea).filter((n): n is Area => Boolean(n));
-  const list = featured.map((slug) => getService(slug)).filter((s) => s !== undefined);
+  const list = (await Promise.all(featured.map((slug) => pricedService(slug)))).filter((s) => s !== undefined);
   const faqs: [string, string][] = [
     [`Do you cover all of ${a.name}?`, `Yes. We work across ${a.name}, including ${a.places.join(", ")}. Postcodes we visit include ${a.postcodes.join(", ")}.`],
     ["How often does a rental property need an EICR?", "In England a private landlord needs an EICR at least every five years, or sooner if the last report says so. A copy goes to tenants within 28 days of the inspection."],

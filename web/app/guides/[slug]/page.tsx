@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CorePage from "@/components/CorePage";
 import { guides, getGuide } from "@/lib/guides";
-import { getService, formatPrice } from "@/lib/services";
+import { formatPrice } from "@/lib/services";
+import { pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
-
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
@@ -20,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const g = getGuide((await params).slug);
   if (!g) notFound();
-  const service = getService(g.service);
+  const service = await pricedService(g.service);
   const others = guides.filter((o) => o.slug !== g.slug);
   const schema = {
     "@context": "https://schema.org",
