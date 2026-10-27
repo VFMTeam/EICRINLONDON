@@ -40,6 +40,28 @@ From then on, every change pushed to GitHub goes live automatically. Each
 branch also gets its own preview address, so changes can be checked before
 they go live.
 
+## Card payments with Stripe
+
+Online bookings are paid on Stripe's own secure Checkout page. To turn it on:
+
+1. In Stripe, open *Developers → API keys* and copy the **Secret key**. Add it
+   in Vercel as `STRIPE_SECRET_KEY`. Use the `sk_test_…` key first, and switch
+   to `sk_live_…` once a test booking works.
+2. In Stripe, open *Developers → Webhooks → Add endpoint*. Use
+   `https://www.eicrinlondon.co.uk/api/stripe-webhook/` (keep the slash at the
+   end) and choose the events `checkout.session.completed` and
+   `checkout.session.async_payment_succeeded`.
+3. Copy the endpoint's **Signing secret** (`whsec_…`) into Vercel as
+   `STRIPE_WEBHOOK_SECRET`, then redeploy.
+4. Make a test booking with card 4242 4242 4242 4242. You get a "Paid booking"
+   email at `FORM_TO_EMAIL`. If the email can't be sent, Stripe tries again
+   for up to three days.
+5. To email the customer a receipt, turn on *Settings → Customer emails →
+   Successful payments* in Stripe.
+
+Test mode and live mode in Stripe each have their own keys and webhook, so
+repeat steps 1 to 3 when you switch to live.
+
 ## Cookie banner and Google Ads
 
 The site has its own cookie banner (`components/CookieConsent.tsx`) that uses
