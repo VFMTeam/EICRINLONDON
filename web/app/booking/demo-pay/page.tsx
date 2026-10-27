@@ -46,7 +46,7 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
               <li key={name} className="sc-line-extra"><span className="sc-line-name">{name}</span><span>{price < 0 ? `-${gbp(-price)}` : gbp(price)}</span></li>
             ))}
           </ul>
-          <p className="sc-total"><span>Total inc. VAT</span><span>{gbp(booking.payNow)}</span></p>
+          <p className="sc-total"><span>Total</span><span>{gbp(booking.payNow)}</span></p>
           <div className="sc-visit">
             <p><Icon d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z" />{prettyDate(booking.date)}, {slotLabel(booking.slot)}</p>
             <p><Icon d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11zm0-8.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />{booking.address}, {booking.postcode}</p>

@@ -23,7 +23,7 @@ export default async function ServicesPage() {
             <p>{s.benefit}</p>
             <div>
               <strong className="core-price-display">
-                <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
+                <span className="eicr-current-price">From {formatPrice(s.price)}</span>
               </strong>
               <span>
                 <a href={`/services/${s.slug}/`}>More details</a>

@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const from = (slug: string) => formatPrice(priced.find((s) => s.slug === slug)?.price ?? 0).replace(".00", "");
   return {
     title: { absolute: `EICR & Landlord Certificates in ${a.name} | EICR in London` },
-    description: `EICR from ${from("eicr-certificate")}, gas safety certificates from ${from("gas-safety")} and EPCs from ${from("epc")} in ${a.name} (${a.postcodes.slice(0, 4).join(", ")}). Prices inc. VAT. Book online or call.`,
+    description: `EICR from ${from("eicr-certificate")}, gas safety certificates from ${from("gas-safety")} and EPCs from ${from("epc")} in ${a.name} (${a.postcodes.slice(0, 4).join(", ")}). Book online or call.`,
     alternates: { canonical: `/areas/${a.slug}/` },
   };
 }
@@ -76,7 +76,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
                 <div key={s.slug}>
                   <a href={`/services/${s.slug}/`}>{s.title}</a>
                   <strong className="core-price-display">
-                    <span className="eicr-current-price">From {formatPrice(s.price)} inc. VAT</span>
+                    <span className="eicr-current-price">From {formatPrice(s.price)}</span>
                   </strong>
                   <a className="core-book" href={`/booking/?service=${s.slug}`}>Book</a>
                 </div>

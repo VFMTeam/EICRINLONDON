@@ -13,7 +13,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   "eicr-certificate": {
     h1: "EICR Certificate in London",
     title: "EICR Certificate London | NICEIC Registered | EICR in London",
-    description: "Landlord and homeowner EICRs across London by NICEIC registered electricians. Fixed prices by bedroom, inc. VAT. Report sent by email.",
+    description: "Landlord and homeowner EICRs across London by NICEIC registered electricians. Fixed prices by bedroom. Report sent by email.",
     intro: [
       "An Electrical Installation Condition Report (EICR) checks the fixed wiring in a property and tells you whether it is safe to keep using. Our electricians are NICEIC registered.",
       "Private landlords in England need an EICR at least every five years, and before a new tenancy if the last one has expired. Homeowners are advised to have one every ten years, or when buying or selling.",
@@ -35,7 +35,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   "gas-safety": {
     h1: "Gas Safety Certificate in London",
     title: "Gas Safety Certificate London (CP12) | EICR in London",
-    description: "Landlord gas safety certificates (CP12) across London by Gas Safe registered engineers. Up to two appliances, price inc. VAT.",
+    description: "Landlord gas safety certificates (CP12) across London by Gas Safe registered engineers. Up to two appliances.",
     intro: [
       "A landlord gas safety certificate, often called a CP12, records that each gas appliance, pipe and flue in a rented property has been checked by a Gas Safe registered engineer.",
       "Landlords need a new one every 12 months. Tenants must get a copy within 28 days of the check, and new tenants before they move in.",
@@ -57,7 +57,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   epc: {
     h1: "EPC in London",
     title: "EPC London | Energy Performance Certificate | EICR in London",
-    description: "Energy Performance Certificates for London rentals and sales by accredited assessors. Priced by bedrooms, inc. VAT. Lodged on the national register.",
+    description: "Energy Performance Certificates for London rentals and sales by accredited assessors. Priced by bedrooms. Lodged on the national register.",
     intro: [
       "An Energy Performance Certificate (EPC) rates a property from A to G and lists improvements that would lower the bills. You need one before you let or sell a home.",
       "A rented home in England must be rated E or above. An EPC lasts 10 years and is lodged on the national register, so your agent can look it up straight away.",
@@ -78,7 +78,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   "fire-risk": {
     h1: "Fire Risk Assessment in London",
     title: "Fire Risk Assessment London | HMOs, Flats & Businesses | EICR in London",
-    description: "Written fire risk assessments for HMOs, blocks of flats, shops and offices across London. Prices inc. VAT.",
+    description: "Written fire risk assessments for HMOs, blocks of flats, shops and offices across London.",
     intro: [
       "Under the Regulatory Reform (Fire Safety) Order 2005, a fire risk assessment is required for workplaces, HMOs and the shared parts of blocks of flats.",
       "Our assessor walks the building, records the risks and gives you a written report with a clear action plan, so you know what to fix first.",
@@ -99,7 +99,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   "pat-testing": {
     h1: "PAT Testing in London",
     title: "PAT Testing London | Landlords & Businesses | EICR in London",
-    description: "PAT testing for rentals, HMOs, offices and shops across London. First ten appliances included, price inc. VAT. Labels and certificate provided.",
+    description: "PAT testing for rentals, HMOs, offices and shops across London. First ten appliances included. Labels and certificate provided.",
     intro: [
       "PAT testing checks portable electrical appliances such as kettles, heaters and washing machines. Each item gets a pass or fail label and goes on your test record.",
       "There is no fixed legal interval, but landlords must make sure any appliance they supply is safe, and many HMO licences ask for a PAT record.",

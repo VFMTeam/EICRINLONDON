@@ -17,7 +17,7 @@ export default function BookingSummary({ b, status }: { b: Booking; status: "due
         <dt>Appointment</dt>
         <dd>{prettyDate(b.date)}, {slotLabel(b.slot)}</dd>
       </dl>
-      <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(b.quote.total)}</b></p>
+      <p className="bk-total"><span>Total</span><b>{gbp(b.quote.total)}</b></p>
       {status === "offline" || isOffline(b.pay) ? (
         <p className="bk-paynow"><span>{b.pay === "bank" ? "Pay by bank transfer" : "Pay the engineer in cash"}</span><b>{gbp(b.quote.total)}</b></p>
       ) : (
