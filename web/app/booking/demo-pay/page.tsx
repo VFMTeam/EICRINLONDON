@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import DemoPayForm from "@/components/DemoPayForm";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 
 export const metadata: Metadata = { title: "Payment", robots: { index: false } };
@@ -14,9 +15,11 @@ const Icon = ({ d }: { d: string }) => (
 export default async function DemoPayPage({ searchParams }: { searchParams: Promise<{ b?: string }> }) {
   if (paymentMode() !== "demo") redirect("/booking/");
   const { b } = await searchParams;
-  const booking = decodeBooking(b);
+  const settings = await getSettings();
+  const booking = decodeBooking(b, settings);
   if (!booking || !b) redirect("/booking/");
   const extras = [
+    ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, -booking.quote.discount] as const] : []),
     ...(booking.quote.parking ? [["Parking", booking.quote.parking] as const] : []),
     ...(booking.quote.congestion ? [["Congestion zone", booking.quote.congestion] as const] : []),
   ];
@@ -40,7 +43,7 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
               </li>
             ))}
             {extras.map(([name, price]) => (
-              <li key={name} className="sc-line-extra"><span className="sc-line-name">{name}</span><span>{gbp(price)}</span></li>
+              <li key={name} className="sc-line-extra"><span className="sc-line-name">{name}</span><span>{price < 0 ? `-${gbp(-price)}` : gbp(price)}</span></li>
             ))}
           </ul>
           <p className="sc-total"><span>Total inc. VAT</span><span>{gbp(booking.payNow)}</span></p>

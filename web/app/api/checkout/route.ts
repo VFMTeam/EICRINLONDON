@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } from "@/lib/booking";
 import { emailTeam } from "@/lib/email";
 import { gbp } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import { site } from "@/lib/site";
 
@@ -22,7 +23,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
   const meta: Record<string, string> = {
     services, property: b.kind === "residential" ? `${b.bedrooms} bed, ${b.floors} storey` : b.commercialType,
     date: b.date, slot: b.slot, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
-    parking: b.parking, congestion: b.congestion ? "yes" : "no", total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
+    parking: b.parking, congestion: b.congestion ? "yes" : "no", discount: String(b.quote.discount), total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
   };
   for (const [k, v] of Object.entries(meta)) params.set(`metadata[${k}]`, v.slice(0, 500));
 
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Please complete the form and try again." }, { status: 400 });
   }
-  const booking = checkBooking(body);
+  const booking = checkBooking(body, await getSettings());
   if (typeof booking === "string") return NextResponse.json({ error: booking }, { status: 400 });
 
   const mode = paymentMode();
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
       const rows = [
         ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
         ...booking.quote.lines.map((l) => [l.title, gbp(l.price)]),
+        ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, `-${gbp(booking.quote.discount)}`]] : []),
         ["Parking", booking.quote.parking ? gbp(booking.quote.parking) : "Free parking"],
         ["Congestion charge", booking.quote.congestion ? gbp(booking.quote.congestion) : "No"],
         ["Total", gbp(booking.quote.total)],

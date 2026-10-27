@@ -1,4 +1,4 @@
-import { quote, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind } from "@/lib/pricing";
+import { quote, PARKING, COMMERCIAL_TYPES, type Quote, type PropertyKind, type Settings } from "@/lib/pricing";
 import { isBookable } from "@/lib/slots";
 
 export type Pay = "full" | "bank" | "cash";
@@ -31,7 +31,7 @@ const PAYS: Pay[] = ["full", "bank", "cash"];
 export const isOffline = (pay: Pay) => pay === "bank" || pay === "cash";
 
 // Returns an error message for the customer, or the checked booking.
-export function checkBooking(raw: unknown): Booking | string {
+export function checkBooking(raw: unknown, settings: Settings): Booking | string {
   const b = (raw ?? {}) as Record<string, unknown>;
   const text = (k: string, max: number) => String(b[k] ?? "").trim().slice(0, max);
   const num = (k: string, min: number, max: number) => Math.min(Math.max(Math.floor(Number(b[k])) || min, min), max);
@@ -55,7 +55,7 @@ export function checkBooking(raw: unknown): Booking | string {
     notes: text("notes", 1000),
     pay: PAYS.includes(b.pay as Pay) ? (b.pay as Pay) : "full",
   };
-  const q = quote(input.services, input, input.parking, input.congestion);
+  const q = quote(input.services, input, input.parking, input.congestion, settings);
   if (!q) return "Please select at least one service.";
   if (!isBookable(input.date, input.slot)) return "Please choose a date and arrival window.";
   if (!input.firstName || !input.lastName || !input.phone) return "Please enter your name and phone number.";
@@ -71,10 +71,10 @@ export const encodeBooking = (b: BookingInput) => {
   const input: BookingInput = { kind, bedrooms, floors, commercialType, services, date, slot, firstName, lastName, email, phone, address, postcode, parking, congestion, notes, pay };
   return Buffer.from(JSON.stringify(input)).toString("base64url");
 };
-export function decodeBooking(s: string | undefined) {
+export function decodeBooking(s: string | undefined, settings: Settings) {
   if (!s) return null;
   try {
-    const b = checkBooking(JSON.parse(Buffer.from(s, "base64url").toString("utf8")));
+    const b = checkBooking(JSON.parse(Buffer.from(s, "base64url").toString("utf8")), settings);
     return typeof b === "string" ? null : b;
   } catch {
     return null;

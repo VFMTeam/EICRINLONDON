@@ -9,6 +9,7 @@ export default function BookingSummary({ b, status }: { b: Booking; status: "due
       <h2>Your booking</h2>
       <dl>
         {b.quote.lines.map((l) => (<Fragment key={l.slug}><dt>{l.title}</dt><dd>{gbp(l.price)}</dd></Fragment>))}
+        {b.quote.discount > 0 && (<><dt>Multi-service offer ({b.quote.discountPercent}% off)</dt><dd>-{gbp(b.quote.discount)}</dd></>)}
         {b.quote.parking > 0 && (<><dt>Parking</dt><dd>{gbp(b.quote.parking)}</dd></>)}
         {b.quote.congestion > 0 && (<><dt>Congestion zone</dt><dd>{gbp(b.quote.congestion)}</dd></>)}
         <dt>Address</dt>

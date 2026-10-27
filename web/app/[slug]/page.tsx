@@ -6,8 +6,6 @@ import { readPartial, pageMeta, type PageKey } from "@/lib/content";
 const slugs = ["about", "areas", "contact", "privacy", "cookies", "terms"] as const;
 type Slug = (typeof slugs)[number];
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
