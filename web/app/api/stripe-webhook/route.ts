@@ -2,9 +2,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { recordBooking } from "@/lib/bookings";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, unpackLines } from "@/lib/invoice";
+import { getSecret } from "@/lib/secrets";
 
 // Stripe calls this after each Checkout payment, and the booking is emailed
-// to the team. Needs STRIPE_WEBHOOK_SECRET (Stripe > Developers > Webhooks,
+// to the team. Needs the signing secret, set in /admin/ Settings or as
+// STRIPE_WEBHOOK_SECRET (Stripe > Developers > Webhooks,
 // endpoint https://www.eicrinlondon.co.uk/api/stripe-webhook/, event
 // checkout.session.completed). See web/README.md.
 
@@ -36,9 +38,9 @@ function verified(payload: string, header: string | null, secret: string) {
 const label = (key: string) => key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
 
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = await getSecret("stripeWebhookSecret");
   if (!secret) {
-    console.error("Stripe webhook received but STRIPE_WEBHOOK_SECRET is not set.");
+    console.error("Stripe webhook received but no webhook signing secret is set.");
     return new Response("Not configured", { status: 503 });
   }
   const payload = await request.text();

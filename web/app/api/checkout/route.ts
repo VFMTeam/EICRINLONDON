@@ -4,6 +4,7 @@ import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } fro
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
 import { gbp } from "@/lib/pricing";
+import { getSecret } from "@/lib/secrets";
 import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
   const booking = checkBooking(body, await getSettings());
   if (typeof booking === "string") return NextResponse.json({ error: booking }, { status: 400 });
 
-  const mode = paymentMode();
+  const mode = await paymentMode();
   const offline = isOffline(booking.pay) || mode === "request";
   if (offline) {
     const rows = [
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
   if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
 
   const origin = new URL(request.url).origin;
-  const key = process.env.STRIPE_SECRET_KEY!;
+  const key = await getSecret("stripeSecretKey");
 
   const url = await stripeCheckout(booking, origin, key);
   if (!url) return NextResponse.json({ error: `Sorry, payment could not be started. Please call ${site.phone}.` }, { status: 502 });

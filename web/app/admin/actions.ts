@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { isAdmin, lockedOut, logIn, logOut } from "@/lib/admin";
 import { normaliseSettings, type Settings } from "@/lib/pricing";
 import { approveReview, deleteReview } from "@/lib/reviews";
+import { saveSecrets, secretStatus, type SecretName, type SecretStatus } from "@/lib/secrets";
 import { saveSettings } from "@/lib/settings";
 
 export async function login(_: string, form: FormData) {
@@ -19,15 +20,23 @@ export async function logout() {
   redirect("/admin/");
 }
 
-export async function save(settings: Settings): Promise<{ ok: boolean; message: string }> {
+export async function save(settings: Settings, keys: Partial<Record<SecretName, string>>): Promise<{ ok: boolean; message: string; keys?: SecretStatus }> {
   if (!(await isAdmin())) return { ok: false, message: "Please log in again." };
   try {
     await saveSettings(normaliseSettings(settings));
-    return { ok: true, message: "Saved. The website is updated." };
   } catch (e) {
     console.error("Saving admin settings failed", e);
     return { ok: false, message: "Could not save. Check that the Blob store is connected in Vercel." };
   }
+  if (Object.values(keys).some((v) => v?.trim())) {
+    try {
+      await saveSecrets(keys);
+    } catch (e) {
+      console.error("Saving API keys failed", e);
+      return { ok: false, message: "Settings saved, but the keys could not be saved. The Blob store must be private." };
+    }
+  }
+  return { ok: true, message: "Saved. The website is updated.", keys: await secretStatus() };
 }
 
 export async function moderateReview(form: FormData) {

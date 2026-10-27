@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BookingSummary from "@/components/BookingSummary";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
+import { getSecret } from "@/lib/secrets";
 import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: "Booking Confirmed", robots: { index:
 type Session = { payment_status: string; amount_total: number; customer_details?: { email?: string }; metadata: Record<string, string> };
 
 async function stripeSession(id: string) {
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = await getSecret("stripeSecretKey");
   if (!key || !/^cs_[A-Za-z0-9_]+$/.test(id)) return null;
   const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${id}`, { headers: { Authorization: `Bearer ${key}` }, cache: "no-store" });
   return res.ok ? ((await res.json()) as Session) : null;
@@ -18,7 +19,7 @@ async function stripeSession(id: string) {
 
 export default async function ConfirmedPage({ searchParams }: { searchParams: Promise<{ session_id?: string; demo?: string; booked?: string }> }) {
   const { session_id, demo, booked } = await searchParams;
-  const mode = paymentMode();
+  const mode = await paymentMode();
   const settings = await getSettings();
   const site = await getSite();
   const session = session_id ? await stripeSession(session_id) : null;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { getSite } from "@/lib/settings";
+import { getSecret } from "@/lib/secrets";
+import { getSettings, getSite } from "@/lib/settings";
 
 // Receives the quote form (public/js/main.js posts it here) and emails it to
 // the business through Resend. Needs RESEND_API_KEY; see web/README.md.
@@ -58,11 +59,11 @@ export async function POST(request: Request) {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(false, "Please enter a valid email address.", 400);
   if (service && !services.some((s) => s.title === service)) return reply(false, "Please choose a service from the list.", 400);
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.FORM_TO_EMAIL ?? site.email;
+  const apiKey = await getSecret("resendApiKey");
+  const to = (await getSettings()).notify.email || process.env.FORM_TO_EMAIL || site.email;
   const from = process.env.FORM_FROM_EMAIL ?? "EICR in London <website@eicrinlondon.co.uk>";
   if (!apiKey) {
-    console.error("Quote form received but RESEND_API_KEY is not set, so no email was sent.");
+    console.error("Quote form received but no Resend API key is set, so no email was sent.");
     return reply(false, `Sorry, we could not send your request just now. Please call ${site.phone} or email ${site.email}.`, 503);
   }
 

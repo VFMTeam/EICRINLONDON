@@ -80,7 +80,10 @@ export type Settings = {
   text: Record<string, string>;
   business: Business;
   announcement: Announcement;
-  tracking: { gaId: string };
+  tracking: { gaId: string; adsId: string; adsLabel: string };
+  links: { googleReview: string };
+  payments: { bankDetails: string; requestOnly: boolean };
+  notify: { email: string };
 };
 
 export const BEDROOM_BANDS = {
@@ -103,7 +106,10 @@ export const DEFAULT_SETTINGS: Settings = {
   text: DEFAULT_TEXT,
   business: DEFAULT_BUSINESS,
   announcement: DEFAULT_ANNOUNCEMENT,
-  tracking: { gaId: "" },
+  tracking: { gaId: "", adsId: "", adsLabel: "" },
+  links: { googleReview: "" },
+  payments: { bankDetails: "", requestOnly: false },
+  notify: { email: "" },
 };
 
 const money = (v: unknown, fallback: number, max = 100000) => {
@@ -160,6 +166,18 @@ export function normaliseSettings(raw: unknown): Settings {
     },
     tracking: {
       gaId: /^G-[A-Z0-9]{4,16}$/.test(String(r.tracking?.gaId ?? "").trim().toUpperCase()) ? String(r.tracking!.gaId).trim().toUpperCase() : "",
+      adsId: /^AW-\d{6,14}$/.test(String(r.tracking?.adsId ?? "").trim().toUpperCase()) ? String(r.tracking!.adsId).trim().toUpperCase() : "",
+      adsLabel: String(r.tracking?.adsLabel ?? "").trim().replace(/[^\w-]/g, "").slice(0, 40),
+    },
+    links: {
+      googleReview: /^https:\/\/[^\s"<>]+$/.test(String(r.links?.googleReview ?? "").trim()) ? String(r.links!.googleReview).trim().slice(0, 300) : "",
+    },
+    payments: {
+      bankDetails: typeof r.payments?.bankDetails === "string" ? r.payments.bankDetails.replace(/\r/g, "").trim().slice(0, 400) : "",
+      requestOnly: r.payments?.requestOnly === true,
+    },
+    notify: {
+      email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(String(r.notify?.email ?? "").trim()) ? String(r.notify!.email).trim() : "",
     },
   };
 }

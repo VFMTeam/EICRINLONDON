@@ -1,7 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { BOOKING_SERVICES, gbp, type Quote } from "@/lib/pricing";
+import { getSecret } from "@/lib/secrets";
 import { prettyDate, slotLabel } from "@/lib/slots";
-import { getSite } from "@/lib/settings";
+import { getSettings, getSite } from "@/lib/settings";
 import { site } from "@/lib/site";
 import type { Business } from "@/lib/siteText";
 
@@ -65,16 +66,16 @@ const METHOD_TEXT: Record<InvoiceMethod, string> = {
   bank: "To pay by bank transfer",
 };
 
-const bankDetails = () => process.env.BANK_DETAILS?.trim() ?? "";
+const bankDetails = async () => (await getSettings()).payments.bankDetails || process.env.BANK_DETAILS?.trim() || "";
 
 const issued = () => new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" });
 
 const visitText = (inv: Invoice) =>
   /^\d{4}-\d{2}-\d{2}$/.test(inv.date) ? [prettyDate(inv.date), slotLabel(inv.slot)].filter(Boolean).join(", ") : "";
 
-function invoiceText(inv: Invoice, contact: Business) {
+function invoiceText(inv: Invoice, contact: Business, bankText: string) {
   const visit = visitText(inv);
-  const bank = inv.method === "bank" ? bankDetails() || "We will send our bank details separately." : "";
+  const bank = inv.method === "bank" ? bankText || "We will send our bank details separately." : "";
   return [
     `Invoice ${inv.number}`,
     issued(),
@@ -96,7 +97,7 @@ function invoiceText(inv: Invoice, contact: Business) {
 
 const BRAND = "#b4532a";
 
-function invoiceHtml(inv: Invoice, contact: Business) {
+function invoiceHtml(inv: Invoice, contact: Business, bankText: string) {
   const font = "font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#121826";
   const cell = "padding:10px 12px;border-bottom:1px solid #e5e7eb";
   const head = "padding:10px 12px;background:#f5f2ef;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#555";
@@ -104,7 +105,7 @@ function invoiceHtml(inv: Invoice, contact: Business) {
     .map(([label, price]) => `<tr><td style="${cell}">${escapeHtml(label)}</td><td align="right" style="${cell}">${price < 0 ? `-${gbp(-price)}` : gbp(price)}</td></tr>`)
     .join("");
   const visit = visitText(inv);
-  const bank = bankDetails();
+  const bank = bankText;
   const label = (t: string) => `<span style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#777">${t}</span>`;
   return `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5"><tr><td align="center" style="padding:24px 12px">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-top:4px solid ${BRAND};${font}">
@@ -144,8 +145,9 @@ ${rows}
 
 // Sent through Resend. Never throws: a failed invoice must not undo a booking.
 export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = await getSecret("resendApiKey");
   if (!apiKey || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inv.email)) return "skipped";
+  const bank = await bankDetails();
   const from = process.env.INVOICE_FROM_EMAIL ?? `${site.name} <${site.email}>`;
   const contact = await getSite();
   try {
@@ -161,8 +163,8 @@ export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
         to: inv.email,
         reply_to: contact.email,
         subject: `Your invoice ${inv.number} from ${site.name}`,
-        html: invoiceHtml(inv, contact),
-        text: invoiceText(inv, contact),
+        html: invoiceHtml(inv, contact, bank),
+        text: invoiceText(inv, contact, bank),
       }),
     });
     if (!res.ok) {

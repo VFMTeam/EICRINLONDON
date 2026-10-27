@@ -15,9 +15,9 @@ body:has(.adm-page) {
   --adm-bg: #05080b;
   --adm-panel: #0a1016;
   --adm-panel-2: #0e161e;
-  --adm-line: #16232d;
-  --adm-ink: #d7f5e6;
-  --adm-muted: #5f7f73;
+  --adm-line: #1f313d;
+  --adm-ink: #effff7;
+  --adm-muted: #a3c4b6;
   --adm-acc: #00ff9c;
   --adm-acc-dim: rgba(0, 255, 156, 0.12);
   --adm-warn: #ffb020;
@@ -31,7 +31,8 @@ body:has(.adm-page) {
     var(--adm-bg);
   color: var(--adm-ink);
   font-family: var(--adm-mono);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.55;
 }
 .adm-page button {
   cursor: pointer;
@@ -185,6 +186,18 @@ body:has(.adm-page) {
   color: var(--adm-muted);
   text-shadow: none;
 }
+.adm-top h1 b {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: calc(var(--n) * 1ch);
+  animation: adm-type 0.6s steps(var(--n)) both;
+}
+@keyframes adm-type {
+  from {
+    width: 0;
+  }
+}
 .adm-top h1 i {
   display: inline-block;
   width: 0.6em;
@@ -281,7 +294,7 @@ body:has(.adm-page) {
 .adm-stat small {
   color: var(--adm-muted);
   font-weight: 600;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -314,10 +327,10 @@ body:has(.adm-page) {
   border-bottom: 1px solid var(--adm-line);
   background: var(--adm-panel-2);
   border-radius: 0.4rem 0.4rem 0 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--adm-acc);
 }
 .adm-card h2::before {
@@ -325,7 +338,7 @@ body:has(.adm-page) {
   color: var(--adm-muted);
 }
 .adm-card h3 {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -353,7 +366,7 @@ body:has(.adm-page) {
   display: block;
   color: var(--adm-muted);
   margin-top: 0.15rem;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
 }
 .adm-cta {
   margin-top: 0.9rem;
@@ -369,10 +382,16 @@ body:has(.adm-page) {
   gap: 1rem;
   padding: 0.45rem 0;
   border-bottom: 1px solid var(--adm-line);
-  font-size: 0.85rem;
+  font-size: 0.92rem;
 }
 .adm-row > b {
   color: #fff;
+  white-space: nowrap;
+}
+.adm-row s {
+  color: var(--adm-muted);
+  font-weight: 500;
+  margin-right: 0.35rem;
 }
 .adm-num {
   display: inline-flex;
@@ -421,11 +440,25 @@ body:has(.adm-page) {
 .adm-text > span {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  gap: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--adm-muted);
+  color: var(--adm-ink);
+}
+.adm-text em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--adm-warn);
+}
+.adm-text em.on {
+  color: var(--adm-acc);
+}
+.adm-text :is(input, textarea)::placeholder {
+  color: #5d7a6e;
+}
+.adm-text input[readonly] {
+  color: var(--adm-acc);
 }
 .adm-text button {
   color: var(--adm-warn);
@@ -489,15 +522,96 @@ body:has(.adm-page) {
   outline: 1px solid var(--adm-acc);
   outline-offset: 2px;
 }
-.adm-preview {
-  margin-top: 1rem;
-  border: 1px dashed var(--adm-acc);
-  color: var(--adm-acc);
+.adm-site {
+  overflow: hidden;
+  border: 1px solid var(--adm-line);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #0f172a;
+  font-family: Inter, system-ui, sans-serif;
+}
+.adm-site-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  background: #1b2731;
+  color: var(--adm-muted);
+  font-family: var(--adm-mono);
+  font-size: 0.75rem;
+}
+.adm-site-bar i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3a4b57;
+}
+.adm-site-bar span {
+  margin-left: 0.6rem;
+}
+.adm-site-banner {
+  background: #b4532a;
+  color: #fff;
   text-align: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border-radius: 0.3rem;
+  font-size: 0.875rem;
+  font-weight: 800;
   padding: 0.5rem 1rem;
+}
+.adm-site-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.adm-site-head b {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+.adm-site-head span {
+  color: #b4532a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+.adm-site-body {
+  padding: 1rem;
+  background: #fffbf5;
+}
+.adm-site-body .adm-row {
+  border-color: #e2e8f0;
+}
+.adm-site-body .adm-row > b {
+  color: #b4532a;
+}
+.adm-site-body .adm-row s {
+  color: #94a3b8;
+}
+.adm-site-label {
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}
+.adm-site-offer {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  background: #fef3c7;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 900;
+}
+.adm-site-off {
+  padding: 0.45rem 1rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  background: #f8fafc;
+}
+.adm-site-body .adm-site-off {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .adm-bar {
@@ -718,6 +832,7 @@ body:has(.adm-page) {
 }
 @media (prefers-reduced-motion: reduce) {
   .adm-top h1 i,
+  .adm-top h1 b,
   .adm-live b {
     animation: none;
   }
