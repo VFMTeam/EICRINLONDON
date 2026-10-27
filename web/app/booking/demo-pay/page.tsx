@@ -22,7 +22,7 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
             <h1>Pay {gbp(booking.payNow)}</h1>
           </header>
           <p className="bk-demo-banner">Demo mode: no real payment is taken. Use card 4242 4242 4242 4242, any future date and any CVC.</p>
-          <div className="bk-layout">
+          <div>
             <div className="bk-main">
               <DemoPayForm amount={gbp(booking.payNow)} booking={b} />
             </div>

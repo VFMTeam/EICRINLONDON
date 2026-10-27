@@ -33,7 +33,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
             <h1>{ok ? "Your booking is confirmed" : "We could not find this payment"}</h1>
           </header>
           {ok ? (
-            <div className="bk-layout">
+            <div>
               <div className="bk-main bk-confirmed">
                 {offline?.pay === "cash" ? (
                   <p>Thank you. Please pay the engineer {gbp(offline.quote.total)} in cash on the day. Nothing has been charged online. We will call you to confirm the visit.</p>
