@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
       ...services.map((s) => ({ source: `/${s.slug}/`, destination: `/services/${s.slug}/`, permanent: true })),
       { source: "/service/:slug/", destination: "/services/:slug/", permanent: true },
       { source: "/sitemap.xml/", destination: "/sitemap.xml", permanent: true },
+      // Short link to send customers after a job so they can leave a Google review.
+      ...(process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL
+        ? [{ source: "/review/", destination: process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL, permanent: false }]
+        : []),
       // The old site's customer and staff login pages no longer exist.
       ...["sign-in", "create-account", "reset-password", "my-account", "staff-login", "staff-verify", "staff-dashboard"].map((p) => ({
         source: `/${p}/`,
