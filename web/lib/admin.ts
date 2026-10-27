@@ -1,8 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies, headers } from "next/headers";
-
-const COOKIE = "eicr_admin";
-const WEEK = 60 * 60 * 24 * 7;
+import { ADMIN_COOKIE as COOKIE, adminCookieOptions } from "@/lib/adminCookie";
 
 const password = () => {
   const p = process.env.ADMIN_PASSWORD ?? "";
@@ -41,7 +39,7 @@ export async function logIn(attempt: string) {
     return false;
   }
   failures.delete(ip);
-  (await cookies()).set(COOKIE, sessionToken(), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", maxAge: WEEK });
+  (await cookies()).set(COOKIE, sessionToken(), adminCookieOptions);
   return true;
 }
 
