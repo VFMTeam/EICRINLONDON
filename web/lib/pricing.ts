@@ -1,5 +1,5 @@
 import { services } from "@/lib/services";
-import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, type Announcement, type Business } from "@/lib/siteText";
+import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, socialUrl, type Announcement, type Business } from "@/lib/siteText";
 
 // Booking prices follow the original site's rules (EICR-London/inc/booking-v2.php).
 export type PropertyKind = "residential" | "commercial";
@@ -80,6 +80,7 @@ export type Settings = {
   text: Record<string, string>;
   business: Business;
   announcement: Announcement;
+  tracking: { gaId: string };
 };
 
 export const BEDROOM_BANDS = {
@@ -102,6 +103,7 @@ export const DEFAULT_SETTINGS: Settings = {
   text: DEFAULT_TEXT,
   business: DEFAULT_BUSINESS,
   announcement: DEFAULT_ANNOUNCEMENT,
+  tracking: { gaId: "" },
 };
 
 const money = (v: unknown, fallback: number, max = 100000) => {
@@ -147,11 +149,17 @@ export function normaliseSettings(raw: unknown): Settings {
       whatsapp: String(r.business?.whatsapp ?? "").replace(/\D/g, "").slice(0, 20) || d.business.whatsapp,
       email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(String(r.business?.email ?? "").trim()) ? String(r.business!.email).trim() : d.business.email,
       address: words(r.business?.address, d.business.address, 200),
+      facebook: socialUrl(r.business?.facebook, "facebook"),
+      instagram: socialUrl(r.business?.instagram, "instagram"),
+      tiktok: socialUrl(r.business?.tiktok, "tiktok"),
     },
     announcement: {
       enabled: r.announcement?.enabled === true,
       text: typeof r.announcement?.text === "string" ? r.announcement.text.replace(/\s+/g, " ").trim().slice(0, 160) : "",
       link: typeof r.announcement?.link === "string" && /^\/[\w\-/?=&#.]*$/.test(r.announcement.link.trim()) ? r.announcement.link.trim() : d.announcement.link,
+    },
+    tracking: {
+      gaId: /^G-[A-Z0-9]{4,16}$/.test(String(r.tracking?.gaId ?? "").trim().toUpperCase()) ? String(r.tracking!.gaId).trim().toUpperCase() : "",
     },
   };
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordBooking } from "@/lib/bookings";
 import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } from "@/lib/booking";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
@@ -69,6 +70,10 @@ export async function POST(request: Request) {
     ];
     const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
     if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+    await recordBooking({
+      visit: booking.date, services: booking.quote.lines.map((l) => l.title), total: booking.quote.total,
+      method: booking.pay === "full" ? "request" : booking.pay, name: booking.name, postcode: booking.postcode,
+    });
     if (isOffline(booking.pay)) {
       await emailInvoice({
         number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,
