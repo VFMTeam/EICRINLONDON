@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } from "@/lib/booking";
 import { emailTeam } from "@/lib/email";
+import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
 import { gbp } from "@/lib/pricing";
 import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
@@ -23,6 +24,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
     services, property: b.kind === "residential" ? `${b.bedrooms} bed, ${b.floors} storey` : b.commercialType,
     date: b.date, slot: b.slot, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
     parking: b.parking, congestion: b.congestion ? "yes" : "no", discount: String(b.quote.discount), total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
+    invoice: packLines(b.quote),
   };
   for (const [k, v] of Object.entries(meta)) params.set(`metadata[${k}]`, v.slice(0, 500));
 
@@ -68,6 +70,12 @@ export async function POST(request: Request) {
       ];
       const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
       if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+      if (isOffline(booking.pay)) {
+        await emailInvoice({
+          number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,
+          date: booking.date, slot: booking.slot, lines: quoteLines(booking.quote), total: booking.quote.total, method: booking.pay === "cash" ? "cash" : "bank",
+        });
+      }
     }
     return NextResponse.json({ url: `/booking/confirmed/?booked=${encodeBooking(booking)}` });
   }

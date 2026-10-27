@@ -56,8 +56,12 @@ Online bookings are paid on Stripe's own secure Checkout page. To turn it on:
 4. Make a test booking with card 4242 4242 4242 4242. You get a "Paid booking"
    email at `FORM_TO_EMAIL`. If the email can't be sent, Stripe tries again
    for up to three days.
-5. To email the customer a receipt, turn on *Settings → Customer emails →
-   Successful payments* in Stripe.
+5. Customers also get an invoice by email from the site itself (logo,
+   services, total inc. VAT and how they pay) for card, cash and bank
+   transfer bookings. It goes through Resend, so it is free. Put your bank
+   details in Vercel as `BANK_DETAILS` so they show on bank transfer invoices.
+   Invoices come from `INVOICE_FROM_EMAIL` (default info@eicrinlondon.co.uk),
+   so that domain must be verified in Resend (see "Connect email" above).
 
 Test mode and live mode in Stripe each have their own keys and webhook, so
 repeat steps 1 to 3 when you switch to live.
