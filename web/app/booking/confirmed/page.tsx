@@ -47,7 +47,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
                   <p>Thank you. We have your booking and a receipt is on its way to your email. The engineer will call you before the visit.</p>
                 )}
                 <p>Need to change anything? <a href={site.telHref}>Call {site.phone}</a> or <a href={`https://wa.me/${site.whatsapp}`}>WhatsApp us</a>.</p>
-                {mode === "demo" && booking && <p className="bk-demo-banner">Demo mode: no real payment was taken and no booking was sent.</p>}
+                {mode === "demo" && !offline && booking && <p className="bk-demo-banner">Demo mode: no real payment was taken and no booking was sent.</p>}
               </div>
               {booking && <BookingSummary b={booking} status={offline ? "offline" : "paid"} />}
               {session && (
