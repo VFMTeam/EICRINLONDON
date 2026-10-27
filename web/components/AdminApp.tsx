@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { logout, save } from "@/app/admin/actions";
 import { BEDROOM_BANDS, COMMERCIAL_TYPES, DEFAULT_SETTINGS, HOME_TABLE_PRICES, type Settings } from "@/lib/pricing";
 import { getService, services } from "@/lib/services";
-import { TEXT_GROUPS } from "@/lib/siteText";
+import { SOCIAL, TEXT_GROUPS } from "@/lib/siteText";
 
 const TABS = [
   ["overview", "Overview", "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"],
@@ -144,7 +144,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews }: 
                 <li><b>Prices</b> for every service, bedroom extras, parking and congestion fees.</li>
                 <li><b>Offers & banner</b>: the multi-service discount and a message bar at the top of every page.</li>
                 <li><b>Website text</b>: headings and text on the home page.</li>
-                <li><b>Contact details</b>: phone, WhatsApp, email and address everywhere on the site.</li>
+                <li><b>Contact details</b>: phone, WhatsApp, email, address and Facebook, Instagram and TikTok links.</li>
                 <li><b>Reviews</b>: approve or remove customer reviews.</li>
               </ul>
               <p className="adm-hint">Press Save after a change. The website updates straight away.</p>
@@ -247,6 +247,11 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews }: 
               <Words label="WhatsApp number (country code, numbers only)" value={s.business.whatsapp} fallback={DEFAULT_SETTINGS.business.whatsapp} onChange={(t) => update((d) => void (d.business.whatsapp = t))} />
               <Words label="Email" value={s.business.email} fallback={DEFAULT_SETTINGS.business.email} onChange={(t) => update((d) => void (d.business.email = t))} />
               <Words label="Address" value={s.business.address} fallback={DEFAULT_SETTINGS.business.address} onChange={(t) => update((d) => void (d.business.address = t))} />
+            </Card>
+            <Card title="Social media" hint="Paste the full link to your page. Its icon appears in the footer and on the contact page. Leave empty to hide it.">
+              {SOCIAL.map(([key, label]) => (
+                <Words key={key} label={label} value={s.business[key]} onChange={(t) => update((d) => void (d.business[key] = t))} />
+              ))}
             </Card>
           </div>
         )}

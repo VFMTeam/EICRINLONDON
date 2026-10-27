@@ -66,9 +66,38 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
 
 export const DEFAULT_TEXT: Record<string, string> = Object.fromEntries(TEXT_GROUPS.flatMap((g) => g.fields.map(([key, , text]) => [key, text])));
 
-export type Business = { phone: string; whatsapp: string; email: string; address: string };
+export const SOCIAL = [
+  ["facebook", "Facebook", ["facebook.com", "fb.com"], '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>'],
+  ["instagram", "Instagram", ["instagram.com"], '<rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/>'],
+  ["tiktok", "TikTok", ["tiktok.com"], '<path d="M9 12a4 4 0 1 0 4 4V2a5 5 0 0 0 5 5"/>'],
+] as const;
+export type SocialKey = (typeof SOCIAL)[number][0];
 
-export const DEFAULT_BUSINESS: Business = { phone: site.phone, whatsapp: site.whatsapp, email: site.email, address: site.address };
+export type Business = { phone: string; whatsapp: string; email: string; address: string } & Record<SocialKey, string>;
+
+export const DEFAULT_BUSINESS: Business = { phone: site.phone, whatsapp: site.whatsapp, email: site.email, address: site.address, facebook: "", instagram: "", tiktok: "" };
+
+// Keeps a social link only if it is a web address on that network's own site.
+export function socialUrl(value: unknown, key: SocialKey) {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw) return "";
+  try {
+    const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    const hosts = SOCIAL.find(([k]) => k === key)![2] as readonly string[];
+    const ok = hosts.some((h) => url.hostname === h || url.hostname.endsWith(`.${h}`));
+    return ok ? `https://${url.host}${url.pathname}${url.search}`.slice(0, 300) : "";
+  } catch {
+    return "";
+  }
+}
+
+export function socialLinksHtml(b: Business) {
+  const links = SOCIAL.filter(([key]) => b[key]).map(
+    ([key, label, , icon]) =>
+      `<a href="${escape(b[key])}" target="_blank" rel="noopener" aria-label="${label}" title="${label}"><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg></a>`,
+  );
+  return links.length ? `<div class="social-links">${links.join("")}</div>` : "";
+}
 
 export type Announcement = { enabled: boolean; text: string; link: string };
 export const DEFAULT_ANNOUNCEMENT: Announcement = { enabled: false, text: "", link: "/booking/" };
@@ -85,7 +114,8 @@ export function applyBusiness(html: string, b: Business) {
     .replaceAll(telNumber(d.phone), telNumber(b.phone))
     .replaceAll(`wa.me/${d.whatsapp}`, `wa.me/${b.whatsapp}`)
     .replaceAll(d.email, escape(b.email))
-    .replaceAll(d.address, escape(b.address));
+    .replaceAll(d.address, escape(b.address))
+    .replaceAll("<!--SOCIAL-->", socialLinksHtml(b));
 }
 
 export function applyText(html: string, text: Record<string, string>) {

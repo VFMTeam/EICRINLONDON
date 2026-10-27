@@ -30,6 +30,7 @@ const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
   image: `${site.url}/images/logo.png`,
   address: { "@type": "PostalAddress", streetAddress: site.address, addressLocality: "Dagenham", postalCode: "RM10 8PS", addressCountry: "GB" },
   areaServed: "London",
+  sameAs: [site.facebook, site.instagram, site.tiktok].filter(Boolean),
 });
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

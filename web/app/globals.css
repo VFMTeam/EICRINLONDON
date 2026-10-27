@@ -1045,3 +1045,40 @@ body {
 .site-announcement:hover {
   text-decoration: underline;
 }
+
+.social-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0.85;
+  transition: color 0.15s, opacity 0.15s;
+}
+.social-links a:hover {
+  color: var(--gold);
+  opacity: 1;
+}
+.social-links svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+footer .social-links a {
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+footer .social-links a:hover {
+  color: var(--gold);
+}

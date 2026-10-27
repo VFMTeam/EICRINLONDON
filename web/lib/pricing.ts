@@ -1,5 +1,5 @@
 import { services } from "@/lib/services";
-import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, type Announcement, type Business } from "@/lib/siteText";
+import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, socialUrl, type Announcement, type Business } from "@/lib/siteText";
 
 // Booking prices follow the original site's rules (EICR-London/inc/booking-v2.php).
 export type PropertyKind = "residential" | "commercial";
@@ -147,6 +147,9 @@ export function normaliseSettings(raw: unknown): Settings {
       whatsapp: String(r.business?.whatsapp ?? "").replace(/\D/g, "").slice(0, 20) || d.business.whatsapp,
       email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(String(r.business?.email ?? "").trim()) ? String(r.business!.email).trim() : d.business.email,
       address: words(r.business?.address, d.business.address, 200),
+      facebook: socialUrl(r.business?.facebook, "facebook"),
+      instagram: socialUrl(r.business?.instagram, "instagram"),
+      tiktok: socialUrl(r.business?.tiktok, "tiktok"),
     },
     announcement: {
       enabled: r.announcement?.enabled === true,
