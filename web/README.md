@@ -1,7 +1,7 @@
 # EICR in London website
 
-The new website, built with Next.js. It replaces the WordPress theme in
-`../EICR-London/` and keeps the same design and page addresses.
+The new website, built with Next.js. It replaces the old WordPress site and
+keeps the same design and page addresses.
 
 Every page is pre-built as plain HTML and served from Vercel's worldwide
 network, so it loads quickly. There are no plugins to update and no database

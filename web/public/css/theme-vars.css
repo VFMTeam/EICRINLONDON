@@ -50,14 +50,14 @@ main h1,main h2,main h3,main h4,main summary,main label,main legend{color:var(--
 .eicr-hero-booking,.eicr-hero-booking h2,.eicr-hero-booking p{color:var(--eicr-heading)!important}
 .bg-mist,.bg-slate-50\/70,.service-detail-soft,.core-page-shell,.home-coverage-section{background-color:var(--eicr-soft)!important}
 .bg-ink,.bg-slate-900,.bg-slate-950,.service-detail-hero,.service-risk,footer{background-color:var(--eicr-dark)!important}
-.bg-white,.card,.eicr-form,.steps,.service-detail-gallery-section,.service-process>div,.service-detail-included,.service-why,.service-faq-wrap details,.core-copy,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{background-color:var(--eicr-page)!important}
-.border-line,.border-slate-200,.eicr-form,.service-detail-included,.service-process>div,.service-why,.service-faq-wrap details,.home-coverage-section,.home-coverage-areas,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{border-color:var(--eicr-border)!important}
+.bg-white,.card,.eicr-form,.steps,.step,.service-detail-gallery-section,.service-process>div,.service-detail-included,.service-why,.service-faq-wrap details,.core-copy,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{background-color:var(--eicr-page)!important}
+.border-line,.border-slate-200,.eicr-form,.step,.service-detail-included,.service-process>div,.service-why,.service-faq-wrap details,.home-coverage-section,.home-coverage-areas,.core-price-list,.core-service-grid article,.core-area-grid article,.core-contact-grid>article{border-color:var(--eicr-border)!important}
 .eicr-service-card{border-left-color:var(--eicr-accent)!important}
 .eicr-process article{border-left-color:var(--eicr-accent)!important}
 .eicr-mobile-nav,.eicr-mobile-nav>a,.eicr-mobile-group-toggle,.eicr-mobile-submenu{background:var(--eicr-page)!important}
 .eicr-form input,.eicr-form select,.eicr-form textarea{background:var(--eicr-page)!important;color:var(--eicr-heading)!important}
-.service-detail-section h1,.service-detail-section h2,.service-detail-section h3,.core-page-shell h1,.core-page-shell h2,.home-coverage-section h2,.home-coverage-section h3{color:var(--eicr-heading)!important}
-.service-detail-section p,.service-detail-editor,.service-detail-included li,.service-why li,.core-page-shell p,.home-coverage-section p{color:var(--eicr-body)!important}
+.service-detail-section h1,.service-detail-section h2,.service-detail-section h3,.core-page-shell h1,.core-page-shell h2,.home-coverage-section h2,.home-coverage-section h3,.step b,.step span{color:var(--eicr-heading)!important}
+.service-detail-section p,.service-detail-editor,.service-detail-included li,.service-why li,.core-page-shell p,.home-coverage-section p,.step p{color:var(--eicr-body)!important}
 .service-risk,.service-risk h2,.service-risk p{color:var(--eicr-dark-text)!important}
 
 /*# sourceURL=eicr-theme-inline-css */
