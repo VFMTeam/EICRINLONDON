@@ -46,7 +46,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         {service && (
           <p className="guide-cta">
             <a className="core-cta" href={`/booking/?service=${service.slug}`}>
-              Book {service.title} from {formatPrice(service.price)} inc. VAT
+              Book {service.title} from {formatPrice(service.price)}
             </a>
           </p>
         )}
