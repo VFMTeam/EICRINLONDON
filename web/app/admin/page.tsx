@@ -4,8 +4,8 @@ import AdminBookings from "@/components/AdminBookings";
 import AdminLogin from "@/components/AdminLogin";
 import AdminReviews from "@/components/AdminReviews";
 import { adminConfigured, isAdmin } from "@/lib/admin";
-import { listBookings } from "@/lib/bookings";
-import { listReviews } from "@/lib/reviews";
+import { cachedBookings } from "@/lib/bookings";
+import { cachedReviews } from "@/lib/reviews";
 import { getSettings, storageReady } from "@/lib/settings";
 import "./admin.css";
 
@@ -32,9 +32,9 @@ export default async function AdminPage() {
     );
   }
   const [pending, approved, bookings, settings] = await Promise.all([
-    listReviews("pending").catch(() => []),
-    listReviews("approved").catch(() => []),
-    listBookings().catch(() => []),
+    cachedReviews.pending().catch(() => []),
+    cachedReviews.approved().catch(() => []),
+    cachedBookings().catch(() => []),
     getSettings(),
   ]);
   return (
