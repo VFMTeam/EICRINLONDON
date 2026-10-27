@@ -101,8 +101,11 @@
       return;
     var els = Array.from(
       document.querySelectorAll("main .animate-fade-up"),
-    ).filter(function (el) {
-      return !el.closest("main > section:first-child");
+    );
+    var hero = document.querySelector("main section");
+    if (hero && hero.getBoundingClientRect().top > innerHeight) hero = null;
+    els = els.filter(function (el) {
+      return !(hero && hero.contains(el));
     });
     els.forEach(function (el) {
       el.classList.add("eicr-scroll-reveal");

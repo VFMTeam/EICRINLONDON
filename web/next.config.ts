@@ -10,7 +10,11 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\")" },
 ];
 
+const year = "public, max-age=31536000, immutable";
+const month = "public, max-age=2592000, stale-while-revalidate=604800";
+
 const nextConfig: NextConfig = {
+  env: { ASSET_VERSION: (process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString(36)).slice(0, 8) },
   // Keep the same URLs as the old WordPress site (e.g. /about/), so Google
   // rankings and existing links carry over.
   trailingSlash: true,
@@ -18,6 +22,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      { source: "/css/:file*", headers: [{ key: "Cache-Control", value: year }] },
+      { source: "/js/:file*", headers: [{ key: "Cache-Control", value: year }] },
+      { source: "/images/:file*", headers: [{ key: "Cache-Control", value: month }] },
       { source: "/admin/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
