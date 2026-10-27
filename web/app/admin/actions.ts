@@ -22,7 +22,7 @@ export async function save(settings: Settings): Promise<{ ok: boolean; message: 
   if (!(await isAdmin())) return { ok: false, message: "Please log in again." };
   try {
     await saveSettings(normaliseSettings(settings));
-    return { ok: true, message: "Saved. The website now shows these prices." };
+    return { ok: true, message: "Saved. The website is updated." };
   } catch (e) {
     console.error("Saving admin settings failed", e);
     return { ok: false, message: "Could not save. Check that the Blob store is connected in Vercel." };

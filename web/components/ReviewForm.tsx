@@ -71,7 +71,7 @@ export default function ReviewForm({ services }: { services: string[] }) {
               <input type="checkbox" name="consent" value="yes" required />
               <span>I agree to my name and review being shown on this website.</span>
             </label>
-            {status && <p className="admin-error" role="alert">{status.message}</p>}
+            {status && <p className="review-error" role="alert">{status.message}</p>}
             <button type="submit" className="reviews-open" disabled={sending}>{sending ? "Sending…" : "Submit review"}</button>
           </form>
         )}

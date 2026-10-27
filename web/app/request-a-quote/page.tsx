@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 
 export default async function RequestQuotePage({ searchParams }: { searchParams: Promise<{ service?: string | string[] }> }) {
   const { service } = await searchParams;
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: quoteFormHtml(service) }} />;
+  return <main id="main-content" dangerouslySetInnerHTML={{ __html: await quoteFormHtml(service) }} />;
 }
