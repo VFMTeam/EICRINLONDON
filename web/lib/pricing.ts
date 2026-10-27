@@ -73,7 +73,7 @@ export type Settings = {
   bedrooms: { eicr: number[]; epc: number[]; asbestos: number[] };
   fireRisk: { perStorey: number; perBedroom: number };
   commercial: { factors: Record<string, number>; minimums: Record<string, number> };
-  fees: { paidParking: number; noParking: number; congestion: number; deposit: number };
+  fees: { paidParking: number; noParking: number; congestion: number };
   homeTable: Record<string, number>;
   offer: { enabled: boolean; two: number; threePlus: number };
 };
@@ -92,7 +92,7 @@ export const DEFAULT_SETTINGS: Settings = {
     factors: { "pub-restaurant": 1.2, shop: 1, warehouse: 1.35, office: 1.1, other: 1.1 },
     minimums: { "commercial-eicr": 345, "fire-risk": 159, "asbestos-survey": 249, "fuse-box-installation": 350 },
   },
-  fees: { paidParking: 5, noParking: 5, congestion: 18, deposit: 30 },
+  fees: { paidParking: 5, noParking: 5, congestion: 18 },
   homeTable: Object.fromEntries(HOME_TABLE_PRICES.map(([k, , p]) => [k, p])),
   offer: { enabled: false, two: 10, threePlus: 15 },
 };

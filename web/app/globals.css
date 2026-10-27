@@ -416,31 +416,6 @@ body {
   background: var(--eicr-accent-soft, #fff0e8);
   font-weight: 700;
 }
-.bk-wallets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.bk-wallets button {
-  border: 0;
-  border-radius: 12px;
-  padding: 14px;
-  background: #000;
-  color: #fff;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-.bk-or {
-  margin: 1rem 0;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #64748b;
-}
-.bk-demo-pay .bk-next {
-  width: 100%;
-  margin-top: 0.5rem;
-}
 .bk-confirmed p + p {
   margin-top: 0.8rem;
 }
@@ -453,6 +428,202 @@ body {
   }
 }
 
+
+.pay-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #30313d;
+  font-weight: 600;
+}
+.pay-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #e3e8ee;
+  border-top-color: #635bff;
+  border-radius: 50%;
+  animation: paySpin 0.8s linear infinite;
+}
+@keyframes paySpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sc-page {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: auto;
+  background: #fff;
+  color: #30313d;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.sc-order {
+  justify-self: end;
+  width: min(440px, 100%);
+  padding: 64px 40px;
+}
+.sc-pay {
+  width: min(440px, 100%);
+  padding: 64px 40px;
+  box-shadow: -15px 0 30px -20px rgba(0, 0, 0, 0.12);
+}
+.sc-back {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #30313d;
+}
+.sc-test {
+  border-radius: 4px;
+  padding: 2px 6px;
+  background: #ffde92;
+  color: #a04100;
+  font-size: 11px;
+  font-weight: 700;
+}
+.sc-label {
+  margin-top: 32px;
+  color: #6a7383;
+  font-size: 16px;
+  font-weight: 500;
+}
+.sc-amount {
+  margin-top: 4px;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.sc-lines {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sc-lines li,
+.sc-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  font-size: 14px;
+}
+.sc-lines li span:last-child {
+  font-weight: 500;
+}
+.sc-total {
+  margin-top: 6px;
+  border-top: 1px solid #e3e8ee;
+  padding-top: 14px;
+  font-weight: 600;
+}
+.sc-form {
+  display: grid;
+  gap: 16px;
+}
+.sc-field {
+  display: grid;
+  gap: 6px;
+  color: #6a7383;
+  font-size: 13px;
+  font-weight: 500;
+}
+.sc-field input,
+.sc-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03), 0 3px 6px rgba(0, 0, 0, 0.02);
+}
+.sc-field input {
+  padding: 9px 12px;
+  color: #30313d;
+  font: inherit;
+  font-size: 16px;
+}
+.sc-field input:focus {
+  outline: none;
+  border-color: #635bff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.25);
+}
+.sc-card {
+  overflow: hidden;
+}
+.sc-card input {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.sc-card > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid #e0e0e0;
+}
+.sc-card > div input + input {
+  border-left: 1px solid #e0e0e0;
+}
+.sc-error {
+  color: #df1b41;
+  font-size: 13px;
+}
+.sc-button {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: #0074d4;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sc-button-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+}
+.sc-powered {
+  margin-top: 28px;
+  color: #6a7383;
+  font-size: 12px;
+  text-align: center;
+}
+.sc-powered b {
+  color: #30313d;
+  font-weight: 800;
+}
+@media (max-width: 800px) {
+  .sc-page {
+    grid-template-columns: 1fr;
+    align-content: start;
+  }
+  .sc-order,
+  .sc-pay {
+    justify-self: center;
+    padding: 24px 20px;
+    box-shadow: none;
+  }
+  .sc-label {
+    margin-top: 20px;
+  }
+  .sc-lines {
+    margin-top: 16px;
+  }
 
 /* Admin: prices and offers (/admin/) */
 .admin-page {

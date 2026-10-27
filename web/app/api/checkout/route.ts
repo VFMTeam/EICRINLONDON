@@ -15,7 +15,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "gbp",
     "line_items[0][price_data][unit_amount]": String(Math.round(b.payNow * 100)),
-    "line_items[0][price_data][product_data][name]": `${services}${b.pay === "deposit" ? " (deposit)" : ""}`.slice(0, 250),
+    "line_items[0][price_data][product_data][name]": services.slice(0, 250),
     "line_items[0][price_data][product_data][description]": description,
     success_url: `${origin}/booking/confirmed/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/booking/`,

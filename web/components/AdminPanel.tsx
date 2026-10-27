@@ -79,7 +79,6 @@ export default function AdminPanel({ initial, canSave }: { initial: Settings; ca
         <Num label="Paid parking nearby" value={s.fees.paidParking} onChange={(n) => update((d) => void (d.fees.paidParking = n))} />
         <Num label="No allocated parking" value={s.fees.noParking} onChange={(n) => update((d) => void (d.fees.noParking = n))} />
         <Num label="Congestion charge" value={s.fees.congestion} onChange={(n) => update((d) => void (d.fees.congestion = n))} />
-        <Num label="Card deposit" value={s.fees.deposit} onChange={(n) => update((d) => void (d.fees.deposit = n))} />
       </section>
 
       <section className="admin-card">
