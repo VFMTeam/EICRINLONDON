@@ -3,9 +3,8 @@ import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } fro
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
 import { gbp } from "@/lib/pricing";
-import { getSettings } from "@/lib/settings";
+import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
-import { site } from "@/lib/site";
 
 async function stripeCheckout(b: Booking, origin: string, key: string) {
   const services = b.quote.lines.map((l) => l.title).join(" + ");
@@ -42,6 +41,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
 }
 
 export async function POST(request: Request) {
+  const site = await getSite();
   let body: unknown;
   try {
     body = await request.json();

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import CorePage from "@/components/CorePage";
 import { pageMeta } from "@/lib/content";
 import { areas, regions } from "@/lib/areas";
-import { site } from "@/lib/site";
+import { getSite } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: { absolute: pageMeta.areas.title },
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/areas/" },
 };
 
-export default function AreasPage() {
+export default async function AreasPage() {
+  const site = await getSite();
   return (
     <CorePage title="Service Areas">
       <div className="core-page-intro">

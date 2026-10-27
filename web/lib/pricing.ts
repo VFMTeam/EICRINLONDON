@@ -1,4 +1,5 @@
 import { services } from "@/lib/services";
+import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, type Announcement, type Business } from "@/lib/siteText";
 
 // Booking prices follow the original site's rules (EICR-London/inc/booking-v2.php).
 export type PropertyKind = "residential" | "commercial";
@@ -76,6 +77,9 @@ export type Settings = {
   fees: { paidParking: number; noParking: number; congestion: number };
   homeTable: Record<string, number>;
   offer: { enabled: boolean; two: number; threePlus: number };
+  text: Record<string, string>;
+  business: Business;
+  announcement: Announcement;
 };
 
 export const BEDROOM_BANDS = {
@@ -95,6 +99,9 @@ export const DEFAULT_SETTINGS: Settings = {
   fees: { paidParking: 5, noParking: 5, congestion: 18 },
   homeTable: Object.fromEntries(HOME_TABLE_PRICES.map(([k, , p]) => [k, p])),
   offer: { enabled: false, two: 10, threePlus: 15 },
+  text: DEFAULT_TEXT,
+  business: DEFAULT_BUSINESS,
+  announcement: DEFAULT_ANNOUNCEMENT,
 };
 
 const money = (v: unknown, fallback: number, max = 100000) => {
@@ -104,6 +111,14 @@ const money = (v: unknown, fallback: number, max = 100000) => {
 const record = (stored: unknown, defaults: Record<string, number>, max?: number) => {
   const s = (stored ?? {}) as Record<string, unknown>;
   return Object.fromEntries(Object.entries(defaults).map(([k, d]) => [k, money(s[k], d, max)]));
+};
+const words = (v: unknown, fallback: string, max = 600) => {
+  const t = typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "";
+  return t || fallback;
+};
+const strings = (stored: unknown, defaults: Record<string, string>) => {
+  const s = (stored ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(Object.entries(defaults).map(([k, d]) => [k, words(s[k], d)]));
 };
 const list = (stored: unknown, defaults: number[]) => defaults.map((d, i) => money(Array.isArray(stored) ? stored[i] : undefined, d));
 
@@ -125,6 +140,18 @@ export function normaliseSettings(raw: unknown): Settings {
       enabled: r.offer?.enabled === true,
       two: money(r.offer?.two, d.offer.two, 90),
       threePlus: money(r.offer?.threePlus, d.offer.threePlus, 90),
+    },
+    text: strings(r.text, d.text),
+    business: {
+      phone: words(r.business?.phone, d.business.phone, 40),
+      whatsapp: String(r.business?.whatsapp ?? "").replace(/\D/g, "").slice(0, 20) || d.business.whatsapp,
+      email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(String(r.business?.email ?? "").trim()) ? String(r.business!.email).trim() : d.business.email,
+      address: words(r.business?.address, d.business.address, 200),
+    },
+    announcement: {
+      enabled: r.announcement?.enabled === true,
+      text: typeof r.announcement?.text === "string" ? r.announcement.text.replace(/\s+/g, " ").trim().slice(0, 160) : "",
+      link: typeof r.announcement?.link === "string" && /^\/[\w\-/?=&#.]*$/.test(r.announcement.link.trim()) ? r.announcement.link.trim() : d.announcement.link,
     },
   };
 }

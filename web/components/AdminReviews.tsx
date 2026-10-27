@@ -5,15 +5,15 @@ const date = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "
 
 function Item({ review, actions }: { review: Review; actions: [string, string][] }) {
   return (
-    <div className="admin-review">
+    <div className="adm-review">
       <strong>{"★".repeat(review.rating) + "☆".repeat(5 - review.rating)} {review.name}</strong> <small>{review.service} · {date(review.createdAt)}</small>
       <p>{review.text}</p>
-      <div className="admin-review-actions">
+      <div className="adm-review-actions">
         {actions.map(([value, label]) => (
           <form key={value} action={moderateReview}>
             <input type="hidden" name="id" value={review.id} />
             <input type="hidden" name="decision" value={value} />
-            <button type="submit" className={value === "approve" ? "admin-save" : "admin-reject"}>{label}</button>
+            <button type="submit" className={value === "approve" ? "adm-btn" : "adm-btn ghost"}>{label}</button>
           </form>
         ))}
       </div>
@@ -23,13 +23,13 @@ function Item({ review, actions }: { review: Review; actions: [string, string][]
 
 export default function AdminReviews({ pending, approved }: { pending: Review[]; approved: Review[] }) {
   return (
-    <div className="admin-form">
-      <section className="admin-card">
+    <div className="adm-stack">
+      <section className="adm-card">
         <h2>Reviews waiting for approval</h2>
-        {pending.length ? pending.map((r) => <Item key={r.id} review={r} actions={[["approve", "Approve"], ["reject", "Reject"]]} />) : <p className="admin-hint">No new reviews.</p>}
+        {pending.length ? pending.map((r) => <Item key={r.id} review={r} actions={[["approve", "Approve"], ["reject", "Reject"]]} />) : <p className="adm-hint">No new reviews.</p>}
       </section>
       {approved.length > 0 && (
-        <section className="admin-card">
+        <section className="adm-card">
           <h2>Reviews on the website</h2>
           {approved.map((r) => <Item key={r.id} review={r} actions={[["remove", "Remove"]]} />)}
         </section>

@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isAdmin, logIn, logOut } from "@/lib/admin";
+import { isAdmin, lockedOut, logIn, logOut } from "@/lib/admin";
 import { normaliseSettings, type Settings } from "@/lib/pricing";
 import { approveReview, deleteReview } from "@/lib/reviews";
 import { saveSettings } from "@/lib/settings";
 
 export async function login(_: string, form: FormData) {
+  if (await lockedOut()) return "Too many wrong passwords. Try again in 15 minutes.";
   if (await logIn(String(form.get("password") ?? ""))) redirect("/admin/");
   await new Promise((r) => setTimeout(r, 1000));
   return "Wrong password.";
@@ -22,7 +23,7 @@ export async function save(settings: Settings): Promise<{ ok: boolean; message: 
   if (!(await isAdmin())) return { ok: false, message: "Please log in again." };
   try {
     await saveSettings(normaliseSettings(settings));
-    return { ok: true, message: "Saved. The website now shows these prices." };
+    return { ok: true, message: "Saved. The website is updated." };
   } catch (e) {
     console.error("Saving admin settings failed", e);
     return { ok: false, message: "Could not save. Check that the Blob store is connected in Vercel." };

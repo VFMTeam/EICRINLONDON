@@ -1,4 +1,5 @@
-// Business details shown across the site. Edit here and every page updates.
+// Business details. Phone, WhatsApp, email and address can be changed in
+// /admin/; read them with getSite() from lib/settings.
 export const site = {
   name: "EICR in London",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.eicrinlondon.co.uk",
@@ -7,5 +8,3 @@ export const site = {
   whatsapp: "447878655350",
   address: "Unit 16, Office 2, Midas Business Centre, Wantz Road, Dagenham, RM10 8PS",
 };
-
-export const telHref = `tel:${site.phone.replace(/[^0-9+]/g, "")}`;

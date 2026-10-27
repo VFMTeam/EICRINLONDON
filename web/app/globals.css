@@ -766,143 +766,6 @@ body {
   }
 }
 
-/* Admin: prices and offers (/admin/) */
-.admin-page {
-  background: #f8fafc;
-  padding: 2rem 1rem 6rem;
-}
-.admin-wrap {
-  max-width: 760px;
-  margin: 0 auto;
-}
-.admin-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-.admin-head h1 {
-  font-size: 1.6rem;
-  font-weight: 900;
-}
-.admin-form {
-  display: grid;
-  gap: 1rem;
-}
-.admin-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
-}
-.admin-card h2 {
-  font-size: 1.1rem;
-  font-weight: 900;
-  margin-bottom: 0.5rem;
-}
-.admin-card h3 {
-  font-size: 0.9rem;
-  font-weight: 800;
-  margin: 0.75rem 0 0.25rem;
-}
-.admin-hint,
-.admin-note {
-  font-size: 0.85rem;
-  color: #475569;
-  margin-bottom: 0.5rem;
-}
-.admin-note {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-}
-.admin-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.9rem;
-}
-.admin-input {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.admin-input i {
-  font-style: normal;
-  font-weight: 700;
-  padding: 0 0.5rem;
-  color: #475569;
-  background: #f8fafc;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-}
-.admin-input input {
-  width: 6.5rem;
-  padding: 0.4rem 0.5rem;
-  text-align: right;
-  border: 0;
-}
-.admin-check {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-weight: 700;
-  padding: 0.25rem 0 0.5rem;
-}
-.admin-bar {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 0.75rem 1.25rem;
-  box-shadow: 0 -8px 24px -16px rgba(15, 23, 42, 0.4);
-}
-.admin-bar p {
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-.admin-save {
-  background: var(--gold);
-  color: #fff;
-  font-weight: 900;
-  border-radius: 0.75rem;
-  padding: 0.6rem 1.25rem;
-}
-.admin-save:disabled {
-  opacity: 0.6;
-}
-.admin-error {
-  color: #b91c1c;
-}
-.admin-link {
-  font-weight: 700;
-  text-decoration: underline;
-}
-.admin-login {
-  display: grid;
-  gap: 0.75rem;
-  max-width: 360px;
-}
-@media (max-width: 767px) {
-  .admin-bar {
-    bottom: 4.5rem;
-  }
-}
-
 .booking-offer {
   display: inline-block;
   margin-top: 0.5rem;
@@ -1164,32 +1027,21 @@ body {
   font-weight: 700;
   color: #166534;
 }
+.review-error {
+  color: #b91c1c;
+}
 
-/* Admin: reviews */
-.admin-review {
-  border-top: 1px solid #f1f5f9;
-  padding: 0.75rem 0;
-}
-.admin-review p {
-  font-size: 0.9rem;
-  white-space: pre-line;
-  margin: 0.25rem 0 0.5rem;
-}
-.admin-review small {
-  color: #64748b;
-}
-.admin-review-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-.admin-reject {
-  border: 1px solid var(--line);
-  border-radius: 0.75rem;
+
+.site-announcement {
+  display: block;
+  background: var(--gold);
+  color: #fff;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 800;
   padding: 0.5rem 1rem;
-  font-weight: 700;
+  text-decoration: none;
 }
-.admin-section-title {
-  font-size: 1.3rem;
-  font-weight: 900;
-  margin: 2rem 0 1rem;
+.site-announcement:hover {
+  text-decoration: underline;
 }

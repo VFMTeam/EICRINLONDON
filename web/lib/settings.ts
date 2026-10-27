@@ -3,7 +3,10 @@ import path from "node:path";
 import { get, put } from "@vercel/blob";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { normaliseSettings, type Settings } from "@/lib/pricing";
+import { readPartial } from "@/lib/content";
 import { services, type Service } from "@/lib/services";
+import { site } from "@/lib/site";
+import { applyBusiness, applyText, telNumber } from "@/lib/siteText";
 
 // Prices edited in /admin/ are kept in Vercel Blob. Without a Blob store the
 // site uses the built-in prices, and local development saves to .data/.
@@ -69,4 +72,15 @@ export async function pricedServices(): Promise<Service[]> {
 
 export async function pricedService(slug: string) {
   return (await pricedServices()).find((s) => s.slug === slug);
+}
+
+export async function getSite() {
+  const { business } = await getSettings();
+  return { ...site, ...business, telHref: `tel:${telNumber(business.phone)}` };
+}
+
+// An HTML partial from content/ with the saved contact details and text.
+export async function renderPartial(name: string) {
+  const s = await getSettings();
+  return applyText(applyBusiness(readPartial(name), s.business), s.text);
 }

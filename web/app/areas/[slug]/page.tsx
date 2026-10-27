@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { areas, getArea, type Area } from "@/lib/areas";
-import { getService, formatPrice } from "@/lib/services";
-import { site, telHref } from "@/lib/site";
+import { formatPrice } from "@/lib/services";
+import { getSite, pricedServices } from "@/lib/settings";
+import { site } from "@/lib/site";
 
 const featured = ["eicr-certificate", "gas-safety", "boiler-gas-safety-combo", "epc", "fire-risk", "pat-testing", "fire-safety-certificate", "commercial-eicr"];
 
@@ -15,7 +16,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const a = getArea((await params).slug);
   if (!a) return {};
-  const from = (slug: string) => formatPrice(getService(slug)?.price ?? 0).replace(".00", "");
+  const priced = await pricedServices();
+  const from = (slug: string) => formatPrice(priced.find((s) => s.slug === slug)?.price ?? 0).replace(".00", "");
   return {
     title: { absolute: `EICR & Landlord Certificates in ${a.name} | EICR in London` },
     description: `EICR from ${from("eicr-certificate")}, gas safety certificates from ${from("gas-safety")} and EPCs from ${from("epc")} in ${a.name} (${a.postcodes.slice(0, 4).join(", ")}). Prices inc. VAT. Book online or call.`,
@@ -23,13 +25,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function schema(a: Area) {
+function schema(a: Area, phone: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
     name: `Property safety certificates in ${a.name}`,
     serviceType: "Electrical, gas, energy and fire safety certificates",
-    provider: { "@type": "LocalBusiness", name: site.name, url: site.url, telephone: site.phone },
+    provider: { "@type": "LocalBusiness", name: site.name, url: site.url, telephone: phone },
     areaServed: { "@type": "AdministrativeArea", name: `London Borough of ${a.name}` },
   };
 }
@@ -38,7 +40,9 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   const a = getArea((await params).slug);
   if (!a) notFound();
   const nearby = a.nearby.map(getArea).filter((n): n is Area => Boolean(n));
-  const list = featured.map((slug) => getService(slug)).filter((s) => s !== undefined);
+  const priced = await pricedServices();
+  const list = featured.map((slug) => priced.find((s) => s.slug === slug)).filter((s) => s !== undefined);
+  const contact = await getSite();
   const faqs: [string, string][] = [
     [`Do you cover all of ${a.name}?`, `Yes. We work across ${a.name}, including ${a.places.join(", ")}. Postcodes we visit include ${a.postcodes.join(", ")}.`],
     ["How often does a rental property need an EICR?", "In England a private landlord needs an EICR at least every five years, or sooner if the last report says so. A copy goes to tenants within 28 days of the inspection."],
@@ -48,7 +52,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
 
   return (
     <main id="main-content">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema(a)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema(a, contact.phone)) }} />
       <article className="service-detail-page">
         <section className="service-detail-hero">
           <div className="service-detail-wrap">
@@ -59,7 +63,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
             </p>
             <div className="service-detail-actions">
               <a className="service-detail-book" href="/booking/">Book now</a>
-              <a className="service-detail-quote" href={telHref}>Call {site.phone}</a>
+              <a className="service-detail-quote" href={contact.telHref}>Call {contact.phone}</a>
             </div>
           </div>
         </section>
