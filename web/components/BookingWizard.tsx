@@ -202,7 +202,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                     {q && q.congestion > 0 && <div className="flex justify-between border-b pb-2"><span>Congestion zone</span><b>{gbp(q.congestion)}</b></div>}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-slate-300 pt-3 text-lg">
-                    <b>Total</b>
+                    <b>Total inc. VAT</b>
                     <b className="text-amber-600">{gbp(total)}</b>
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
           <div className="booking-form-actions mt-5 flex items-center justify-between gap-4 border-t border-line pt-6">
             {part === 1 ? (
               <>
-                <span className="text-xs font-semibold text-muted">{services.length} selected · {gbp(total)}</span>
+                <span className="text-xs font-semibold text-muted">{services.length} selected · {gbp(total)} inc. VAT</span>
                 <button type="submit" className="rounded-xl bg-gold px-5 py-2.5 text-sm font-black">Continue</button>
               </>
             ) : (

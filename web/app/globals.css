@@ -765,3 +765,23 @@ body {
     margin-top: 16px;
   }
 }
+
+.eicr-header-book {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .eicr-header-book {
+    display: inline-flex;
+    margin-left: 18px;
+    border-radius: 12px;
+    padding: 11px 20px;
+    background: var(--eicr-accent, #c35a2e);
+    color: #fff;
+    font-weight: 900;
+    white-space: nowrap;
+    transition: transform 0.2s;
+  }
+  .eicr-header-book:hover {
+    transform: translateY(-2px);
+  }
+}
