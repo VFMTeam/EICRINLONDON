@@ -1,5 +1,13 @@
 import { readPartial } from "@/lib/content";
+import Reviews from "@/components/Reviews";
 
 export default function HomePage() {
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: readPartial("pages/home") }} />;
+  const [top, rest] = readPartial("pages/home").split("<!-- reviews -->");
+  return (
+    <main id="main-content">
+      <div className="contents" dangerouslySetInnerHTML={{ __html: top }} />
+      <Reviews />
+      <div className="contents" dangerouslySetInnerHTML={{ __html: rest }} />
+    </main>
+  );
 }
