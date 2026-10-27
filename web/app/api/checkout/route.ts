@@ -5,9 +5,6 @@ import { gbp } from "@/lib/pricing";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import { site } from "@/lib/site";
 
-// Starts payment for an online booking (components/BookingWizard.tsx).
-// See paymentMode() in lib/booking.ts for the three ways this works.
-
 async function stripeCheckout(b: Booking, origin: string, key: string) {
   const description = `${b.quote.option.label}${b.quote.items ? `, ${b.quote.items} items` : ""} · ${prettyDate(b.date)}, ${slotLabel(b.slot)}`;
   const params = new URLSearchParams({
@@ -53,7 +50,6 @@ export async function POST(request: Request) {
   const mode = paymentMode();
   const offline = booking.pay === "cash" || mode === "request";
   if (offline) {
-    // No online payment: email the booking to the team (not in demo mode).
     if (mode !== "demo") {
       const rows = [
         ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],

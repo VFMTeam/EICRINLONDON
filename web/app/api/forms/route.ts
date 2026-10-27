@@ -42,7 +42,6 @@ export async function POST(request: Request) {
   const phone = field("phone", 50);
   const service = field("service", 120);
   const details = field("details", 5000);
-  // Optional booking details. Anything outside the form's own choices is dropped.
   const pick = (name: string, options: string[]) => (options.includes(field(name, 40)) ? field(name, 40) : "");
   const propertyType = pick("property_type", ["Flat", "House", "HMO", "Commercial", "Other"]);
   const bedrooms = pick("bedrooms", ["Studio", "1", "2", "3", "4", "5", "6+", "Not applicable"]);

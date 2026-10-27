@@ -8,16 +8,14 @@ import { site, telHref } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: "Book Online | EICR in London" },
-  description: "Book an EICR, gas safety, EPC, fire safety or other property compliance appointment online. See your price, pick a time and pay securely.",
+  description: "Book an EICR, gas safety certificate, EPC, fire risk assessment or PAT test online across London.",
   alternates: { canonical: "/booking/" },
 };
 
-// Online booking: price, appointment slot and payment. Links such as
-// /booking/?service=epc open with that service chosen.
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ service?: string | string[] }> }) {
   const { service } = await searchParams;
-  // The boiler + gas combo is an option of the gas safety booking.
   const slug = service === "boiler-gas-safety-combo" ? "gas-safety:with-boiler-service" : typeof service === "string" ? service : undefined;
+  const dates = bookableDates();
   const quoteOnly = slug && !pricedServices.some((s) => s.slug === slug.split(":")[0]) ? getService(slug) : undefined;
 
   return (
@@ -29,15 +27,15 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             <h1>Book Online</h1>
           </header>
           <p className="core-page-intro">
-            {paymentMode() === "request" ? "See your price, pick a time that suits you and send your booking. We will call to confirm." : "See your price, pick a time that suits you and pay securely."} Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
+            See your price and book in two steps. Prefer to talk? <a href={telHref}>Call {site.phone}</a> or{" "}
             <a href={`https://wa.me/${site.whatsapp}`}>message us on WhatsApp</a>.
           </p>
           {quoteOnly && (
             <p className="bk-quote-only">
-              {quoteOnly.title} is priced after a quick look at the job. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a>, or book one of the services below.
+              {quoteOnly.title} is priced by quote. <a href={`/request-a-quote/?service=${quoteOnly.slug}`}>Request a free quote</a> or book another service below.
             </p>
           )}
-          <BookingWizard dates={bookableDates()} initialService={slug} mode={paymentMode()} />
+          <BookingWizard minDate={dates[0]} maxDate={dates[dates.length - 1]} initialService={slug} mode={paymentMode()} />
         </div>
       </section>
     </main>

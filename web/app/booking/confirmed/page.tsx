@@ -16,9 +16,6 @@ async function stripeSession(id: string) {
   return res.ok ? ((await res.json()) as Session) : null;
 }
 
-// Shown after a booking: paid through Stripe (session_id), paid in demo mode
-// (demo), or booked without online payment (booked: cash on the day, or the
-// team calls to take payment).
 export default async function ConfirmedPage({ searchParams }: { searchParams: Promise<{ session_id?: string; demo?: string; booked?: string }> }) {
   const { session_id, demo, booked } = await searchParams;
   const mode = paymentMode();

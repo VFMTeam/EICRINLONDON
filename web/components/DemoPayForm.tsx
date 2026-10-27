@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 
-// Demo mode only: a stand-in for the real payment page. Card 4242 4242 4242
-// 4242 with any future date and CVC succeeds; anything else is declined.
+// Demo only: card 4242 4242 4242 4242 succeeds, anything else is declined.
 export default function DemoPayForm({ amount, booking }: { amount: string; booking: string }) {
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);

@@ -7,7 +7,6 @@ import { gbp } from "@/lib/pricing";
 
 export const metadata: Metadata = { title: "Payment", robots: { index: false } };
 
-// Demo mode only (no STRIPE_SECRET_KEY): stands in for Stripe Checkout.
 export default async function DemoPayPage({ searchParams }: { searchParams: Promise<{ b?: string }> }) {
   if (paymentMode() !== "demo") redirect("/booking/");
   const { b } = await searchParams;

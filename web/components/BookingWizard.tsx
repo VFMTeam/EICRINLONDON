@@ -5,10 +5,10 @@ import { pricedServices, quote, gbp, DEPOSIT } from "@/lib/pricing";
 import { SLOTS, prettyDate } from "@/lib/slots";
 import { PROPERTY_TYPES, type PaymentMode } from "@/lib/booking";
 
-// Online booking in three steps: service and price, date and time, then
-// details and payment. The server re-checks the price (app/api/checkout).
-export default function BookingWizard({ dates, initialService, mode }: { dates: string[]; initialService?: string; mode: PaymentMode }) {
-  // initialService is a slug, optionally with an option: "gas-safety:with-boiler-service".
+type Pay = "deposit" | "full" | "cash";
+
+// initialService is a slug, optionally with an option: "gas-safety:with-boiler-service".
+export default function BookingWizard({ minDate, maxDate, initialService, mode }: { minDate: string; maxDate: string; initialService?: string; mode: PaymentMode }) {
   const [startSlug, startOption] = (initialService ?? "").split(":");
   const start = pricedServices.find((s) => s.slug === startSlug) ?? pricedServices[0];
   const [step, setStep] = useState(1);
@@ -16,9 +16,9 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
   const [option, setOption] = useState(start.options.find((o) => o.id === startOption)?.id ?? start.options[0].id);
   const [items, setItems] = useState(start.extra?.included ?? 0);
   const [date, setDate] = useState("");
-  const [slot, setSlot] = useState("");
+  const [slot, setSlot] = useState<string>(SLOTS[0].id);
   const [form, setForm] = useState({ propertyType: "", address: "", postcode: "", name: "", phone: "", email: "", notes: "" });
-  const [pay, setPay] = useState<"deposit" | "full" | "cash">(mode === "request" ? "cash" : "deposit");
+  const [pay, setPay] = useState<Pay>(mode === "request" ? "cash" : "deposit");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -27,11 +27,11 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
   const total = q?.total ?? 0;
   const deposit = Math.min(DEPOSIT, total);
   const payNow = pay === "cash" ? 0 : pay === "full" ? total : deposit;
-  const payOptions = [
-    { id: "deposit", icon: "£", title: "Pay a deposit now", text: `Secure your visit with ${gbp(deposit)}. Pay the remaining ${gbp(total - deposit)} after the visit.`, amount: gbp(deposit), online: true },
-    { id: "full", icon: "✓", title: "Pay in full now", text: "Nothing more to pay on the day.", amount: gbp(total), online: true },
-    { id: "cash", icon: "🤝", title: "Pay cash on the day", text: "Pay the engineer when they arrive. Nothing to pay now.", amount: gbp(total), online: false },
-  ] as const;
+  const payOptions: { id: Pay; title: string; text: string; amount: number }[] = [
+    { id: "deposit", title: "Deposit now", text: `Rest (${gbp(total - deposit)}) after the visit`, amount: deposit },
+    { id: "full", title: "Pay in full now", text: "Card, Apple Pay or Google Pay", amount: total },
+    { id: "cash", title: "Cash on the day", text: "Pay the engineer at the visit", amount: total },
+  ];
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
@@ -40,6 +40,12 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
     setService(slug);
     setOption(s.options[0].id);
     setItems(s.extra?.included ?? 0);
+  }
+
+  function next(e: React.FormEvent) {
+    e.preventDefault();
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function submit(e: React.FormEvent) {
@@ -67,7 +73,7 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
   return (
     <div className="bk">
       <ol className="bk-steps" aria-label="Booking steps">
-        {["Service", "Date & time", "Details & payment"].map((label, i) => (
+        {["Service & date", "Your details"].map((label, i) => (
           <li key={label} className={step === i + 1 ? "is-current" : step > i + 1 ? "is-done" : ""}>
             <b>{i + 1}</b> {label}
           </li>
@@ -77,8 +83,7 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
       <div className="bk-layout">
         <div className="bk-main">
           {step === 1 && (
-            <section>
-              <h2>Choose your service</h2>
+            <form onSubmit={next}>
               <label className="bk-field">
                 Service
                 <select value={service} onChange={(e) => chooseService(e.target.value)}>
@@ -103,58 +108,35 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
                   <input type="number" min={svc.extra.included} max={500} value={items || svc.extra.included} onChange={(e) => setItems(Number(e.target.value))} />
                 </label>
               )}
+              <div className="bk-grid">
+                <label className="bk-field">
+                  Preferred date
+                  <input type="date" required min={minDate} max={maxDate} value={date} onChange={(e) => setDate(e.target.value)} />
+                </label>
+                <label className="bk-field">
+                  Time
+                  <select value={slot} onChange={(e) => setSlot(e.target.value)}>
+                    {SLOTS.map((s) => (
+                      <option key={s.id} value={s.id}>{s.label} ({s.time})</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <p className="bk-note">
-                Need something else? <a href="/request-a-quote/">Request a quote</a> for other services.
+                Other services? <a href="/request-a-quote/">Request a quote</a>.
               </p>
-              <button type="button" className="bk-next" onClick={() => setStep(2)}>Choose a date</button>
-            </section>
+              <div className="bk-nav bk-nav-end">
+                <button type="submit" className="bk-next">Continue</button>
+              </div>
+            </form>
           )}
 
           {step === 2 && (
-            <section>
-              <h2>Pick a date and time</h2>
-              <div className="bk-days" role="group" aria-label="Date">
-                {dates.map((d) => {
-                  const dt = new Date(`${d}T12:00:00Z`);
-                  return (
-                    <button
-                      type="button"
-                      key={d}
-                      aria-pressed={date === d}
-                      className={date === d ? "is-selected" : ""}
-                      onClick={() => setDate(d)}
-                    >
-                      <small>{dt.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}</small>
-                      <b>{dt.getUTCDate()}</b>
-                      <small>{dt.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}</small>
-                    </button>
-                  );
-                })}
-              </div>
-              {date && (
-                <div className="bk-slots">
-                  {SLOTS.map((s) => (
-                    <button type="button" key={s.id} aria-pressed={slot === s.id} className={slot === s.id ? "is-selected" : ""} onClick={() => setSlot(s.id)}>
-                      <b>{s.label}</b>
-                      <span>{s.time}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="bk-nav">
-                <button type="button" className="bk-back" onClick={() => setStep(1)}>Back</button>
-                <button type="button" className="bk-next" disabled={!slot} onClick={() => setStep(3)}>Continue</button>
-              </div>
-            </section>
-          )}
-
-          {step === 3 && (
             <form onSubmit={submit}>
-              <h2>Your details</h2>
               <div className="bk-grid">
                 <label className="bk-field">Full name *<input required autoComplete="name" value={form.name} onChange={set("name")} /></label>
                 <label className="bk-field">Phone *<input required type="tel" autoComplete="tel" value={form.phone} onChange={set("phone")} /></label>
-                <label className="bk-field">Email (for your receipt) *<input required type="email" autoComplete="email" value={form.email} onChange={set("email")} /></label>
+                <label className="bk-field">Email *<input required type="email" autoComplete="email" value={form.email} onChange={set("email")} /></label>
                 <label className="bk-field">
                   Property type *
                   <select required value={form.propertyType} onChange={set("propertyType")}>
@@ -162,35 +144,31 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
                     {PROPERTY_TYPES.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </label>
-                <label className="bk-field">Property address *<input required autoComplete="street-address" value={form.address} onChange={set("address")} /></label>
+                <label className="bk-field">Address *<input required autoComplete="street-address" value={form.address} onChange={set("address")} /></label>
                 <label className="bk-field">Postcode *<input required autoComplete="postal-code" value={form.postcode} onChange={set("postcode")} /></label>
               </div>
-              <label className="bk-field">Notes for the engineer (access, other services needed)<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
+              <label className="bk-field">Notes (access, parking, other services)<textarea rows={2} value={form.notes} onChange={set("notes")} /></label>
 
-              <h2 className="bk-subhead">Payment</h2>
               <fieldset className="bk-paycards">
-                <legend className="bk-sr">How would you like to pay?</legend>
-                {payOptions.filter((o) => mode !== "request" || !o.online).map((o) => (
+                <legend>Payment</legend>
+                {payOptions.filter((o) => mode !== "request" || o.id === "cash").map((o) => (
                   <label key={o.id} className={pay === o.id ? "is-selected" : ""}>
                     <input type="radio" name="pay" value={o.id} checked={pay === o.id} onChange={() => setPay(o.id)} />
-                    <span className="bk-payicon" aria-hidden="true">{o.icon}</span>
                     <span className="bk-paytext">
                       <b>{o.title}</b>
                       <small>{o.text}</small>
                     </span>
-                    <span className="bk-payamount">
-                      {o.amount}
-                      <small>{o.online ? "now" : "on the day"}</small>
-                    </span>
+                    <span className="bk-payamount">{gbp(o.amount)}</span>
                   </label>
                 ))}
               </fieldset>
-              {pay !== "cash" && <p className="bk-secure">🔒 Secure payment by card, Apple Pay or Google Pay on the next screen.</p>}
 
               {error && <p className="bk-error" role="alert">{error}</p>}
               <div className="bk-nav">
-                <button type="button" className="bk-back" onClick={() => setStep(2)}>Back</button>
-                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : pay === "cash" ? "Confirm booking" : `Continue to pay ${gbp(payNow)}`}</button>
+                <button type="button" className="bk-back" onClick={() => setStep(1)}>Back</button>
+                <button type="submit" className="bk-next" disabled={sending}>
+                  {sending ? "Please wait…" : pay === "cash" ? "Confirm booking" : `Pay ${gbp(payNow)}`}
+                </button>
               </div>
               {mode === "demo" && pay !== "cash" && <p className="bk-note">Demo mode: no real payment is taken.</p>}
             </form>
@@ -204,13 +182,12 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
             <dd>{svc.title}</dd>
             <dt>Property</dt>
             <dd>{q?.option.label}{svc.extra ? `, ${q?.items} items` : ""}</dd>
-            {date && (<><dt>Date</dt><dd>{prettyDate(date)}</dd></>)}
-            {slot && (<><dt>Time</dt><dd>{SLOTS.find((s) => s.id === slot)?.label} ({SLOTS.find((s) => s.id === slot)?.time})</dd></>)}
+            {date && (<><dt>Visit</dt><dd>{prettyDate(date)}, {SLOTS.find((s) => s.id === slot)?.label.toLowerCase()}</dd></>)}
           </dl>
           <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(total)}</b></p>
-          {step === 3 && (
+          {step === 2 && (
             <p className="bk-paynow">
-              <span>{pay === "cash" ? "Pay on the day (cash)" : "Pay now"}</span>
+              <span>{pay === "cash" ? "Pay on the day" : "Pay now"}</span>
               <b>{gbp(pay === "cash" ? total : payNow)}</b>
             </p>
           )}

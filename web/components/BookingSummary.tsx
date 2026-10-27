@@ -2,9 +2,6 @@ import { gbp } from "@/lib/pricing";
 import { prettyDate, slotLabel } from "@/lib/slots";
 import type { Booking } from "@/lib/booking";
 
-// Booking details shown on the payment and confirmation pages.
-// status: "due" before paying online, "paid" after, "offline" when nothing
-// is paid online (cash on the day, or the team calls to take payment).
 export default function BookingSummary({ b, status }: { b: Booking; status: "due" | "paid" | "offline" }) {
   const rest = b.quote.total - b.payNow;
   return (

@@ -211,8 +211,6 @@ body {
   }
 }
 
-/* Call / WhatsApp / Book bar on phones (components/MobileContactBar.tsx).
-   It replaces the floating WhatsApp bubble there, which covered page content. */
 .mobile-contact-bar {
   display: none;
 }
@@ -265,7 +263,6 @@ body {
   text-decoration: underline;
 }
 
-/* Phone number and opening days in the header (content/header.html). */
 .eicr-header-call {
   display: none;
 }
@@ -300,7 +297,6 @@ body {
   }
 }
 
-/* Landlord reminder on EICR and gas service pages. */
 .service-landlord-note {
   margin-top: 14px;
   border-left: 4px solid var(--eicr-accent, #c35a2e);
@@ -311,7 +307,6 @@ body {
   font-weight: 700;
 }
 
-/* Postcode list on the areas page. */
 .core-area-postcodes {
   margin-top: 0.6rem;
 }
@@ -321,7 +316,6 @@ body {
   text-decoration: underline;
 }
 
-/* Online booking (components/BookingWizard.tsx and the payment pages). */
 .bk-steps {
   display: flex;
   flex-wrap: wrap;
@@ -447,55 +441,6 @@ body {
 .bk-options small {
   display: block;
   font-weight: 500;
-  color: #64748b;
-}
-.bk-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-bottom: 1rem;
-}
-.bk-days button,
-.bk-slots button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 1px solid var(--eicr-border, #e4ddd6);
-  border-radius: 12px;
-  padding: 10px 4px;
-  background: #fff;
-  color: var(--eicr-heading, #000);
-  cursor: pointer;
-  font: inherit;
-}
-.bk-days b {
-  font-size: 1.2rem;
-}
-.bk-days small {
-  font-size: 0.72rem;
-  color: #64748b;
-}
-.bk-days button.is-selected,
-.bk-slots button.is-selected {
-  border-color: var(--eicr-accent, #c35a2e);
-  background: var(--eicr-accent, #c35a2e);
-  color: #fff;
-}
-.bk-days button.is-selected small,
-.bk-slots button.is-selected span {
-  color: #fff;
-}
-.bk-slots {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 1rem;
-}
-.bk-slots button {
-  padding: 14px;
-}
-.bk-slots span {
-  font-size: 0.85rem;
   color: #64748b;
 }
 .bk-nav {
@@ -635,25 +580,11 @@ body {
   .bk-grid {
     grid-template-columns: 1fr;
   }
-  .bk-days {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
-/* Payment choice cards on the booking form. */
-.bk-subhead {
-  margin-top: 1.5rem !important;
-}
-.bk-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
 .bk-paycards {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   border: 0;
   padding: 0;
@@ -661,12 +592,12 @@ body {
 .bk-paycards label {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   border: 2px solid var(--eicr-border, #e4ddd6);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px 14px;
   background: #fff;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -687,21 +618,6 @@ body {
 .bk-paycards label:has(input:focus-visible) {
   outline: 3px solid var(--eicr-accent, #c35a2e);
   outline-offset: 2px;
-}
-.bk-payicon {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--eicr-soft, #f7f4f1);
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--eicr-accent-hover, #9a3f20);
-}
-.bk-paycards label.is-selected .bk-payicon {
-  background: var(--eicr-accent, #c35a2e);
-  color: #fff;
 }
 .bk-paytext b {
   display: block;
@@ -728,19 +644,20 @@ body {
   font-weight: 700;
   color: #64748b;
 }
-.bk-secure {
-  margin-top: 0.7rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--eicr-success, #1f8a5b);
-}
 @media (max-width: 600px) {
   .bk-paycards label {
     gap: 10px;
     padding: 14px 12px;
   }
-  .bk-payicon {
-    width: 34px;
-    height: 34px;
-  }
+}
+
+.bk-paycards legend {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.bk-nav-end {
+  justify-content: flex-end;
 }

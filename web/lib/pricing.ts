@@ -1,12 +1,9 @@
-// Online booking prices, taken from the price tables on the home page
-// (content/pages/home.html). All prices include VAT. Services not listed here
-// need a quote first.
+// Prices inc. VAT, from the home page price tables. Unlisted services are quote-only.
 export type PriceOption = { id: string; label: string; price: number };
 export type PricedService = {
   slug: string;
   title: string;
   options: PriceOption[];
-  // Extra items charged on top of an option, e.g. detectors after the first three.
   extra?: { label: string; included: number; each: number };
 };
 
@@ -80,14 +77,11 @@ export const pricedServices: PricedService[] = [
   },
 ];
 
-// Amount taken online when the customer chooses to pay a deposit.
 export const DEPOSIT = 30;
 
 export type Quote = { service: PricedService; option: PriceOption; items: number; total: number };
 
-// Works out the price from the customer's choices. Returns null for anything
-// that is not on the price list, so the server never trusts a price sent by
-// the browser.
+// The server always prices from this list, never from the browser.
 export function quote(slug: string, optionId: string, items = 0): Quote | null {
   const service = pricedServices.find((s) => s.slug === slug);
   const option = service?.options.find((o) => o.id === optionId);

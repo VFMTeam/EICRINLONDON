@@ -1,7 +1,6 @@
 import { quote, DEPOSIT, type Quote } from "@/lib/pricing";
 import { isBookable } from "@/lib/slots";
 
-// An online booking as sent by the booking form (components/BookingWizard.tsx).
 export type BookingInput = {
   service: string;
   option: string;
@@ -15,7 +14,6 @@ export type BookingInput = {
   phone: string;
   email: string;
   notes?: string;
-  // deposit / full: paid online now. cash: paid to the engineer on the day.
   pay: "deposit" | "full" | "cash";
 };
 
@@ -25,8 +23,7 @@ export const PROPERTY_TYPES = ["Flat", "House", "HMO", "Commercial", "Other"];
 
 const UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i;
 
-// Checks a booking and works out the price on the server. Returns an error
-// message for the customer, or the checked booking.
+// Returns an error message for the customer, or the checked booking.
 export function checkBooking(raw: unknown): Booking | string {
   const b = (raw ?? {}) as Record<string, unknown>;
   const text = (k: string, max: number) => String(b[k] ?? "").trim().slice(0, max);
@@ -56,7 +53,6 @@ export function checkBooking(raw: unknown): Booking | string {
   return { ...input, items: q.items, quote: q, payNow };
 }
 
-// Demo mode only: the booking travels in the URL between the demo pages.
 export const encodeBooking = (b: BookingInput) => Buffer.from(JSON.stringify(b)).toString("base64url");
 export function decodeBooking(s: string | undefined) {
   if (!s) return null;
@@ -68,12 +64,7 @@ export function decodeBooking(s: string | undefined) {
   }
 }
 
-// How online bookings are paid:
-// - "stripe": STRIPE_SECRET_KEY is set, customers pay by card / Apple Pay.
-// - "request": BOOKING_REQUEST_ONLY=1 and no key, the booking is emailed to
-//   the team, who call the customer to confirm and take payment.
-// - "demo": otherwise (the site is not launched yet), a test payment page
-//   (card 4242...). No money is taken.
+// Demo (test card 4242) until STRIPE_SECRET_KEY is set. BOOKING_REQUEST_ONLY=1 emails bookings without payment.
 export type PaymentMode = "stripe" | "demo" | "request";
 export function paymentMode(): PaymentMode {
   if (process.env.STRIPE_SECRET_KEY) return "stripe";
