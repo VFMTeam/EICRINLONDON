@@ -3,7 +3,10 @@ import { prettyDate, slotLabel } from "@/lib/slots";
 import type { Booking } from "@/lib/booking";
 
 // Booking details shown on the payment and confirmation pages.
-export default function BookingSummary({ b, paid, requested }: { b: Booking; paid?: boolean; requested?: boolean }) {
+// status: "due" before paying online, "paid" after, "offline" when nothing
+// is paid online (cash on the day, or the team calls to take payment).
+export default function BookingSummary({ b, status }: { b: Booking; status: "due" | "paid" | "offline" }) {
+  const rest = b.quote.total - b.payNow;
   return (
     <aside className="bk-summary">
       <h2>Your booking</h2>
@@ -18,8 +21,14 @@ export default function BookingSummary({ b, paid, requested }: { b: Booking; pai
         <dd>{prettyDate(b.date)}, {slotLabel(b.slot)}</dd>
       </dl>
       <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(b.quote.total)}</b></p>
-      {!requested && <p className="bk-paynow"><span>{paid ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>}
-      {!requested && b.payNow < b.quote.total && <p className="bk-note">Remaining {gbp(b.quote.total - b.payNow)} is paid after the visit.</p>}
+      {status === "offline" ? (
+        <p className="bk-paynow"><span>{b.pay === "cash" ? "Pay the engineer in cash" : "To pay"}</span><b>{gbp(b.quote.total)}</b></p>
+      ) : (
+        <>
+          <p className="bk-paynow"><span>{status === "paid" ? "Paid" : "Pay now"}</span><b>{gbp(b.payNow)}</b></p>
+          {rest > 0 && <p className="bk-note">Remaining {gbp(rest)} is paid after the visit.</p>}
+        </>
+      )}
     </aside>
   );
 }

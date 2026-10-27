@@ -51,20 +51,25 @@ export async function POST(request: Request) {
   if (typeof booking === "string") return NextResponse.json({ error: booking }, { status: 400 });
 
   const mode = paymentMode();
-  if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
-  if (mode === "request") {
-    const rows = [
-      ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
-      ["Service", `${booking.quote.service.title} – ${booking.quote.option.label}${booking.quote.items ? `, ${booking.quote.items} items` : ""}`],
-      ["Price", `${gbp(booking.quote.total)} inc. VAT (not paid online)`],
-      ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
-      ["Property", `${booking.propertyType}, ${booking.address}, ${booking.postcode}`],
-      ["Notes", booking.notes || "None"],
-    ];
-    const sent = await emailTeam(`Booking request: ${booking.quote.service.title} – ${booking.name}`, "New booking request", rows, booking.email);
-    if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
-    return NextResponse.json({ url: `/booking/confirmed/?request=${encodeBooking(booking)}` });
+  const offline = booking.pay === "cash" || mode === "request";
+  if (offline) {
+    // No online payment: email the booking to the team (not in demo mode).
+    if (mode !== "demo") {
+      const rows = [
+        ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
+        ["Service", `${booking.quote.service.title} – ${booking.quote.option.label}${booking.quote.items ? `, ${booking.quote.items} items` : ""}`],
+        ["Price", `${gbp(booking.quote.total)} inc. VAT`],
+        ["Payment", booking.pay === "cash" ? "Cash to the engineer on the day" : "Not paid online – call to take payment"],
+        ["Visit", `${prettyDate(booking.date)}, ${slotLabel(booking.slot)}`],
+        ["Property", `${booking.propertyType}, ${booking.address}, ${booking.postcode}`],
+        ["Notes", booking.notes || "None"],
+      ];
+      const sent = await emailTeam(`Booking: ${booking.quote.service.title} – ${booking.name}`, "New booking", rows, booking.email);
+      if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
+    }
+    return NextResponse.json({ url: `/booking/confirmed/?booked=${encodeBooking(booking)}` });
   }
+  if (mode === "demo") return NextResponse.json({ url: `/booking/demo-pay/?b=${encodeBooking(booking)}` });
 
   const origin = new URL(request.url).origin;
   const key = process.env.STRIPE_SECRET_KEY!;

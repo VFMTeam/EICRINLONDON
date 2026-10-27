@@ -18,14 +18,20 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
   const [form, setForm] = useState({ propertyType: "", address: "", postcode: "", name: "", phone: "", email: "", notes: "" });
-  const [pay, setPay] = useState<"deposit" | "full">("deposit");
+  const [pay, setPay] = useState<"deposit" | "full" | "cash">(mode === "request" ? "cash" : "deposit");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
 
   const svc = pricedServices.find((s) => s.slug === service)!;
   const q = quote(service, option, items);
   const total = q?.total ?? 0;
-  const payNow = pay === "full" ? total : Math.min(DEPOSIT, total);
+  const deposit = Math.min(DEPOSIT, total);
+  const payNow = pay === "cash" ? 0 : pay === "full" ? total : deposit;
+  const payOptions = [
+    { id: "deposit", icon: "£", title: "Pay a deposit now", text: `Secure your visit with ${gbp(deposit)}. Pay the remaining ${gbp(total - deposit)} after the visit.`, amount: gbp(deposit), online: true },
+    { id: "full", icon: "✓", title: "Pay in full now", text: "Nothing more to pay on the day.", amount: gbp(total), online: true },
+    { id: "cash", icon: "🤝", title: "Pay cash on the day", text: "Pay the engineer when they arrive. Nothing to pay now.", amount: gbp(total), online: false },
+  ] as const;
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
@@ -161,30 +167,32 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
               </div>
               <label className="bk-field">Notes for the engineer (access, other services needed)<textarea rows={3} value={form.notes} onChange={set("notes")} /></label>
 
-              {mode !== "request" && (
-                <fieldset className="bk-options bk-pay">
-                  <legend>How would you like to pay?</legend>
-                  <label className={pay === "deposit" ? "is-selected" : ""}>
-                    <input type="radio" name="pay" checked={pay === "deposit"} onChange={() => setPay("deposit")} />
-                    <span>Pay {gbp(Math.min(DEPOSIT, total))} deposit now<small>The rest is paid after the visit</small></span>
+              <h2 className="bk-subhead">Payment</h2>
+              <fieldset className="bk-paycards">
+                <legend className="bk-sr">How would you like to pay?</legend>
+                {payOptions.filter((o) => mode !== "request" || !o.online).map((o) => (
+                  <label key={o.id} className={pay === o.id ? "is-selected" : ""}>
+                    <input type="radio" name="pay" value={o.id} checked={pay === o.id} onChange={() => setPay(o.id)} />
+                    <span className="bk-payicon" aria-hidden="true">{o.icon}</span>
+                    <span className="bk-paytext">
+                      <b>{o.title}</b>
+                      <small>{o.text}</small>
+                    </span>
+                    <span className="bk-payamount">
+                      {o.amount}
+                      <small>{o.online ? "now" : "on the day"}</small>
+                    </span>
                   </label>
-                  <label className={pay === "full" ? "is-selected" : ""}>
-                    <input type="radio" name="pay" checked={pay === "full"} onChange={() => setPay("full")} />
-                    <span>Pay {gbp(total)} in full now</span>
-                  </label>
-                </fieldset>
-              )}
+                ))}
+              </fieldset>
+              {pay !== "cash" && <p className="bk-secure">🔒 Secure payment by card, Apple Pay or Google Pay on the next screen.</p>}
 
               {error && <p className="bk-error" role="alert">{error}</p>}
               <div className="bk-nav">
                 <button type="button" className="bk-back" onClick={() => setStep(2)}>Back</button>
-                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : mode === "request" ? "Send booking request" : `Pay ${gbp(payNow)} securely`}</button>
+                <button type="submit" className="bk-next" disabled={sending}>{sending ? "Please wait…" : pay === "cash" ? "Confirm booking" : `Continue to pay ${gbp(payNow)}`}</button>
               </div>
-              <p className="bk-note">
-                {mode === "request"
-                  ? "No payment now. We will call you to confirm the appointment and take payment."
-                  : `Card, Apple Pay and Google Pay accepted.${mode === "demo" ? " Demo mode: no real payment is taken." : ""}`}
-              </p>
+              {mode === "demo" && pay !== "cash" && <p className="bk-note">Demo mode: no real payment is taken.</p>}
             </form>
           )}
         </div>
@@ -200,7 +208,12 @@ export default function BookingWizard({ dates, initialService, mode }: { dates: 
             {slot && (<><dt>Time</dt><dd>{SLOTS.find((s) => s.id === slot)?.label} ({SLOTS.find((s) => s.id === slot)?.time})</dd></>)}
           </dl>
           <p className="bk-total"><span>Total inc. VAT</span><b>{gbp(total)}</b></p>
-          {step === 3 && mode !== "request" && <p className="bk-paynow"><span>Pay now</span><b>{gbp(payNow)}</b></p>}
+          {step === 3 && (
+            <p className="bk-paynow">
+              <span>{pay === "cash" ? "Pay on the day (cash)" : "Pay now"}</span>
+              <b>{gbp(pay === "cash" ? total : payNow)}</b>
+            </p>
+          )}
         </aside>
       </div>
     </div>

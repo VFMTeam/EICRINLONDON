@@ -15,7 +15,8 @@ export type BookingInput = {
   phone: string;
   email: string;
   notes?: string;
-  pay: "deposit" | "full";
+  // deposit / full: paid online now. cash: paid to the engineer on the day.
+  pay: "deposit" | "full" | "cash";
 };
 
 export type Booking = BookingInput & { quote: Quote; payNow: number };
@@ -42,7 +43,7 @@ export function checkBooking(raw: unknown): Booking | string {
     phone: text("phone", 50),
     email: text("email", 254),
     notes: text("notes", 1000),
-    pay: b.pay === "full" ? "full" : "deposit",
+    pay: b.pay === "full" || b.pay === "cash" ? b.pay : "deposit",
   };
   const q = quote(input.service, input.option, input.items);
   if (!q) return "Please choose a service and property size.";
@@ -51,7 +52,7 @@ export function checkBooking(raw: unknown): Booking | string {
   if (!input.address || !UK_POSTCODE.test(input.postcode)) return "Please enter the property address and a valid UK postcode.";
   if (!input.name || !input.phone) return "Please enter your name and phone number.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) return "Please enter a valid email for your receipt.";
-  const payNow = input.pay === "full" ? q.total : Math.min(DEPOSIT, q.total);
+  const payNow = input.pay === "cash" ? 0 : input.pay === "full" ? q.total : Math.min(DEPOSIT, q.total);
   return { ...input, items: q.items, quote: q, payNow };
 }
 

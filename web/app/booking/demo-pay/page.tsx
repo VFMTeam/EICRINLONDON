@@ -27,7 +27,7 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
             <div className="bk-main">
               <DemoPayForm amount={gbp(booking.payNow)} booking={b} />
             </div>
-            <BookingSummary b={booking} />
+            <BookingSummary b={booking} status="due" />
           </div>
         </div>
       </section>
