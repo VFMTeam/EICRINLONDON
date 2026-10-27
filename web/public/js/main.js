@@ -152,10 +152,33 @@
         });
       });
   }
+  function setupLogoVerify() {
+    document.querySelectorAll(".logo-strip").forEach(function (strip) {
+      var buttons = strip.querySelectorAll(".logo-niceic");
+      function set(open) {
+        strip.classList.toggle("is-open", open);
+        buttons.forEach(function (b) {
+          b.setAttribute("aria-expanded", String(open));
+        });
+      }
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          set(!strip.classList.contains("is-open"));
+        });
+      });
+      strip.addEventListener("pointerleave", function (e) {
+        if (e.pointerType !== "touch") set(false);
+      });
+      document.addEventListener("click", function (e) {
+        if (!strip.contains(e.target)) set(false);
+      });
+    });
+  }
   document.addEventListener("DOMContentLoaded", function () {
     setupConversionTracking();
     setupMobileMenu();
     setupReveal();
     setupAjaxForms();
+    setupLogoVerify();
   });
 })();
