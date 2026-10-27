@@ -28,7 +28,6 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
           <a className="sc-brand" href="/booking/">
             <img src="/images/logo.png" alt="" width={44} height={36} />
             <span>EICR in London</span>
-            <span className="sc-test">TEST MODE</span>
           </a>
           <p className="sc-label">Amount to pay</p>
           <p className="sc-amount">{gbp(booking.payNow)}</p>
