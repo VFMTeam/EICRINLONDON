@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
-import { pricedService } from "@/lib/settings";
-import { site, telHref } from "@/lib/site";
+import { getSite, pricedService } from "@/lib/settings";
+import { site } from "@/lib/site";
 import { serviceDetails } from "@/lib/serviceDetails";
 import VerifyRegistration from "@/components/VerifyRegistration";
 
@@ -46,7 +46,7 @@ function faqs(s: Service): [string, string][] {
   ];
 }
 
-function schema(s: Service) {
+function schema(s: Service, phone: string) {
   const url = `${site.url}/services/${s.slug}/`;
   return [
     {
@@ -56,7 +56,7 @@ function schema(s: Service) {
       description: s.benefit,
       url,
       areaServed: "London",
-      provider: { "@type": "LocalBusiness", name: site.name, url: site.url, telephone: telHref.slice(4) },
+      provider: { "@type": "LocalBusiness", name: site.name, url: site.url, telephone: phone },
       offers: { "@type": "Offer", price: s.price, priceCurrency: "GBP" },
     },
     {
@@ -84,7 +84,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
   return (
     <main id="main-content">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema(s)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema(s, (await getSite()).phone)) }} />
       <article className="service-detail-page">
         <section className="service-detail-hero">
           <div className="service-detail-wrap service-detail-hero-grid">

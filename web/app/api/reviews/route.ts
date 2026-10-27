@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { emailTeam } from "@/lib/email";
 import { addReview } from "@/lib/reviews";
 import { services } from "@/lib/services";
-import { site } from "@/lib/site";
+import { getSite } from "@/lib/settings";
 
 const reply = (success: boolean, message: string, status = 200) => NextResponse.json({ success, message }, { status });
 
@@ -19,6 +19,7 @@ function rateLimited(ip: string) {
 const THANKS = "Thank you for your review. It will appear on the website once it has been checked.";
 
 export async function POST(request: Request) {
+  const site = await getSite();
   let form: FormData;
   try {
     form = await request.formData();

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { site } from "@/lib/site";
+import { getSite } from "@/lib/settings";
 
 // Receives the quote form (public/js/main.js posts it here) and emails it to
 // the business through Resend. Needs RESEND_API_KEY; see web/README.md.
@@ -25,6 +25,7 @@ function rateLimited(ip: string) {
 }
 
 export async function POST(request: Request) {
+  const site = await getSite();
   let form: FormData;
   try {
     form = await request.formData();

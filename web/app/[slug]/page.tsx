@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { readPartial, pageMeta, type PageKey } from "@/lib/content";
+import { pageMeta, type PageKey } from "@/lib/content";
+import { renderPartial } from "@/lib/settings";
 import { verifyHtml } from "@/components/VerifyRegistration";
 
 // Simple content pages carried over from the original site.
@@ -20,5 +21,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ContentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   if (!slugs.includes(slug as Slug)) notFound();
-  return <main id="main-content" dangerouslySetInnerHTML={{ __html: readPartial(`pages/${slug}`).replace("{{verify}}", verifyHtml) }} />;
+  return <main id="main-content" dangerouslySetInnerHTML={{ __html: (await renderPartial(`pages/${slug}`)).replace("{{verify}}", verifyHtml) }} />;
 }

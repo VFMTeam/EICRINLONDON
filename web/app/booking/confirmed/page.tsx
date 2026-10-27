@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import BookingSummary from "@/components/BookingSummary";
 import { decodeBooking, paymentMode } from "@/lib/booking";
 import { gbp } from "@/lib/pricing";
-import { getSettings } from "@/lib/settings";
+import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
-import { site, telHref } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Booking Confirmed", robots: { index: false } };
 
@@ -21,6 +20,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
   const { session_id, demo, booked } = await searchParams;
   const mode = paymentMode();
   const settings = await getSettings();
+  const site = await getSite();
   const session = session_id ? await stripeSession(session_id) : null;
   const offline = decodeBooking(booked, settings);
   const booking = offline ?? (mode === "demo" ? decodeBooking(demo, settings) : null);
@@ -46,7 +46,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
                 ) : (
                   <p>Thank you. We have your booking and a receipt is on its way to your email. The engineer will call you before the visit.</p>
                 )}
-                <p>Need to change anything? <a href={telHref}>Call {site.phone}</a> or <a href={`https://wa.me/${site.whatsapp}`}>WhatsApp us</a>.</p>
+                <p>Need to change anything? <a href={site.telHref}>Call {site.phone}</a> or <a href={`https://wa.me/${site.whatsapp}`}>WhatsApp us</a>.</p>
                 {mode === "demo" && booking && <p className="bk-demo-banner">Demo mode: no real payment was taken and no booking was sent.</p>}
               </div>
               {booking && <BookingSummary b={booking} status={offline ? "offline" : "paid"} />}
@@ -65,7 +65,7 @@ export default async function ConfirmedPage({ searchParams }: { searchParams: Pr
             </div>
           ) : (
             <p className="core-page-intro">
-              If you have paid, please <a href={telHref}>call {site.phone}</a> and we will check your booking.
+              If you have paid, please <a href={site.telHref}>call {site.phone}</a> and we will check your booking.
             </p>
           )}
         </div>

@@ -1,7 +1,9 @@
 import { randomBytes } from "node:crypto";
 import { BOOKING_SERVICES, gbp, type Quote } from "@/lib/pricing";
 import { prettyDate, slotLabel } from "@/lib/slots";
+import { getSite } from "@/lib/settings";
 import { site } from "@/lib/site";
+import type { Business } from "@/lib/siteText";
 
 export type InvoiceMethod = "card" | "bank" | "cash";
 
@@ -70,7 +72,7 @@ const issued = () => new Date().toLocaleDateString("en-GB", { day: "numeric", mo
 const visitText = (inv: Invoice) =>
   /^\d{4}-\d{2}-\d{2}$/.test(inv.date) ? [prettyDate(inv.date), slotLabel(inv.slot)].filter(Boolean).join(", ") : "";
 
-function invoiceText(inv: Invoice) {
+function invoiceText(inv: Invoice, contact: Business) {
   const visit = visitText(inv);
   const bank = inv.method === "bank" ? bankDetails() || "We will send our bank details separately." : "";
   return [
@@ -87,14 +89,14 @@ function invoiceText(inv: Invoice) {
     ...(bank ? ["", bank, `Please use ${inv.number} as the payment reference.`] : []),
     "",
     site.name,
-    site.address,
-    `${site.phone} · ${site.email}`,
+    contact.address,
+    `${contact.phone} · ${contact.email}`,
   ].join("\n");
 }
 
 const BRAND = "#c35a2e";
 
-function invoiceHtml(inv: Invoice) {
+function invoiceHtml(inv: Invoice, contact: Business) {
   const font = "font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#121826";
   const cell = "padding:10px 12px;border-bottom:1px solid #e5e7eb";
   const head = "padding:10px 12px;background:#f5f2ef;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#555";
@@ -131,10 +133,10 @@ ${rows}
 </td></tr></table>
 </td></tr>
 <tr><td style="padding:28px">
-<p style="margin:0 0 6px">Thank you for choosing ${site.name}. Any questions, just reply to this email or call ${site.phone}.</p>
+<p style="margin:0 0 6px">Thank you for choosing ${site.name}. Any questions, just reply to this email or call ${contact.phone}.</p>
 </td></tr>
 <tr><td style="padding:16px 28px;border-top:1px solid #e5e7eb;font-size:12px;color:#777;font-family:Arial,Helvetica,sans-serif">
-<b style="color:#121826">${site.name}</b><br>${escapeHtml(site.address)}<br>${site.phone} · <a href="mailto:${site.email}" style="color:#777">${site.email}</a> · <a href="${site.url}" style="color:#777">${site.url.replace(/^https?:\/\//, "")}</a>
+<b style="color:#121826">${site.name}</b><br>${escapeHtml(contact.address)}<br>${contact.phone} · <a href="mailto:${contact.email}" style="color:#777">${contact.email}</a> · <a href="${site.url}" style="color:#777">${site.url.replace(/^https?:\/\//, "")}</a>
 </td></tr>
 </table>
 </td></tr></table>`;
@@ -145,6 +147,7 @@ export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inv.email)) return "skipped";
   const from = process.env.INVOICE_FROM_EMAIL ?? `${site.name} <${site.email}>`;
+  const contact = await getSite();
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -156,10 +159,10 @@ export async function emailInvoice(inv: Invoice, idempotencyKey?: string) {
       body: JSON.stringify({
         from,
         to: inv.email,
-        reply_to: site.email,
+        reply_to: contact.email,
         subject: `Your invoice ${inv.number} from ${site.name}`,
-        html: invoiceHtml(inv),
-        text: invoiceText(inv),
+        html: invoiceHtml(inv, contact),
+        text: invoiceText(inv, contact),
       }),
     });
     if (!res.ok) {
