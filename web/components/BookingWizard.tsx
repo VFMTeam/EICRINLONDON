@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, DEPOSIT, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
+import { BEDROOM_PRICED, BOOKING_SERVICES, COMMERCIAL_TYPES, PARKING, CONGESTION_FEE, DEPOSIT, gbp, quote, servicePrice, type PropertyKind } from "@/lib/pricing";
 import { SLOTS } from "@/lib/slots";
 import type { Pay, PaymentMode } from "@/lib/booking";
 
@@ -20,9 +20,10 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
   const [commercialType, setCommercialType] = useState("pub-restaurant");
   const [picked, setPicked] = useState<Record<PropertyKind, string[]>>(() => {
     const has = (k: PropertyKind) => BOOKING_SERVICES[k].some(([slug]) => slug === initialService);
+    const quoteOnly = initialService && !has("residential") && !has("commercial");
     return {
-      residential: [has("residential") ? initialService! : "eicr-certificate"],
-      commercial: [has("commercial") ? initialService! : "commercial-eicr"],
+      residential: has("residential") ? [initialService!] : quoteOnly ? [] : ["eicr-certificate"],
+      commercial: has("commercial") ? [initialService!] : quoteOnly ? [] : ["commercial-eicr"],
     };
   });
   const [date, setDate] = useState("");
@@ -37,6 +38,8 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
 
   const property = { kind, bedrooms, floors, commercialType };
   const services = picked[kind];
+  const showBedrooms = kind === "residential" && services.some((s) => BEDROOM_PRICED.includes(s));
+  const showFloors = kind === "residential" && services.includes("fire-risk");
   const q = quote(services, property, parking, congestion === true);
   const total = q?.total ?? 0;
   const pay: Pay = method === "card" ? cardPay : method || "cash";
@@ -85,9 +88,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
           <div className="relative">
             <p className="text-xs font-black uppercase tracking-[.2em] text-gold">London inspection request</p>
             <h1 className="mt-1 text-2xl font-black sm:text-3xl">{part === 1 ? "Build your property booking" : "Your details and payment"}</h1>
-            <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-300 sm:text-sm">
-              {part === 1 ? "Tell us about the property, tick every check you need and choose a visit window." : "Tell us who to contact and where the work is, then choose how to pay."}
-            </p>
           </div>
         </header>
         <div className="p-4 sm:p-5">
@@ -101,23 +101,24 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                     <option value="commercial">Commercial</option>
                   </select>
                 </label>
-                {kind === "residential" ? (
-                  <>
-                    <label>
-                      <span className="label">Bedroom count</span>
-                      <select className="field" value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))}>
-                        <option value={0}>Studio Flat</option>
-                        {[1, 2, 3, 4, 5, 6].map((i) => <option key={i} value={i}>{i} Bedroom{i > 1 ? "s" : ""}</option>)}
-                      </select>
-                    </label>
-                    <label>
-                      <span className="label">Number of storeys</span>
-                      <select className="field" value={floors} onChange={(e) => setFloors(Number(e.target.value))}>
-                        {[1, 2, 3, 4, 5].map((i) => <option key={i} value={i}>{i}</option>)}
-                      </select>
-                    </label>
-                  </>
-                ) : (
+                {showBedrooms && (
+                  <label>
+                    <span className="label">Bedroom count</span>
+                    <select className="field" value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))}>
+                      <option value={0}>Studio Flat</option>
+                      {[1, 2, 3, 4, 5, 6].map((i) => <option key={i} value={i}>{i} Bedroom{i > 1 ? "s" : ""}</option>)}
+                    </select>
+                  </label>
+                )}
+                {showFloors && (
+                  <label>
+                    <span className="label">Number of storeys</span>
+                    <select className="field" value={floors} onChange={(e) => setFloors(Number(e.target.value))}>
+                      {[1, 2, 3, 4, 5].map((i) => <option key={i} value={i}>{i}</option>)}
+                    </select>
+                  </label>
+                )}
+                {kind === "commercial" && (
                   <label>
                     <span className="label">Commercial premises category</span>
                     <select className="field" value={commercialType} onChange={(e) => setCommercialType(e.target.value)}>
@@ -140,7 +141,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                   ))}
                 </div>
               </section>
-              <p className="booking-multi-note"><b>Need more than one check?</b> Tick them all and we will do them in one visit.</p>
               <section className="mt-5 rounded-2xl border border-line bg-white p-4">
                 <h2 className="text-lg font-black">Preferred visit</h2>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -185,7 +185,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode }
                         </label>
                       ))}
                     </div>
-                    <small>The £5.00 allowance covers paid parking where free parking is not available.</small>
                   </fieldset>
                   <fieldset>
                     <legend className="label">London congestion charge</legend>

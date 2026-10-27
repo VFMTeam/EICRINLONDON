@@ -49,6 +49,8 @@ export const COMMERCIAL_TYPES: [id: string, label: string, factor: number][] = [
 ];
 const COMMERCIAL_MINIMUM: Record<string, number> = { "commercial-eicr": 345, "fire-risk": 159, "asbestos-survey": 249, "fuse-box-installation": 350 };
 
+export const BEDROOM_PRICED = ["eicr-certificate", "epc", "asbestos-survey", "fire-risk"];
+
 export const PARKING: [id: string, label: string, fee: number][] = [
   ["free", "Free parking can be provided", 0],
   ["paid", "Paid parking nearby", 5],
