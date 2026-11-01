@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminApp from "@/components/AdminApp";
+import AdminBookingList from "@/components/AdminBookingList";
 import AdminBookings from "@/components/AdminBookings";
 import AdminLogin from "@/components/AdminLogin";
 import AdminReviews from "@/components/AdminReviews";
@@ -48,6 +49,7 @@ export default async function AdminPage() {
       <AdminApp
         initial={settings}
         bookings={<AdminBookings bookings={bookings} />}
+        bookingList={<AdminBookingList bookings={bookings} />}
         visitors={<AdminVisitors report={report} />}
         keys={keys}
         webhookUrl={`${site.url}/api/stripe-webhook/`}

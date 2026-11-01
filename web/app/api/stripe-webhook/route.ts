@@ -61,16 +61,17 @@ export async function POST(request: Request) {
     ["Stripe payment", session.id],
   ];
   const what = meta.services ?? meta.service ?? "Booking";
-  const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
-  // Anything but "sent" makes Stripe retry later, so the booking isn't lost.
-  if (sent !== "sent") return new Response("Email failed", { status: 500 });
   await recordBooking(
     {
-      visit: meta.date ?? "", services: what.split(" + "), total: (session.amount_total ?? 0) / 100,
+      visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), total: (session.amount_total ?? 0) / 100,
       method: "card", name: meta.name ?? email, postcode: meta.postcode ?? "",
+      phone: meta.phone, email, address: meta.address, notes: meta.notes,
     },
     session.id,
   );
+  const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
+  // A rejected email makes Stripe retry later; the booking is already saved under its session id.
+  if (sent === "failed") return new Response("Email failed", { status: 500 });
 
   if (email && session.amount_total != null) {
     const total = session.amount_total / 100;
