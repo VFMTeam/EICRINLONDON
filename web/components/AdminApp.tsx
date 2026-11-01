@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { logout, save } from "@/app/admin/actions";
 import { BEDROOM_BANDS, COMMERCIAL_TYPES, DEFAULT_SETTINGS, HOME_TABLE_PRICES, type Settings } from "@/lib/pricing";
 import type { SecretName, SecretStatus } from "@/lib/secrets";
@@ -120,25 +120,6 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
   const title = TABS.find(([id]) => id === tab)![1];
 
-  useEffect(() => {
-    const page = document.querySelector(".adm-page");
-    try {
-      const t = localStorage.getItem("adm-theme");
-      if (page && (t === "light" || t === "dark")) page.setAttribute("data-theme", t);
-    } catch {}
-  }, []);
-
-  function toggleTheme() {
-    const page = document.querySelector(".adm-page");
-    if (!page) return;
-    const current = page.getAttribute("data-theme") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    const next = current === "dark" ? "light" : "dark";
-    page.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("adm-theme", next);
-    } catch {}
-  }
-
   return (
     <div className="adm-shell">
       <aside className="adm-side">
@@ -171,13 +152,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
             <h1>{title}</h1>
             <p className="adm-sub" suppressHydrationWarning>{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}</p>
           </div>
-          <div className="adm-top-actions">
-            <button type="button" className="adm-theme" onClick={toggleTheme} aria-label="Switch light or dark mode" title="Light / dark">
-              <svg className="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" /></svg>
-              <svg className="sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" /></svg>
-            </button>
-            <a className="adm-btn ghost" href="/" target="_blank" rel="noopener">View website</a>
-          </div>
+          <a className="adm-btn ghost" href="/" target="_blank" rel="noopener">View website</a>
         </header>
         {!canSave && <p className="adm-alert">Saving is off: the Blob store is not connected.</p>}
 
