@@ -556,26 +556,7 @@ button.adm-stat:hover {
   font-weight: 800;
   letter-spacing: 0.2em;
 }
-.adm-site-body {
-  padding: 1rem;
-  background: #fffbf5;
-}
-.adm-site-body .adm-row > b {
-  color: #b4532a;
-}
-.adm-site-label {
-  font-weight: 900;
-  margin-bottom: 0.4rem;
-}
-.adm-site-offer {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
-  background: #fef3c7;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 900;
-}
+
 .adm-site-off {
   padding: 0.45rem 1rem;
   color: var(--adm-muted);
@@ -583,11 +564,6 @@ button.adm-stat:hover {
   font-weight: 700;
   text-align: center;
   background: #f1f5f9;
-}
-.adm-site-body .adm-site-off {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
 }
 
 /* Save bar and buttons */

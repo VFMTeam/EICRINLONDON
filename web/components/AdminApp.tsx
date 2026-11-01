@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { logout, save } from "@/app/admin/actions";
-import { BEDROOM_BANDS, COMMERCIAL_TYPES, DEFAULT_SETTINGS, HOME_TABLE_PRICES, gbp, quote, type Settings } from "@/lib/pricing";
+import { BEDROOM_BANDS, COMMERCIAL_TYPES, DEFAULT_SETTINGS, HOME_TABLE_PRICES, type Settings } from "@/lib/pricing";
 import type { SecretName, SecretStatus } from "@/lib/secrets";
 import { getService, services } from "@/lib/services";
 import { SOCIAL, TEXT_GROUPS } from "@/lib/siteText";
@@ -11,7 +11,7 @@ const TABS = [
   ["overview", "Overview", "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"],
   ["bookings", "Bookings", "M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"],
   ["prices", "Prices", "M20 12l-8 8-9-9V3h8l9 9zM7.5 7.5h.01"],
-  ["offers", "Offers & banner", "M19 5L5 19M7 7h.01M17 17h.01M9 7a2 2 0 11-4 0 2 2 0 014 0zm10 10a2 2 0 11-4 0 2 2 0 014 0z"],
+  ["banner", "Top banner", "M4 5h16v6H4zM4 15h10M4 19h7"],
   ["text", "Website text", "M4 6h16M4 12h16M4 18h10"],
   ["contact", "Contact details", "M3 5a2 2 0 012-2h2l2 5-2.5 1.5a11 11 0 006 6L14 13l5 2v2a2 2 0 01-2 2A16 16 0 013 5z"],
   ["reviews", "Reviews", "M12 3l2.7 5.6 6.3.9-4.5 4.4 1 6.1L12 17.2 6.5 20l1-6.1L3 9.5l6.3-.9L12 3z"],
@@ -19,7 +19,6 @@ const TABS = [
 ] as const;
 
 const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)", gaServiceAccount: "Service account key (JSON)", teamupApiKey: "Teamup API key", teamupCalendarKey: "Calendar key (from the admin link)" };
-const home0 = { kind: "residential" as const, bedrooms: 0, floors: 1, commercialType: "other" };
 type Tab = (typeof TABS)[number][0];
 
 const Icon = ({ d }: { d: string }) => (
@@ -80,18 +79,6 @@ function Key({ name, status, value, onChange }: { name: SecretName; status: Secr
       </span>
       <input type="password" autoComplete="off" value={value} placeholder={status.source ? "Paste a new key to replace" : "Paste key"} onChange={(e) => onChange(e.target.value)} />
     </label>
-  );
-}
-
-function Example({ slugs, s }: { slugs: string[]; s: Settings }) {
-  const q = quote(slugs, home0, "", false, s);
-  if (!q) return null;
-  const before = q.lines.reduce((t, l) => t + l.price, 0);
-  return (
-    <div className="adm-row">
-      <span>{q.lines.map((l) => l.title.split(" – ")[0]).join(" + ")}</span>
-      <b>{q.discount > 0 && <s>{gbp(before)}</s>} {gbp(q.total)}</b>
-    </div>
   );
 }
 
@@ -222,15 +209,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
           </div>
         )}
 
-        {tab === "offers" && (
+        {tab === "banner" && (
           <div className="adm-stack">
-            <Card title="Multi-service offer">
-              <Toggle label="Offer is on" checked={s.offer.enabled} onChange={(on) => update((d) => void (d.offer.enabled = on))} />
-              <div className="adm-cols">
-                <Money label="2 services" unit="% off" step="1" value={s.offer.two} onChange={(n) => update((d) => void (d.offer.two = n))} />
-                <Money label="3 or more services" unit="% off" step="1" value={s.offer.threePlus} onChange={(n) => update((d) => void (d.offer.threePlus = n))} />
-              </div>
-            </Card>
             <Card title="Top banner">
               <Toggle label="Show the banner" checked={s.announcement.enabled} onChange={(on) => update((d) => void (d.announcement.enabled = on))} />
               <Words label="Message" value={s.announcement.text} onChange={(t) => update((d) => void (d.announcement.text = t))} />
@@ -241,12 +221,6 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
                 <div className="adm-site-bar"><i /><i /><i /><span>eicrinlondon.co.uk</span></div>
                 {s.announcement.enabled && s.announcement.text ? <p className="adm-site-banner">{s.announcement.text}</p> : <p className="adm-site-off">Banner hidden</p>}
                 <div className="adm-site-head"><b>EICR</b><span>IN LONDON</span></div>
-                <div className="adm-site-body">
-                  <p className="adm-site-label">Booking page</p>
-                  {s.offer.enabled ? <p className="adm-site-offer">Offer: {s.offer.two}% off 2 services, {s.offer.threePlus}% off 3 or more</p> : <p className="adm-site-off">Offer off</p>}
-                  <Example slugs={["eicr-certificate", "gas-safety"]} s={s} />
-                  <Example slugs={["eicr-certificate", "gas-safety", "epc"]} s={s} />
-                </div>
               </div>
             </Card>
           </div>

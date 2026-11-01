@@ -76,7 +76,6 @@ export type Settings = {
   commercial: { factors: Record<string, number>; minimums: Record<string, number> };
   fees: { paidParking: number; noParking: number; congestion: number };
   homeTable: Record<string, number>;
-  offer: { enabled: boolean; two: number; threePlus: number };
   text: Record<string, string>;
   business: Business;
   announcement: Announcement;
@@ -103,7 +102,6 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   fees: { paidParking: 5, noParking: 5, congestion: 18 },
   homeTable: Object.fromEntries(HOME_TABLE_PRICES.map(([k, , p]) => [k, p])),
-  offer: { enabled: false, two: 10, threePlus: 15 },
   text: DEFAULT_TEXT,
   business: DEFAULT_BUSINESS,
   announcement: DEFAULT_ANNOUNCEMENT,
@@ -146,11 +144,6 @@ export function normaliseSettings(raw: unknown): Settings {
     },
     fees: record(r.fees, d.fees) as Settings["fees"],
     homeTable: record(r.homeTable, d.homeTable),
-    offer: {
-      enabled: r.offer?.enabled === true,
-      two: money(r.offer?.two, d.offer.two, 90),
-      threePlus: money(r.offer?.threePlus, d.offer.threePlus, 90),
-    },
     text: strings(r.text, d.text),
     business: {
       phone: words(r.business?.phone, d.business.phone, 40),
@@ -192,11 +185,6 @@ const round = (n: number) => Math.round(n * 100) / 100;
 
 export const parkingFee = (id: string, s: Settings) => (id === "paid" ? s.fees.paidParking : id === "none" ? s.fees.noParking : 0);
 
-export function offerPercent(count: number, s: Settings) {
-  if (!s.offer.enabled || count < 2) return 0;
-  return count >= 3 ? s.offer.threePlus : s.offer.two;
-}
-
 export function servicePrice(slug: string, p: Property, s: Settings): number | null {
   const base = s.prices[slug];
   if (base === undefined || !BOOKING_SERVICES[p.kind].some(([slug2]) => slug2 === slug)) return null;
@@ -214,7 +202,7 @@ export function servicePrice(slug: string, p: Property, s: Settings): number | n
 }
 
 export type QuoteLine = { slug: string; title: string; price: number };
-export type Quote = { lines: QuoteLine[]; discount: number; discountPercent: number; parking: number; congestion: number; total: number };
+export type Quote = { lines: QuoteLine[]; parking: number; congestion: number; total: number };
 
 // The server always prices from these rules, never from the browser.
 export function quote(slugs: string[], p: Property, parking: string, congestion: boolean, s: Settings): Quote | null {
@@ -227,11 +215,9 @@ export function quote(slugs: string[], p: Property, parking: string, congestion:
   }
   if (!lines.length) return null;
   const subtotal = lines.reduce((t, l) => t + l.price, 0);
-  const discountPercent = offerPercent(lines.length, s);
-  const discount = round((subtotal * discountPercent) / 100);
   const parkingCost = parkingFee(parking, s);
   const congestionFee = congestion ? s.fees.congestion : 0;
-  return { lines, discount, discountPercent, parking: parkingCost, congestion: congestionFee, total: round(subtotal - discount + parkingCost + congestionFee) };
+  return { lines, parking: parkingCost, congestion: congestionFee, total: round(subtotal + parkingCost + congestionFee) };
 }
 
 export const gbp = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

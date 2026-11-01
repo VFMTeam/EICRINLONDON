@@ -28,11 +28,8 @@ const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/L
 export const invoiceNumber = (ref = randomBytes(3).toString("hex")) =>
   `INV-${today().replace(/-/g, "").slice(2)}-${ref.slice(-6).toUpperCase()}`;
 
-const offerLabel = (percent: number) => `Multi-service offer (${percent}% off)`;
-
 export const quoteLines = (q: Quote): Invoice["lines"] => [
   ...q.lines.map((l) => [l.title, l.price] as [string, number]),
-  ...(q.discount ? [[offerLabel(q.discountPercent), -q.discount] as [string, number]] : []),
   ...(q.parking ? [["Parking", q.parking] as [string, number]] : []),
   ...(q.congestion ? [["Congestion zone", q.congestion] as [string, number]] : []),
 ];
@@ -41,7 +38,6 @@ export const quoteLines = (q: Quote): Invoice["lines"] => [
 export const packLines = (q: Quote) =>
   [
     ...q.lines.map((l) => `${l.slug}:${l.price}`),
-    ...(q.discount ? [`offer${q.discountPercent}:${-q.discount}`] : []),
     ...(q.parking ? [`parking:${q.parking}`] : []),
     ...(q.congestion ? [`congestion:${q.congestion}`] : []),
   ].join(";");
@@ -55,8 +51,7 @@ const titles = new Map<string, string>([
 export const unpackLines = (s: string): Invoice["lines"] =>
   s.split(";").flatMap((part) => {
     const [slug, price] = part.split(":");
-    const offer = /^offer(\d+)$/.exec(slug);
-    const title = offer ? offerLabel(Number(offer[1])) : titles.get(slug);
+    const title = titles.get(slug);
     return title && Number.isFinite(Number(price)) ? [[title, Number(price)] as [string, number]] : [];
   });
 

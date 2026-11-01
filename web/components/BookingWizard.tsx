@@ -122,9 +122,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode, 
               </div>
               <section data-service-set={kind} className="mt-5">
                 <p className="text-sm font-bold text-muted">Available checks for this {kind} property</p>
-                {settings.offer.enabled && (
-                  <p className="booking-offer">Offer: {settings.offer.two}% off 2 services, {settings.offer.threePlus}% off 3 or more</p>
-                )}
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {BOOKING_SERVICES[kind].map(([slug, label]) => (
                     <label key={slug} className="service-option flex cursor-pointer gap-2 rounded-xl border border-line bg-white p-2.5">
@@ -196,7 +193,6 @@ export default function BookingWizard({ minDate, maxDate, initialService, mode, 
                   <h2 className="font-black text-slate-950">Your requested work</h2>
                   <div className="mt-3 grid gap-2">
                     {q?.lines.map((l) => <div key={l.slug} className="flex justify-between border-b pb-2"><span>{l.title}</span><b>{gbp(l.price)}</b></div>)}
-                    {q && q.discount > 0 && <div className="flex justify-between border-b pb-2 text-emerald-700"><span>Multi-service offer ({q.discountPercent}% off)</span><b>-{gbp(q.discount)}</b></div>}
                     {q && q.parking > 0 && <div className="flex justify-between border-b pb-2"><span>Parking</span><b>{gbp(q.parking)}</b></div>}
                     {q && q.congestion > 0 && <div className="flex justify-between border-b pb-2"><span>Congestion zone</span><b>{gbp(q.congestion)}</b></div>}
                   </div>
