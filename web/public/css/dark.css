@@ -18,6 +18,9 @@
  --line:#2a3340;
 }
 body{background:var(--eicr-page)}
+header img[src*="logo-small"]{border-radius:.6rem}
+footer img[src*="logo-small"]{background:#fff!important}
+.eicr-credentials-image{background:radial-gradient(closest-side,rgba(255,255,255,.07),transparent)}
 .eyebrow{color:var(--eicr-accent-hover)}
 .gold{color:var(--eicr-heading)!important}
 .quick-card{background:var(--eicr-page)}
