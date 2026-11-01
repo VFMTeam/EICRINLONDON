@@ -5,7 +5,7 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 ## Structure
 
 - Only `web/` is the site: Next.js 15 (App Router, React 19, TypeScript). There is no other app in the repo.
-- Hosted on Vercel with Root Directory `web`. Every push to `main` deploys to production automatically; other branches get preview deploys. The Vercel result shows as a commit status (context "Vercel"), not a check run.
+- Hosted on Vercel with Root Directory `web`. Every push to `main` deploys to production automatically. `web/vercel.json` turns off preview deploys for `claude/*` branches to stay under the Hobby daily deploy limit; other branches still get previews. The Vercel result shows as a commit status (context "Vercel"), not a check run.
 - `web/content/`: HTML partials from the old WordPress theme (`header.html`, `footer.html`, `pages/*.html`) plus `meta.json`. `home.html` uses `{{key}}` price tokens and `[[key]]` text tokens filled from admin settings.
 - `web/public/`: `css/`, `js/`, `images/`. Every `/css` and `/js` link must carry `?v=ASSET_VERSION` (1-year immutable cache). Images cache for 30 days, so use a new filename when replacing one.
 - `web/app/`: pages (`[slug]`, `services`, `areas`, `guides`, `booking`, `pricing`, `request-a-quote`, `admin`) and API routes (`api/checkout`, `api/forms`, `api/reviews`, `api/stripe-webhook`).
@@ -38,5 +38,5 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 - Never add fake reviews, made-up review counts or invented numbers or prices. Use only figures Usman gives.
 - Do not add "inc. VAT" after prices or totals on the site. Do not write "no hidden charges".
 - Show all six accreditation logos (NICEIC, Gas Safe, NAPIT, TrustMark, Elmhurst Energy, City & Guilds). Registration numbers stay discreet: never in the hero.
-- Work on a branch and open a PR, then merge it to `main` (live) once lint and build pass and the Vercel preview deploys. Usman does not need to be asked first.
+- Work on a branch and open a PR, then merge it to `main` (live) once lint and build pass. Usman does not need to be asked first. After merging, check the production deploy status on `main`; do not push the branch again just to sync it.
 - Work efficiently: no screenshots, videos or generated images unless Usman asks; check with lint and build. Keep replies short.
