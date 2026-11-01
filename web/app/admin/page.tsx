@@ -16,13 +16,10 @@ import "./admin.css";
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-const themeScript = `try{var t=localStorage.getItem("adm-theme");if(t)document.currentScript.parentElement.setAttribute("data-theme",t)}catch(e){}`;
-
 export default async function AdminPage() {
   if (!adminConfigured()) {
     return (
-      <main id="main-content" className="adm-page" suppressHydrationWarning>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      <main id="main-content" className="adm-page">
         <div className="adm-login">
           <img src="/images/logo.png" alt="" width={56} height={48} />
           <h1>Admin is switched off</h1>
@@ -33,8 +30,7 @@ export default async function AdminPage() {
   }
   if (!(await isAdmin())) {
     return (
-      <main id="main-content" className="adm-page" suppressHydrationWarning>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      <main id="main-content" className="adm-page">
         <AdminLogin />
       </main>
     );
@@ -49,8 +45,7 @@ export default async function AdminPage() {
     visitorReport().catch(() => null),
   ]);
   return (
-    <main id="main-content" className="adm-page" suppressHydrationWarning>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+    <main id="main-content" className="adm-page">
       <AdminApp
         initial={settings}
         bookings={<AdminBookings bookings={bookings} />}
