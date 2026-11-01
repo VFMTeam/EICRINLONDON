@@ -283,6 +283,10 @@ button.adm-stat:hover {
   color: var(--adm-muted);
   margin: 1rem 0 0.2rem;
 }
+.adm-empty-note {
+  color: var(--adm-muted);
+  font-weight: 600;
+}
 .adm-empty {
   color: var(--adm-muted);
   font-size: 1.2rem;

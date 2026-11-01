@@ -17,7 +17,7 @@ const TABS = [
   ["settings", "Settings", "M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"],
 ] as const;
 
-const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)" };
+const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)", gaServiceAccount: "Service account key (JSON)" };
 const home0 = { kind: "residential" as const, bedrooms: 0, floors: 1, commercialType: "other" };
 type Tab = (typeof TABS)[number][0];
 
@@ -94,7 +94,7 @@ function Example({ slugs, s }: { slugs: string[]; s: Settings }) {
   );
 }
 
-export default function AdminApp({ initial, canSave, pendingReviews, reviews, bookings, keys: initialKeys, webhookUrl }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode; bookings: React.ReactNode; keys: SecretStatus; webhookUrl: string }) {
+export default function AdminApp({ initial, canSave, pendingReviews, reviews, bookings, visitors, keys: initialKeys, webhookUrl }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode; bookings: React.ReactNode; visitors: React.ReactNode; keys: SecretStatus; webhookUrl: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [s, setS] = useState(initial);
   const [saved, setSaved] = useState(initial);
@@ -159,13 +159,14 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
         {tab === "overview" && (
           <div className="adm-grid">
             <section className="adm-card wide">
-              <h2>Status</h2>
+              <h2>Website health</h2>
               <div className="adm-status">
                 {([
                   ["Saving", canSave ? "Connected" : "Not connected", canSave, "settings"],
                   ["Payments", s.payments.requestOnly ? "Email only" : keys.stripeSecretKey.source ? "Stripe live" : "Demo mode", Boolean(keys.stripeSecretKey.source) && !s.payments.requestOnly, "settings"],
                   ["Email", keys.resendApiKey.source ? "Connected" : "Not set", Boolean(keys.resendApiKey.source), "settings"],
                   ["Google Analytics", s.tracking.gaId || "Not set", Boolean(s.tracking.gaId), "settings"],
+                  ["Visitor stats", s.tracking.gaPropertyId && keys.gaServiceAccount.source ? "Connected" : "Not set", Boolean(s.tracking.gaPropertyId && keys.gaServiceAccount.source), "settings"],
                   ["Reviews waiting", String(pendingReviews), pendingReviews === 0, "reviews"],
                 ] as const).map(([k, v, ok, go]) => (
                   <button key={k} type="button" onClick={() => setTab(go)}>
@@ -177,6 +178,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
               </div>
             </section>
             {bookings}
+            {visitors}
             <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
               <small>Multi-service offer</small>
               <b className={s.offer.enabled ? "good" : ""}>{s.offer.enabled ? `On · ${s.offer.two}% / ${s.offer.threePlus}%` : "Off"}</b>
@@ -324,6 +326,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
             </Card>
             <Card title="Google">
               <Words label="Analytics measurement ID" placeholder="G-XXXXXXXXXX" value={s.tracking.gaId} onChange={(t) => update((d) => void (d.tracking.gaId = t))} />
+              <Words label="Analytics property ID (for visitor stats)" placeholder="123456789" value={s.tracking.gaPropertyId} onChange={(t) => update((d) => void (d.tracking.gaPropertyId = t))} />
+              <Key name="gaServiceAccount" status={keys.gaServiceAccount} value={newKeys.gaServiceAccount ?? ""} onChange={(t) => setNewKeys({ ...newKeys, gaServiceAccount: t })} />
               <Words label="Ads conversion ID" placeholder="AW-123456789" value={s.tracking.adsId} onChange={(t) => update((d) => void (d.tracking.adsId = t))} />
               <Words label="Ads conversion label" value={s.tracking.adsLabel} onChange={(t) => update((d) => void (d.tracking.adsLabel = t))} />
               <Words label="Google review link (opens from /review/)" placeholder="https://g.page/r/…/review" value={s.links.googleReview} onChange={(t) => update((d) => void (d.links.googleReview = t))} />

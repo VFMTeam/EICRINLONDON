@@ -40,20 +40,24 @@ export default function AdminBookings({ bookings }: { bookings: BookingRecord[] 
   return (
     <>
       <div className="adm-stat">
-        <small>Bookings this week</small>
-        <b>{week.length}</b>
+        <small>Total orders</small>
+        <b>{bookings.length}</b>
       </div>
       <div className="adm-stat">
-        <small>Value this week</small>
-        <b>{sum(week)}</b>
+        <small>Total earnings</small>
+        <b className="good">{sum(bookings)}</b>
       </div>
       <div className="adm-stat">
-        <small>Bookings this month</small>
-        <b>{month.length}</b>
+        <small>Paid online by card</small>
+        <b>{sum(bookings.filter((b) => b.method === "card"))}</b>
       </div>
       <div className="adm-stat">
-        <small>Value this month</small>
-        <b>{sum(month)}</b>
+        <small>This month</small>
+        <b>{month.length} · {sum(month)}</b>
+      </div>
+      <div className="adm-stat">
+        <small>This week</small>
+        <b>{week.length} · {sum(week)}</b>
       </div>
       <section className="adm-card adm-half">
         <h2>Services booked this month</h2>

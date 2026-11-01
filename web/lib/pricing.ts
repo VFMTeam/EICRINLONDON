@@ -80,7 +80,7 @@ export type Settings = {
   text: Record<string, string>;
   business: Business;
   announcement: Announcement;
-  tracking: { gaId: string; adsId: string; adsLabel: string };
+  tracking: { gaId: string; gaPropertyId: string; adsId: string; adsLabel: string };
   links: { googleReview: string };
   payments: { bankDetails: string; requestOnly: boolean };
   notify: { email: string };
@@ -106,7 +106,7 @@ export const DEFAULT_SETTINGS: Settings = {
   text: DEFAULT_TEXT,
   business: DEFAULT_BUSINESS,
   announcement: DEFAULT_ANNOUNCEMENT,
-  tracking: { gaId: "", adsId: "", adsLabel: "" },
+  tracking: { gaId: "", gaPropertyId: "", adsId: "", adsLabel: "" },
   links: { googleReview: "" },
   payments: { bankDetails: "", requestOnly: false },
   notify: { email: "" },
@@ -166,6 +166,7 @@ export function normaliseSettings(raw: unknown): Settings {
     },
     tracking: {
       gaId: /^G-[A-Z0-9]{4,16}$/.test(String(r.tracking?.gaId ?? "").trim().toUpperCase()) ? String(r.tracking!.gaId).trim().toUpperCase() : "",
+      gaPropertyId: String(r.tracking?.gaPropertyId ?? "").replace(/\D/g, "").slice(0, 15),
       adsId: /^AW-\d{6,14}$/.test(String(r.tracking?.adsId ?? "").trim().toUpperCase()) ? String(r.tracking!.adsId).trim().toUpperCase() : "",
       adsLabel: String(r.tracking?.adsLabel ?? "").trim().replace(/[^\w-]/g, "").slice(0, 40),
     },
