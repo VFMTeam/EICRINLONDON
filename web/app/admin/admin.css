@@ -1,7 +1,6 @@
 /* Admin (/admin/): full-screen app without the site header, footer or contact bars. */
 body:has(.adm-page) > .site-shell,
 body:has(.adm-page) .site-announcement,
-body:has(.adm-page) .mobile-contact-bar,
 body:has(.adm-page) .eicr-cookie,
 body:has(.adm-page) a.fixed[href^="https://wa.me/"] {
   display: none !important;
