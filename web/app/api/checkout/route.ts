@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { recordBooking } from "@/lib/bookings";
-import { checkBooking, encodeBooking, isOffline, paymentMode, type Booking } from "@/lib/booking";
+import { checkBooking, encodeBooking, isOffline, parkingLabel, paymentMode, propertyLabel, type Booking } from "@/lib/booking";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
 import { gbp } from "@/lib/pricing";
@@ -23,7 +23,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
     cancel_url: `${origin}/booking/`,
   });
   const meta: Record<string, string> = {
-    services, property: b.kind === "residential" ? `${b.bedrooms} bed, ${b.floors} storey` : b.commercialType,
+    services, property: propertyLabel(b),
     date: b.date, slot: b.slot, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
     parking: b.parking, congestion: b.congestion ? "yes" : "no", discount: String(b.quote.discount), total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
     invoice: packLines(b.quote),
@@ -75,6 +75,7 @@ export async function POST(request: Request) {
       visit: booking.date, slot: booking.slot, services: booking.quote.lines.map((l) => l.title), total: booking.quote.total,
       method: booking.pay === "full" ? "request" : booking.pay, name: booking.name, postcode: booking.postcode,
       phone: booking.phone, email: booking.email, address: booking.address, notes: booking.notes,
+      property: propertyLabel(booking), parking: parkingLabel(booking.parking), congestion: booking.congestion, lines: quoteLines(booking.quote),
     });
     if (isOffline(booking.pay)) {
       await emailInvoice({

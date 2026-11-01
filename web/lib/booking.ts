@@ -32,6 +32,14 @@ const PAYS: Pay[] = ["full", "bank", "cash"];
 
 export const isOffline = (pay: Pay) => pay === "bank" || pay === "cash";
 
+export const parkingLabel = (id: string) => PARKING.find(([p]) => p === id)?.[1] ?? id;
+
+export function propertyLabel(b: Pick<BookingInput, "kind" | "bedrooms" | "floors" | "commercialType">) {
+  if (b.kind === "commercial") return `Commercial · ${COMMERCIAL_TYPES.find(([id]) => id === b.commercialType)?.[1] ?? b.commercialType}`;
+  const rooms = b.bedrooms ? `${b.bedrooms} bedroom${b.bedrooms > 1 ? "s" : ""}` : "Studio flat";
+  return `Residential · ${rooms}${b.floors > 1 ? ` · ${b.floors} storeys` : ""}`;
+}
+
 // Returns an error message for the customer, or the checked booking.
 export function checkBooking(raw: unknown, settings: Settings): Booking | string {
   const b = (raw ?? {}) as Record<string, unknown>;

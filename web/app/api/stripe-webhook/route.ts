@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { recordBooking } from "@/lib/bookings";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, unpackLines } from "@/lib/invoice";
+import { parkingLabel } from "@/lib/booking";
 import { getSecret } from "@/lib/secrets";
 
 // Stripe calls this after each Checkout payment, and the booking is emailed
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), total: (session.amount_total ?? 0) / 100,
       method: "card", name: meta.name ?? email, postcode: meta.postcode ?? "",
       phone: meta.phone, email, address: meta.address, notes: meta.notes,
+      property: meta.property, parking: meta.parking ? parkingLabel(meta.parking) : undefined, congestion: meta.congestion === "yes", lines: unpackLines(meta.invoice ?? ""),
     },
     session.id,
   );

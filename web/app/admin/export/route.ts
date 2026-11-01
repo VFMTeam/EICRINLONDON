@@ -23,9 +23,9 @@ export async function GET(request: Request) {
     all: () => true,
   };
   const rows = (await listBookings()).filter(pick[range] ?? pick.today).sort((a, b) => `${a.visit}${a.slot}`.localeCompare(`${b.visit}${b.slot}`));
-  const head = ["Visit date", "Time", "Name", "Phone", "Email", "Address", "Postcode", "Services", "Payment", "Total", "Notes", "Booked at"];
+  const head = ["Visit date", "Time", "Name", "Phone", "Email", "Address", "Postcode", "Property", "Services", "Price breakdown", "Parking", "Congestion zone", "Payment", "Total", "Notes", "Booked at"];
   const lines = rows.map((b) =>
-    [b.visit, b.slot ? slotLabel(b.slot) : "", b.name, b.phone, b.email, b.address, b.postcode, b.services.join(" + "), METHODS[b.method] ?? b.method, b.total.toFixed(2), b.notes, new Date(b.at).toLocaleString("en-GB", { timeZone: "Europe/London" })].map(cell).join(","),
+    [b.visit, b.slot ? slotLabel(b.slot) : "", b.name, b.phone, b.email, b.address, b.postcode, b.property, b.services.join(" + "), b.lines?.map(([t, p]) => `${t} ${p.toFixed(2)}`).join("; "), b.parking, b.congestion == null ? "" : b.congestion ? "Yes" : "No", METHODS[b.method] ?? b.method, b.total.toFixed(2), b.notes, new Date(b.at).toLocaleString("en-GB", { timeZone: "Europe/London" })].map(cell).join(","),
   );
   return new Response(`﻿${[head.join(","), ...lines].join("\r\n")}\r\n`, {
     headers: {
