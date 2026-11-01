@@ -5,23 +5,6 @@ import { slotLabel } from "@/lib/slots";
 const money = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 const day = (iso: string) => (iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "No date");
 
-function jobText(b: BookingRecord, where: string) {
-  return [
-    `Job: ${day(b.visit)}${b.slot ? `, ${slotLabel(b.slot)}` : ""}`,
-    `Customer: ${b.name}`,
-    b.phone && `Phone: ${b.phone}`,
-    `Address: ${where}`,
-    b.property && `Property: ${b.property}`,
-    `Services: ${b.services.join(", ")}`,
-    b.parking && `Parking: ${b.parking}`,
-    b.congestion != null && `Congestion zone: ${b.congestion ? "Yes" : "No"}`,
-    `Payment: ${METHODS[b.method] ?? b.method}, ${money(b.total)}`,
-    b.notes && `Notes: ${b.notes}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 function Item({ b, today }: { b: BookingRecord; today: string }) {
   const where = [b.address, b.postcode].filter(Boolean).join(", ");
   const facts = [
@@ -56,7 +39,6 @@ function Item({ b, today }: { b: BookingRecord; today: string }) {
         ))}
       </div>
       {b.notes && <p className="adm-booking-notes">{b.notes}</p>}
-      <a className="adm-btn ghost adm-share" href={`https://wa.me/?text=${encodeURIComponent(jobText(b, where))}`} target="_blank" rel="noopener">Send to engineer on WhatsApp</a>
     </article>
   );
 }
@@ -68,7 +50,7 @@ export default function AdminBookingList({ bookings }: { bookings: BookingRecord
   return (
     <div className="adm-stack">
       <section className="adm-card wide">
-        <h2>Export to sheet</h2>
+        <h2>Export for Teamup</h2>
         <div className="adm-actions">
           <a className="adm-btn" href="/admin/export/?range=today">Today&rsquo;s visits</a>
           <a className="adm-btn ghost" href="/admin/export/?range=upcoming">Upcoming</a>

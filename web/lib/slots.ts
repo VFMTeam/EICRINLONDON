@@ -1,6 +1,6 @@
 export const SLOTS = [
-  { id: "am", label: "Morning", time: "8am – 1pm" },
-  { id: "pm", label: "Afternoon", time: "1pm – 6pm" },
+  { id: "am", label: "Morning", time: "8am – 1pm", start: "08:00", end: "13:00" },
+  { id: "pm", label: "Afternoon", time: "1pm – 6pm", start: "13:00", end: "18:00" },
 ] as const;
 
 const DAYS_AHEAD = 30;
