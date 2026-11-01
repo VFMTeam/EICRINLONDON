@@ -32,15 +32,14 @@ const norm = (s: string) => s.trim().toUpperCase();
 type Choice = { value?: string; id?: string; name?: string; label?: string };
 type Field = { id: string; name?: string; type?: string; choices?: Choice[]; type_data?: { choices?: Choice[]; multiple?: boolean } };
 
-// Fills the calendar's own custom fields (Company, Work Order, Property Type,
-// Name on report) by name. Choice fields need the option ids, read from Teamup.
-async function customFields(api: string, headers: Record<string, string>, j: TeamupJob, company: string) {
+// Fills the calendar's own custom fields (Work Order, Property Type, Name on
+// report) by name. Choice fields need the option ids, read from Teamup.
+async function customFields(api: string, headers: Record<string, string>, j: TeamupJob) {
   const res = await fetch(`${api}/field-definitions`, { headers }).catch(() => null);
   if (!res?.ok) return {};
   const json = (await res.json().catch(() => ({}))) as { definitions?: Field[]; fields?: Field[] };
   const custom: Record<string, string | string[]> = {};
   const wanted: Record<string, string[]> = {
-    COMPANY: company ? [company] : [],
     "WORK ORDER": workOrders(j.services),
     "PROPERTY TYPE": [propertyType(j)],
     "NAME ON REPORT": [j.name],
@@ -79,7 +78,7 @@ export async function addToTeamup(j: TeamupJob) {
         start_dt: `${j.visit}T${slot?.start ?? "00:00"}:00`,
         end_dt: `${j.visit}T${slot?.end ?? "23:59"}:00`,
         tz: "Europe/London",
-        custom: await customFields(api, headers, j, teamup.company),
+        custom: await customFields(api, headers, j),
       }),
     });
     if (!res.ok) {
