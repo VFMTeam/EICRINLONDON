@@ -1,9 +1,10 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { recordBooking } from "@/lib/bookings";
+import { bookingExists, recordBooking } from "@/lib/bookings";
 import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, unpackLines } from "@/lib/invoice";
 import { parkingLabel } from "@/lib/booking";
 import { getSecret } from "@/lib/secrets";
+import { addToTeamup } from "@/lib/teamup";
 
 // Stripe calls this after each Checkout payment, and the booking is emailed
 // to the team. Needs the signing secret, set in /admin/ Settings or as
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
     ["Stripe payment", session.id],
   ];
   const what = meta.services ?? meta.service ?? "Booking";
+  const isNew = !(await bookingExists(session.id));
   await recordBooking(
     {
       visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), total: (session.amount_total ?? 0) / 100,
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
     },
     session.id,
   );
+  if (isNew) await addToTeamup({ visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), address: meta.address, postcode: meta.postcode ?? "", notes: meta.notes });
   const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
   // A rejected email makes Stripe retry later; the booking is already saved under its session id.
   if (sent === "failed") return new Response("Email failed", { status: 500 });

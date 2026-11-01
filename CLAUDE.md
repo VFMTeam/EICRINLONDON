@@ -16,12 +16,13 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 - `admin.ts`, `adminCookie.ts`, `settings.ts`, `siteText.ts`: hidden `/admin/` panel (password login, settings as one JSON in Blob `admin/settings.json`). Keep admin unlinked, noindex and out of robots.txt and the sitemap.
 - `reviews.ts`: customer reviews saved to Blob `reviews/pending/`, approved in admin, shown on the home page.
 - `invoice.ts`, `email.ts`: branded customer invoice and team emails through Resend.
+- `teamup.ts`: each new booking is added to the Teamup calendar on its inspection date (work order, location, time, engineer note only). `analytics.ts`: admin visitor stats from the GA Data API.
 - `areas.ts`, `guides.ts`, `services.ts`, `serviceDetails.ts`: area pages, guides and service pages.
 - `content.ts`, `site.ts`: partial loading and business details. Use `getSite()` and `renderPartial()` so admin contact details apply.
 
 ## Environment variables (set in Vercel, never in code or chat)
 
-`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BOOKING_REQUEST_ONLY`, `RESEND_API_KEY`, `FORM_TO_EMAIL`, `FORM_FROM_EMAIL`, `INVOICE_FROM_EMAIL`, `BANK_DETAILS`, `ADMIN_PASSWORD`, `BLOB_READ_WRITE_TOKEN` or `BLOB_STORE_ID` (set when a Blob store is connected; the SDK then uses Vercel OIDC), `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LABEL`, `NEXT_PUBLIC_GOOGLE_REVIEW_URL`. See `web/.env.example`. The site builds and runs without any of them. Stripe keys, the Resend key (private Blob `admin/secrets.json`, `lib/secrets.ts`), Google IDs, review link, notification email and bank details can also be set in admin Settings, which win over the env vars.
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BOOKING_REQUEST_ONLY`, `RESEND_API_KEY`, `FORM_TO_EMAIL`, `FORM_FROM_EMAIL`, `INVOICE_FROM_EMAIL`, `BANK_DETAILS`, `ADMIN_PASSWORD`, `BLOB_READ_WRITE_TOKEN` or `BLOB_STORE_ID` (set when a Blob store is connected; the SDK then uses Vercel OIDC), `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LABEL`, `NEXT_PUBLIC_GOOGLE_REVIEW_URL`, `GA_SERVICE_ACCOUNT_JSON`, `TEAMUP_API_KEY`, `TEAMUP_CALENDAR_KEY`. See `web/.env.example`. The site builds and runs without any of them. Stripe keys, the Resend key (private Blob `admin/secrets.json`, `lib/secrets.ts`), Google IDs, review link, notification email and bank details can also be set in admin Settings, which win over the env vars.
 
 ## Commands (run in `web/`)
 

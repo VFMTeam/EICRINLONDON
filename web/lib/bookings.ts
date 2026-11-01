@@ -39,6 +39,8 @@ export async function recordBooking(input: Omit<BookingRecord, "id" | "at">, id 
   }
 }
 
+export const bookingExists = async (id: string) => blob() && Boolean(await readBlob(`bookings/${id.replace(/[^\w-]/g, "").slice(0, 80)}.json`));
+
 async function readBlob(pathname: string): Promise<BookingRecord | null> {
   for (const access of ACCESS) {
     try {

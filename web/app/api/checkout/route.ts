@@ -5,6 +5,7 @@ import { emailTeam } from "@/lib/email";
 import { emailInvoice, invoiceNumber, packLines, quoteLines } from "@/lib/invoice";
 import { gbp } from "@/lib/pricing";
 import { getSecret } from "@/lib/secrets";
+import { addToTeamup } from "@/lib/teamup";
 import { getSettings, getSite } from "@/lib/settings";
 import { prettyDate, slotLabel } from "@/lib/slots";
 
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
       phone: booking.phone, email: booking.email, address: booking.address, notes: booking.notes,
       property: propertyLabel(booking), parking: parkingLabel(booking.parking), congestion: booking.congestion, lines: quoteLines(booking.quote),
     });
+    await addToTeamup({ visit: booking.date, slot: booking.slot, services: booking.quote.lines.map((l) => l.title), address: booking.address, postcode: booking.postcode, notes: booking.notes });
     if (isOffline(booking.pay)) {
       await emailInvoice({
         number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,

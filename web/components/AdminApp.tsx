@@ -18,7 +18,7 @@ const TABS = [
   ["settings", "Settings", "M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"],
 ] as const;
 
-const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)", gaServiceAccount: "Service account key (JSON)" };
+const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)", gaServiceAccount: "Service account key (JSON)", teamupApiKey: "Teamup API key", teamupCalendarKey: "Calendar key (from the admin link)" };
 const home0 = { kind: "residential" as const, bedrooms: 0, floors: 1, commercialType: "other" };
 type Tab = (typeof TABS)[number][0];
 
@@ -304,6 +304,12 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
             <Card title="Email">
               <Key name="resendApiKey" status={keys.resendApiKey} value={newKeys.resendApiKey ?? ""} onChange={(t) => setNewKeys({ ...newKeys, resendApiKey: t })} />
               <Words label="Send bookings, quotes and reviews to" placeholder={s.business.email} value={s.notify.email} onChange={(t) => update((d) => void (d.notify.email = t))} />
+            </Card>
+            <Card title="Teamup">
+              {(["teamupApiKey", "teamupCalendarKey"] as const).map((k) => (
+                <Key key={k} name={k} status={keys[k]} value={newKeys[k] ?? ""} onChange={(t) => setNewKeys({ ...newKeys, [k]: t })} />
+              ))}
+              <Words label="Sub-calendar ID" placeholder="12345678" value={s.teamup.subcalendarId} onChange={(t) => update((d) => void (d.teamup.subcalendarId = t))} />
             </Card>
             <Card title="Bank transfer">
               <Words label="Bank details on invoices" long placeholder={"Account name\nSort code\nAccount number"} value={s.payments.bankDetails} onChange={(t) => update((d) => void (d.payments.bankDetails = t))} />
