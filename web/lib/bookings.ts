@@ -9,7 +9,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 // Blob under bookings/. Contact details are only kept in a private store.
 // Local development uses .data/bookings/.
 export type BookingMethod = "card" | "bank" | "cash" | "request";
-export type BookingRecord = { id: string; at: string; visit: string; slot?: string; services: string[]; total: number; method: BookingMethod; name: string; postcode: string; phone?: string; email?: string; address?: string; notes?: string };
+export type BookingRecord = { id: string; at: string; visit: string; slot?: string; services: string[]; total: number; method: BookingMethod; name: string; postcode: string; phone?: string; email?: string; address?: string; notes?: string; property?: string; parking?: string; congestion?: boolean; lines?: [string, number][] };
 const CONTACT = ["phone", "email", "address", "notes"] as const;
 
 const LOCAL_DIR = path.join(process.cwd(), ".data", "bookings");

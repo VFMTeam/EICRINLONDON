@@ -227,8 +227,39 @@ body:has(.adm-page) {
   font-weight: 600;
   word-break: break-word;
 }
-.adm-booking-meta {
+.adm-booking-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.35rem 1rem;
+  margin: 0.2rem 0;
+}
+.adm-booking-facts dt {
   color: var(--adm-muted);
+  font-size: 0.78rem;
+}
+.adm-booking-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+.adm-booking-lines {
+  display: grid;
+  gap: 0.15rem;
+  border-top: 1px solid var(--adm-line);
+  padding-top: 0.4rem;
+}
+.adm-booking-lines div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.adm-share {
+  justify-self: start;
+  margin-top: 0.3rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.88rem;
+}
+.adm-booking a.adm-share {
+  color: var(--adm-ink);
 }
 .adm-booking-notes {
   border-left: 3px solid var(--adm-line);

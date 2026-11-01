@@ -5,8 +5,31 @@ import { slotLabel } from "@/lib/slots";
 const money = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 const day = (iso: string) => (iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "No date");
 
+function jobText(b: BookingRecord, where: string) {
+  return [
+    `Job: ${day(b.visit)}${b.slot ? `, ${slotLabel(b.slot)}` : ""}`,
+    `Customer: ${b.name}`,
+    b.phone && `Phone: ${b.phone}`,
+    `Address: ${where}`,
+    b.property && `Property: ${b.property}`,
+    `Services: ${b.services.join(", ")}`,
+    b.parking && `Parking: ${b.parking}`,
+    b.congestion != null && `Congestion zone: ${b.congestion ? "Yes" : "No"}`,
+    `Payment: ${METHODS[b.method] ?? b.method}, ${money(b.total)}`,
+    b.notes && `Notes: ${b.notes}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 function Item({ b, today }: { b: BookingRecord; today: string }) {
   const where = [b.address, b.postcode].filter(Boolean).join(", ");
+  const facts = [
+    ["Property", b.property],
+    ["Parking", b.parking],
+    ["Congestion zone", b.congestion == null ? undefined : b.congestion ? "Yes" : "No"],
+    ["Payment", METHODS[b.method] ?? b.method],
+  ].filter((f): f is [string, string] => Boolean(f[1]));
   return (
     <article className="adm-booking">
       <header>
@@ -22,8 +45,18 @@ function Item({ b, today }: { b: BookingRecord; today: string }) {
       <p>
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(where)}`} target="_blank" rel="noopener">{where}</a>
       </p>
-      <p className="adm-booking-meta">{b.services.join(", ")} · {METHODS[b.method] ?? b.method}</p>
+      <dl className="adm-booking-facts">
+        {facts.map(([k, v]) => (
+          <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+        ))}
+      </dl>
+      <div className="adm-booking-lines">
+        {(b.lines?.length ? b.lines : b.services.map((s) => [s, NaN] as [string, number])).map(([t, p], i) => (
+          <div key={i}><span>{t}</span>{Number.isFinite(p) && <b>{p < 0 ? `-${money(-p)}` : money(p)}</b>}</div>
+        ))}
+      </div>
       {b.notes && <p className="adm-booking-notes">{b.notes}</p>}
+      <a className="adm-btn ghost adm-share" href={`https://wa.me/?text=${encodeURIComponent(jobText(b, where))}`} target="_blank" rel="noopener">Send to engineer on WhatsApp</a>
     </article>
   );
 }
