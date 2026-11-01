@@ -21,7 +21,7 @@ export default function AdminVisitors({ report }: { report: VisitorReport }) {
     <section className="adm-card wide">
       <h2>Visitors &amp; clicks</h2>
       {!report ? (
-        <p className="adm-empty-note">Add the Analytics property ID and service account key in Settings.</p>
+        <p className="adm-empty-note">Not connected</p>
       ) : "error" in report ? (
         <p className="adm-empty-note bad">{report.error}</p>
       ) : (

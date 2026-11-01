@@ -17,7 +17,7 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
     title: "Services and prices",
     fields: [
       ["servicesTitle", "Heading", "Choose Your Property Services"],
-      ["servicesText", "Text", "Compare inspections, certificates and starting prices, then view the details or book the service your property requires. All prices include VAT."],
+      ["servicesText", "Text", "Starting prices for inspections, certificates and repairs across London."],
     ],
   },
   {
@@ -63,6 +63,11 @@ export const TEXT_GROUPS: { title: string; fields: TextField[] }[] = [
     ],
   },
 ];
+
+// Earlier defaults that were saved with the settings; they now follow the new default.
+export const OLD_TEXT: Record<string, string> = {
+  servicesText: "Compare inspections, certificates and starting prices, then view the details or book the service your property requires. All prices include VAT.",
+};
 
 export const DEFAULT_TEXT: Record<string, string> = Object.fromEntries(TEXT_GROUPS.flatMap((g) => g.fields.map(([key, , text]) => [key, text])));
 
