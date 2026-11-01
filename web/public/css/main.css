@@ -78,7 +78,7 @@
 .eicr-credentials>div:first-of-type{grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);gap:clamp(1.5rem,3vw,3rem)}
 .eicr-credentials-copy{order:2}
 .eicr-credentials-image{order:1;display:flex;min-width:0;align-items:flex-end;justify-content:flex-end}
-.eicr-credentials-image img{width:100%;max-width:460px;height:auto;border-radius:1.5rem;mix-blend-mode:multiply;transform:translateZ(0)}
+.eicr-credentials-image img{width:100%;max-width:460px;height:auto;border-radius:1.5rem;transform:translateZ(0)}
 .eicr-process article{border-left:4px solid var(--eicr-accent,#b4532a)!important;border-radius:.75rem!important;box-shadow:none}
 .eicr-review-hp{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .eicr-review-consent{display:flex!important;align-items:flex-start;gap:.65rem;margin-top:1rem!important;text-transform:none!important;letter-spacing:0!important;font-size:.78rem!important;line-height:1.35rem}
