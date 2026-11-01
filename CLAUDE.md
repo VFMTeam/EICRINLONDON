@@ -7,6 +7,7 @@ Website for EICR in London (Group Tech Solutions UK Ltd): electrical, gas, fire 
 - Only `web/` is the site: Next.js 15 (App Router, React 19, TypeScript). There is no other app in the repo.
 - Hosted on Vercel with Root Directory `web`. Every push to `main` deploys to production automatically. `web/vercel.json` turns off preview deploys for `claude/*` branches to stay under the Hobby daily deploy limit; other branches still get previews. The Vercel result shows as a commit status (context "Vercel"), not a check run.
 - `web/content/`: HTML partials from the old WordPress theme (`header.html`, `footer.html`, `pages/*.html`) plus `meta.json`. `home.html` uses `{{key}}` price tokens and `[[key]]` text tokens filled from admin settings.
+- Dark mode: the site follows the visitor's system setting through `public/css/dark.css` (linked with `media="(prefers-color-scheme: dark)"`); any new hard-coded light colour needs a dark override there. Admin has its own light/dark toggle (`data-theme` on `.adm-page`, saved in localStorage).
 - `web/public/`: `css/`, `js/`, `images/`. Every `/css` and `/js` link must carry `?v=ASSET_VERSION` (1-year immutable cache). Images cache for 30 days, so use a new filename when replacing one.
 - `web/app/`: pages (`[slug]`, `services`, `areas`, `guides`, `booking`, `pricing`, `request-a-quote`, `admin`) and API routes (`api/checkout`, `api/forms`, `api/reviews`, `api/stripe-webhook`).
 

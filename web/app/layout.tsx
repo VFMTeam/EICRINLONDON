@@ -63,6 +63,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <link rel="stylesheet" href={`/css/site-ui.css?v=${v}`} />
         <link rel="stylesheet" href={`/css/main.css?v=${v}`} />
         <link rel="stylesheet" href={`/css/theme-vars.css?v=${v}`} />
+        <link rel="stylesheet" href={`/css/dark.css?v=${v}`} media="(prefers-color-scheme: dark)" />
         <link rel="icon" href="/images/favicon.png" />
         <script dangerouslySetInnerHTML={{ __html: consentDefaultsScript }} />
         <script dangerouslySetInnerHTML={{ __html: `window.EICR_DATA=${JSON.stringify(clientData)};` }} />
