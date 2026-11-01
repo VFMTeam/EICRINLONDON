@@ -75,7 +75,7 @@ function Key({ name, status, value, onChange }: { name: SecretName; status: Secr
     <label className="adm-text">
       <span>
         {KEY_LABELS[name]}
-        <em className={status.source ? "on" : ""}>{status.source === "admin" ? `set ${status.hint}` : status.source === "vercel" ? `vercel ${status.hint}` : "not set"}</em>
+        <em className={status.source ? "on" : ""}>{status.source === "admin" ? `Saved ${status.hint}` : status.source === "vercel" ? `In Vercel ${status.hint}` : "Not set"}</em>
       </span>
       <input type="password" autoComplete="off" value={value} placeholder={status.source ? "Paste a new key to replace" : "Paste key"} onChange={(e) => onChange(e.target.value)} />
     </label>
@@ -125,14 +125,14 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
     });
   }
 
-  const slug = TABS.find(([id]) => id === tab)![1].toLowerCase().replace(/[^a-z]+/g, "-");
+  const title = TABS.find(([id]) => id === tab)![1];
 
   return (
     <div className="adm-shell">
       <aside className="adm-side">
         <a className="adm-brand" href="/" target="_blank" rel="noopener">
           <img src="/images/logo.png" alt="" width={40} height={34} />
-          <span>EICR in London<small>root@admin</small></span>
+          <span>EICR in London<small>Admin</small></span>
         </a>
         <nav>
           {TABS.map(([id, label, d]) => (
@@ -151,25 +151,30 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
       <div className="adm-main">
         <header className="adm-top">
-          <h1 key={tab}><span>~/admin/</span><b style={{ "--n": slug.length } as React.CSSProperties}>{slug}</b><i aria-hidden="true" /></h1>
-          <span className="adm-live"><b />online</span>
+          <h1>{title}</h1>
+          <a className="adm-btn ghost" href="/" target="_blank" rel="noopener">View website</a>
         </header>
-        {!canSave && <p className="adm-alert">Blob store offline. Saving disabled.</p>}
+        {!canSave && <p className="adm-alert">Saving is off: the Blob store is not connected.</p>}
 
         {tab === "overview" && (
           <div className="adm-grid">
-            <section className="adm-term">
-              {[
-                ["blob storage", canSave ? "online" : "offline", canSave],
-                ["payments", s.payments.requestOnly ? "email only" : keys.stripeSecretKey.source ? "stripe live" : "demo", Boolean(keys.stripeSecretKey.source) && !s.payments.requestOnly],
-                ["email", keys.resendApiKey.source ? "connected" : "not set", Boolean(keys.resendApiKey.source)],
-                ["analytics", s.tracking.gaId || "not set", Boolean(s.tracking.gaId)],
-                ["reviews pending", String(pendingReviews), pendingReviews === 0],
-              ].map(([k, v, ok], i) => (
-                <p key={k as string} style={{ "--d": i } as React.CSSProperties}>
-                  <span>root@eicr:~$</span> status {k as string} <b className={ok ? "ok" : "warn"}>[{v as string}]</b>
-                </p>
-              ))}
+            <section className="adm-card wide">
+              <h2>Status</h2>
+              <div className="adm-status">
+                {([
+                  ["Saving", canSave ? "Connected" : "Not connected", canSave, "settings"],
+                  ["Payments", s.payments.requestOnly ? "Email only" : keys.stripeSecretKey.source ? "Stripe live" : "Demo mode", Boolean(keys.stripeSecretKey.source) && !s.payments.requestOnly, "settings"],
+                  ["Email", keys.resendApiKey.source ? "Connected" : "Not set", Boolean(keys.resendApiKey.source), "settings"],
+                  ["Google Analytics", s.tracking.gaId || "Not set", Boolean(s.tracking.gaId), "settings"],
+                  ["Reviews waiting", String(pendingReviews), pendingReviews === 0, "reviews"],
+                ] as const).map(([k, v, ok, go]) => (
+                  <button key={k} type="button" onClick={() => setTab(go)}>
+                    <i className={ok ? "ok" : "warn"} aria-hidden="true" />
+                    <span>{k}</span>
+                    <b>{v}</b>
+                  </button>
+                ))}
+              </div>
             </section>
             {bookings}
             <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
@@ -341,8 +346,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab !== "overview" && tab !== "reviews" && (
           <div className={`adm-bar${dirty ? " dirty" : ""}`}>
-            <p className={status?.ok === false ? "bad" : ""} aria-live="polite">{status?.message ?? (dirty ? "Unsaved changes" : "Synced")}</p>
-            <button type="button" onClick={submit} disabled={saving || !canSave || !dirty}>{saving ? "Saving…" : "Save"}</button>
+            <p className={status?.ok === false ? "bad" : ""} aria-live="polite">{status?.message ?? (dirty ? "You have unsaved changes" : "All changes saved")}</p>
+            <button type="button" onClick={submit} disabled={saving || !canSave || !dirty}>{saving ? "Saving…" : "Save changes"}</button>
           </div>
         )}
       </div>
