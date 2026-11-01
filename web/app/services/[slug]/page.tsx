@@ -39,7 +39,7 @@ function faqs(s: Service): [string, string][] {
   return [
     ...(serviceDetails[s.slug]?.faqs ?? []),
     [`How much does ${s.title} cost?`, `Prices start from ${formatPrice(s.price)}. The final amount depends on the property details and the scope of work, and we confirm it before the visit.`],
-    ["Can I combine this with another service?", "Yes. Book one service online and add the others in the notes, or request a quote, and we will arrange them together, often in a single visit."],
+    ["Can I combine this with another service?", "Yes. Choose all the services you need on the booking form, or request a quote, and we will arrange them together, often in a single visit."],
     ["Which areas do you cover?", "All 32 London boroughs, the City of London and selected towns near the M25."],
     ["What should I prepare before the visit?", "Make sure the relevant areas are accessible and tell us about any access instructions or known issues when you book."],
     ["When will the engineer contact me?", "The engineer calls you on the day before they set off."],

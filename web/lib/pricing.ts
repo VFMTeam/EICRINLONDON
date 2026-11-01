@@ -1,5 +1,5 @@
 import { services } from "@/lib/services";
-import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, socialUrl, type Announcement, type Business } from "@/lib/siteText";
+import { DEFAULT_ANNOUNCEMENT, DEFAULT_BUSINESS, DEFAULT_TEXT, OLD_TEXT, socialUrl, type Announcement, type Business } from "@/lib/siteText";
 
 // Booking prices follow the original site's rules (EICR-London/inc/booking-v2.php).
 export type PropertyKind = "residential" | "commercial";
@@ -128,7 +128,7 @@ const words = (v: unknown, fallback: string, max = 600) => {
 };
 const strings = (stored: unknown, defaults: Record<string, string>) => {
   const s = (stored ?? {}) as Record<string, unknown>;
-  return Object.fromEntries(Object.entries(defaults).map(([k, d]) => [k, words(s[k], d)]));
+  return Object.fromEntries(Object.entries(defaults).map(([k, d]) => [k, s[k] === OLD_TEXT[k] ? d : words(s[k], d)]));
 };
 const list = (stored: unknown, defaults: number[]) => defaults.map((d, i) => money(Array.isArray(stored) ? stored[i] : undefined, d));
 
