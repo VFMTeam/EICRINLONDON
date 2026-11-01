@@ -4,7 +4,6 @@ import { getSettings, getSite, renderPartial } from "@/lib/settings";
 import { site } from "@/lib/site";
 import { tracking, consentDefaultsScript } from "@/lib/tracking";
 import CookieConsent from "@/components/CookieConsent";
-import MobileContactBar from "@/components/MobileContactBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -78,7 +77,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: header }} />
         {children}
         <div className="site-shell" dangerouslySetInnerHTML={{ __html: footer }} />
-        <MobileContactBar telHref={site.telHref} whatsapp={site.whatsapp} />
         <CookieConsent gaId={saved.gaId || tracking.gaId} adsId={adsId} />
       </body>
     </html>

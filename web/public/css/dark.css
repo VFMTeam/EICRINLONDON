@@ -167,4 +167,3 @@ body{color:var(--eicr-heading);background:var(--eicr-page)}
 .whatsapp-copy{background:var(--eicr-page);border:1px solid var(--eicr-border)}
 @media(max-width:900px){.nav nav{background:var(--eicr-page)}}
 @media(max-width:1279px){.eicr-mobile-nav>a.eicr-account-nav-link{background:var(--eicr-page)}.eicr-mobile-nav>a.eicr-account-nav-link:hover{background:var(--eicr-accent-soft)}}
-@media (max-width: 640px){.mobile-contact-bar{background:var(--eicr-page);border-top:1px solid var(--eicr-border, var(--eicr-border))}.mobile-contact-bar a.primary{color:var(--eicr-heading)}}
