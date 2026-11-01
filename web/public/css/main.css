@@ -596,3 +596,4 @@
 .whatsapp-icon-pulse::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:#25d366;pointer-events:none;animation:eicr-whats-ring 2.2s ease-out infinite}
 @keyframes eicr-whats-ring{0%{transform:scale(1);opacity:.5}70%,to{transform:scale(1.7);opacity:0}}
 @media(prefers-reduced-motion:reduce){.whatsapp-icon-pulse::after{animation:none;opacity:0}}
+@media(max-width:640px){a.fixed[href^="https://wa.me/"]{right:12px;bottom:12px;gap:6px}a.fixed[href^="https://wa.me/"] .whatsapp-icon-pulse{width:42px;height:42px}a.fixed[href^="https://wa.me/"] .whatsapp-icon-pulse img{width:26px;height:26px}.whatsapp-copy{width:96px;height:28px;border-radius:9px}.whatsapp-message{padding:0 10px;font-size:.75rem}}
