@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       phone: booking.phone, email: booking.email, address: booking.address, notes: booking.notes,
       property: propertyLabel(booking), parking: parkingLabel(booking.parking), congestion: booking.congestion, lines: quoteLines(booking.quote),
     });
-    await addToTeamup({ visit: booking.date, slot: booking.slot, services: booking.quote.lines.map((l) => l.title), address: booking.address, postcode: booking.postcode, notes: booking.notes });
+    await addToTeamup({ visit: booking.date, slot: booking.slot, services: booking.quote.lines.map((l) => l.title), address: booking.address, postcode: booking.postcode, notes: booking.notes, name: booking.name, phone: booking.phone, property: propertyLabel(booking) });
     if (isOffline(booking.pay)) {
       await emailInvoice({
         number: invoiceNumber(), name: booking.name, email: booking.email, address: `${booking.address}, ${booking.postcode}`,

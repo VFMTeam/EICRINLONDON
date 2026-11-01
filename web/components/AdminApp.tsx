@@ -310,6 +310,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
                 <Key key={k} name={k} status={keys[k]} value={newKeys[k] ?? ""} onChange={(t) => setNewKeys({ ...newKeys, [k]: t })} />
               ))}
               <Words label="Sub-calendar ID" placeholder="12345678" value={s.teamup.subcalendarId} onChange={(t) => update((d) => void (d.teamup.subcalendarId = t))} />
+              <Words label="Company (as named in Teamup)" value={s.teamup.company} onChange={(t) => update((d) => void (d.teamup.company = t))} />
             </Card>
             <Card title="Bank transfer">
               <Words label="Bank details on invoices" long placeholder={"Account name\nSort code\nAccount number"} value={s.payments.bankDetails} onChange={(t) => update((d) => void (d.payments.bankDetails = t))} />

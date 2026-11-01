@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     },
     session.id,
   );
-  if (isNew) await addToTeamup({ visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), address: meta.address, postcode: meta.postcode ?? "", notes: meta.notes });
+  if (isNew) await addToTeamup({ visit: meta.date ?? "", slot: meta.slot, services: what.split(" + "), address: meta.address, postcode: meta.postcode ?? "", notes: meta.notes, name: meta.name ?? email, phone: meta.phone, property: meta.property });
   const sent = await emailTeam(`Paid booking: ${what} – ${meta.name ?? email}`, "New paid booking", rows, email || undefined);
   // A rejected email makes Stripe retry later; the booking is already saved under its session id.
   if (sent === "failed") return new Response("Email failed", { status: 500 });
