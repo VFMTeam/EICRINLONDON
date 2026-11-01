@@ -84,6 +84,7 @@ export type Settings = {
   links: { googleReview: string };
   payments: { bankDetails: string; requestOnly: boolean };
   notify: { email: string };
+  teamup: { subcalendarId: string };
 };
 
 export const BEDROOM_BANDS = {
@@ -110,6 +111,7 @@ export const DEFAULT_SETTINGS: Settings = {
   links: { googleReview: "" },
   payments: { bankDetails: "", requestOnly: false },
   notify: { email: "" },
+  teamup: { subcalendarId: "" },
 };
 
 const money = (v: unknown, fallback: number, max = 100000) => {
@@ -179,6 +181,9 @@ export function normaliseSettings(raw: unknown): Settings {
     },
     notify: {
       email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(String(r.notify?.email ?? "").trim()) ? String(r.notify!.email).trim() : "",
+    },
+    teamup: {
+      subcalendarId: String(r.teamup?.subcalendarId ?? "").replace(/\D/g, "").slice(0, 15),
     },
   };
 }

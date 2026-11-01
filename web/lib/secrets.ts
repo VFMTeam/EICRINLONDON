@@ -9,6 +9,8 @@ export const SECRET_KEYS = {
   stripeWebhookSecret: "STRIPE_WEBHOOK_SECRET",
   resendApiKey: "RESEND_API_KEY",
   gaServiceAccount: "GA_SERVICE_ACCOUNT_JSON",
+  teamupApiKey: "TEAMUP_API_KEY",
+  teamupCalendarKey: "TEAMUP_CALENDAR_KEY",
 } as const;
 export type SecretName = keyof typeof SECRET_KEYS;
 export type SecretStatus = Record<SecretName, { source: "admin" | "vercel" | ""; hint: string }>;
