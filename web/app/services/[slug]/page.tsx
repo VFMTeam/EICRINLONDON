@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { services, getService, formatPrice, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
+import { services, getService, formatPrice, imageSrcSet, serviceHeroImage, serviceGallery, type Service } from "@/lib/services";
 import { getSite, pricedService } from "@/lib/settings";
 import { site } from "@/lib/site";
 import { serviceDetails } from "@/lib/serviceDetails";
@@ -101,7 +101,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <a className="service-detail-quote" href={`/request-a-quote/?service=${s.slug}`}>Request a quote</a>
               </div>
             </div>
-            <img src={serviceHeroImage(s.slug)} alt={`${s.title} service in London`} width={1100} height={600} fetchPriority="high" />
+            <img src={serviceHeroImage(s.slug)} srcSet={imageSrcSet(serviceHeroImage(s.slug))} sizes="(min-width: 1024px) 50vw, 100vw" alt={`${s.title} service in London`} width={1100} height={600} fetchPriority="high" />
           </div>
         </section>
 
@@ -169,7 +169,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <h2>{s.title} gallery</h2>
             <div className="service-detail-gallery">
               {serviceGallery(s.slug).map((src) => (
-                <img key={src} src={src} alt={galleryAlt(src)} width={1100} height={600} loading="lazy" />
+                <img key={src} src={src} srcSet={imageSrcSet(src)} sizes="(min-width: 768px) 33vw, 100vw" alt={galleryAlt(src)} width={1100} height={600} loading="lazy" decoding="async" />
               ))}
             </div>
           </div>

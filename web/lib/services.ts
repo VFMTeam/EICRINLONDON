@@ -75,6 +75,13 @@ export function serviceHeroImage(slug: string) {
   return "/images/gas-electrical-installations-closeup.webp";
 }
 
+export const imageSrcSet = (src: string) =>
+  src.endsWith("-closeup.webp")
+    ? `${src.replace(".webp", "-640.webp")} 640w, ${src} 1100w`
+    : src.endsWith("property-safety-engineers.webp")
+      ? `${src.replace(".webp", "-480.webp")} 480w, ${src} 1821w`
+      : undefined;
+
 export function serviceGallery(slug: string) {
   const group =
     slug.includes("fire") || slug.includes("emergency")
@@ -82,7 +89,7 @@ export function serviceGallery(slug: string) {
       : slug.includes("gas") || slug.includes("boiler")
         ? ["gas-safety-certificate-closeup.webp", "boiler-service-maintenance-closeup.webp", "gas-repairs-closeup.webp"]
         : slug.includes("asbestos") || slug === "epc"
-          ? ["asbestos-survey-closeup.webp", "epc-energy-performance-certificate-closeup.webp", "property-safety-engineers.jpg"]
+          ? ["asbestos-survey-closeup.webp", "epc-energy-performance-certificate-closeup.webp", "property-safety-engineers.webp"]
           : ["eicr-certificate-closeup.webp", "pat-testing-closeup.webp", "fuse-box-installation-closeup.webp"];
   return group.map((img) => `/images/${img}`);
 }

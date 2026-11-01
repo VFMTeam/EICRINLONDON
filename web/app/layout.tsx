@@ -20,6 +20,22 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 const v = process.env.ASSET_VERSION;
 
 
+// Chrome and Edge load a page in the background once a link is hovered, so it opens instantly.
+const speculation = JSON.stringify({
+  prerender: [
+    {
+      where: {
+        and: [
+          { href_matches: "/*" },
+          ...["/admin/*", "/api/*", "/booking/*", "/request-a-quote/*", "/review/*"].map((p) => ({ not: { href_matches: p } })),
+          { not: { selector_matches: "[target=_blank], [download]" } },
+        ],
+      },
+      eagerness: "moderate",
+    },
+  ],
+});
+
 const localBusiness = (site: Awaited<ReturnType<typeof getSite>>) => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -51,6 +67,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <script dangerouslySetInnerHTML={{ __html: consentDefaultsScript }} />
         <script dangerouslySetInnerHTML={{ __html: `window.EICR_DATA=${JSON.stringify(clientData)};` }} />
         <script defer src={`/js/main.js?v=${v}`} />
+        <script type="speculationrules" dangerouslySetInnerHTML={{ __html: speculation }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusiness(site)) }} />
       </head>
       <body>
