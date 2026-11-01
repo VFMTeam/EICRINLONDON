@@ -20,6 +20,11 @@ const TABS = [
 
 const KEY_LABELS: Record<SecretName, string> = { stripeSecretKey: "Secret key (sk_live_…)", stripeWebhookSecret: "Webhook signing secret (whsec_…)", resendApiKey: "Resend API key (re_…)", gaServiceAccount: "Service account key (JSON)", teamupApiKey: "Teamup API key", teamupCalendarKey: "Calendar key (from the admin link)" };
 type Tab = (typeof TABS)[number][0];
+const GROUPS: [string, Tab[]][] = [
+  ["Business", ["overview", "bookings", "reviews"]],
+  ["Website", ["prices", "banner", "text", "contact"]],
+  ["System", ["settings"]],
+];
 
 const Icon = ({ d }: { d: string }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>
@@ -123,23 +128,30 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
           <span>EICR in London<small>Admin</small></span>
         </a>
         <nav>
-          {TABS.map(([id, label, d]) => (
+          {GROUPS.map(([group, ids]) => [
+            <p key={group} className="adm-nav-label">{group}</p>,
+            ...TABS.filter(([id]) => ids.includes(id)).map(([id, label, d]) => (
             <button key={id} type="button" className={tab === id ? "on" : ""} onClick={() => setTab(id)}>
               <Icon d={d} />
               {label}
               {id === "reviews" && pendingReviews > 0 && <em>{pendingReviews}</em>}
             </button>
-          ))}
+            )),
+          ])}
         </nav>
         <div className="adm-side-foot">
-          <a href="/" target="_blank" rel="noopener">View website</a>
-          <form action={logout}><button type="submit">Log out</button></form>
+          <span className="adm-avatar" aria-hidden="true">A</span>
+          <span className="adm-user">Admin<small>EICR in London</small></span>
+          <form action={logout}><button type="submit" title="Log out" aria-label="Log out"><Icon d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" /></button></form>
         </div>
       </aside>
 
       <div className="adm-main">
         <header className="adm-top">
-          <h1>{title}</h1>
+          <div>
+            <h1>{title}</h1>
+            <p className="adm-sub" suppressHydrationWarning>{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}</p>
+          </div>
           <a className="adm-btn ghost" href="/" target="_blank" rel="noopener">View website</a>
         </header>
         {!canSave && <p className="adm-alert">Saving is off: the Blob store is not connected.</p>}

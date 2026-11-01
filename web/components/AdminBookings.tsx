@@ -15,6 +15,17 @@ function count<T extends string>(items: T[]) {
   return [...m].sort((a, b) => b[1] - a[1]);
 }
 
+function Stat({ icon, label, value, note, tone }: { icon: string; label: string; value: string; note: string; tone: string }) {
+  return (
+    <div className="adm-stat">
+      <i className={`adm-stat-icon ${tone}`} aria-hidden="true"><svg viewBox="0 0 24 24"><path d={icon} /></svg></i>
+      <small>{label}</small>
+      <b>{value}</b>
+      <span>{note}</span>
+    </div>
+  );
+}
+
 function Rows({ rows, empty }: { rows: [string, number][]; empty: string }) {
   if (!rows.length) return <p className="adm-empty">{empty}</p>;
   return (
@@ -47,36 +58,15 @@ export default function AdminBookings({ bookings }: { bookings: BookingRecord[] 
   });
   const best = Math.max(1, ...months.map((x) => x.value));
 
+  const todays = upcoming.filter((b) => b.visit === today).length;
+
   return (
     <>
-      <div className="adm-stat">
-        <small>Total orders</small>
-        <b>{bookings.length}</b>
-      </div>
-      <div className="adm-stat">
-        <small>Total earnings</small>
-        <b className="good">{sum(bookings)}</b>
-      </div>
-      <div className="adm-stat">
-        <small>Paid online by card</small>
-        <b>{sum(bookings.filter((b) => b.method === "card"))}</b>
-      </div>
-      <div className="adm-stat">
-        <small>This month</small>
-        <b>{month.length} · {sum(month)}</b>
-      </div>
-      <div className="adm-stat">
-        <small>This week</small>
-        <b>{week.length} · {sum(week)}</b>
-      </div>
-      <div className="adm-stat">
-        <small>Average order</small>
-        <b>{money(bookings.length ? total(bookings) / bookings.length : 0)}</b>
-      </div>
-      <div className="adm-stat">
-        <small>Upcoming visits</small>
-        <b className={upcoming.length ? "warn" : ""}>{upcoming.length}</b>
-      </div>
+      <Stat icon="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" label="Total earnings" value={sum(bookings)} note={`${sum(bookings.filter((b) => b.method === "card"))} paid online`} tone="green" />
+      <Stat icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h4" label="Total orders" value={String(bookings.length)} note={`${week.length} this week`} tone="blue" />
+      <Stat icon="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" label="This month" value={sum(month)} note={`${month.length} orders`} tone="brand" />
+      <Stat icon="M12 6v6l4 2M12 22a10 10 0 100-20 10 10 0 000 20z" label="Upcoming visits" value={String(upcoming.length)} note={`${todays} today`} tone="amber" />
+      <Stat icon="M3 3v18h18M7 15l4-4 3 3 5-6" label="Average order" value={money(bookings.length ? total(bookings) / bookings.length : 0)} note={`${sum(week)} this week`} tone="violet" />
       <section className="adm-card adm-half">
         <h2>Upcoming visits</h2>
         {upcoming.length ? (
@@ -116,16 +106,23 @@ export default function AdminBookings({ bookings }: { bookings: BookingRecord[] 
       <section className="adm-card wide">
         <h2>Latest bookings</h2>
         {bookings.length ? (
-          <div className="adm-table">
-            {bookings.slice(0, 10).map((b) => (
-              <div key={b.id} className="adm-row">
-                <span>
-                  <b>{b.name}</b> · {b.postcode}
-                  <small>{[b.phone, b.services.join(", "), `visit ${visit(b.visit)}${b.slot ? `, ${slotLabel(b.slot)}` : ""}`, METHODS[b.method] ?? b.method].filter(Boolean).join(" · ")}</small>
-                </span>
-                <b>{money(b.total)}</b>
-              </div>
-            ))}
+          <div className="adm-scroll">
+            <table className="adm-tbl">
+              <thead>
+                <tr><th>Customer</th><th>Services</th><th>Visit</th><th>Payment</th><th>Total</th></tr>
+              </thead>
+              <tbody>
+                {bookings.slice(0, 10).map((b) => (
+                  <tr key={b.id}>
+                    <td><b>{b.name}</b><small>{[b.phone, b.postcode].filter(Boolean).join(" · ")}</small></td>
+                    <td>{b.services.join(", ")}</td>
+                    <td>{visit(b.visit)}<small>{b.slot ? slotLabel(b.slot) : ""}</small></td>
+                    <td><span className={`adm-pill ${b.method}`}>{METHODS[b.method] ?? b.method}</span></td>
+                    <td><b>{money(b.total)}</b></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <p className="adm-empty">0</p>
