@@ -158,43 +158,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
 
         {tab === "overview" && (
           <div className="adm-grid">
-            <section className="adm-card wide">
-              <h2>Website health</h2>
-              <div className="adm-status">
-                {([
-                  ["Saving", canSave ? "Connected" : "Not connected", canSave, "settings"],
-                  ["Payments", s.payments.requestOnly ? "Email only" : keys.stripeSecretKey.source ? "Stripe live" : "Demo mode", Boolean(keys.stripeSecretKey.source) && !s.payments.requestOnly, "settings"],
-                  ["Email", keys.resendApiKey.source ? "Connected" : "Not set", Boolean(keys.resendApiKey.source), "settings"],
-                  ["Google Analytics", s.tracking.gaId || "Not set", Boolean(s.tracking.gaId), "settings"],
-                  ["Visitor stats", s.tracking.gaPropertyId && keys.gaServiceAccount.source ? "Connected" : "Not set", Boolean(s.tracking.gaPropertyId && keys.gaServiceAccount.source), "settings"],
-                  ["Reviews waiting", String(pendingReviews), pendingReviews === 0, "reviews"],
-                ] as const).map(([k, v, ok, go]) => (
-                  <button key={k} type="button" onClick={() => setTab(go)}>
-                    <i className={ok ? "ok" : "warn"} aria-hidden="true" />
-                    <span>{k}</span>
-                    <b>{v}</b>
-                  </button>
-                ))}
-              </div>
-            </section>
             {bookings}
             {visitors}
-            <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
-              <small>Multi-service offer</small>
-              <b className={s.offer.enabled ? "good" : ""}>{s.offer.enabled ? `On · ${s.offer.two}% / ${s.offer.threePlus}%` : "Off"}</b>
-            </button>
-            <button type="button" className="adm-stat" onClick={() => setTab("reviews")}>
-              <small>Reviews waiting</small>
-              <b className={pendingReviews ? "warn" : ""}>{pendingReviews}</b>
-            </button>
-            <button type="button" className="adm-stat" onClick={() => setTab("offers")}>
-              <small>Top banner</small>
-              <b className={s.announcement.enabled ? "good" : ""}>{s.announcement.enabled ? "Showing" : "Hidden"}</b>
-            </button>
-            <button type="button" className="adm-stat" onClick={() => setTab("prices")}>
-              <small>EICR from</small>
-              <b>£{s.prices["eicr-certificate"]}</b>
-            </button>
           </div>
         )}
 
