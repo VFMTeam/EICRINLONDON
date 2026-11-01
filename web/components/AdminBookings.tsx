@@ -1,6 +1,7 @@
 import type { BookingMethod, BookingRecord } from "@/lib/bookings";
+import { slotLabel } from "@/lib/slots";
 
-const METHODS: Record<BookingMethod, string> = { card: "Card (paid online)", bank: "Bank transfer", cash: "Cash on the day", request: "Pay later (we call)" };
+export const METHODS: Record<BookingMethod, string> = { card: "Card (paid online)", bank: "Bank transfer", cash: "Cash on the day", request: "Pay later (we call)" };
 
 const london = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Europe/London" });
 const money = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
@@ -83,8 +84,8 @@ export default function AdminBookings({ bookings }: { bookings: BookingRecord[] 
             {upcoming.slice(0, 8).map((b) => (
               <div key={b.id} className="adm-row">
                 <span>
-                  <b>{b.visit === today ? "Today" : visitDay(b.visit)}</b> · {b.name} · {b.postcode}
-                  <small>{b.services.join(", ")} · {METHODS[b.method] ?? b.method}</small>
+                  <b>{b.visit === today ? "Today" : visitDay(b.visit)}</b>{b.slot && ` · ${slotLabel(b.slot)}`} · {b.name}
+                  <small>{[b.phone, [b.address, b.postcode].filter(Boolean).join(", "), b.services.join(", ")].filter(Boolean).join(" · ")}</small>
                 </span>
                 <b>{money(b.total)}</b>
               </div>
@@ -120,7 +121,7 @@ export default function AdminBookings({ bookings }: { bookings: BookingRecord[] 
               <div key={b.id} className="adm-row">
                 <span>
                   <b>{b.name}</b> · {b.postcode}
-                  <small>{b.services.join(", ")} · visit {visit(b.visit)} · {METHODS[b.method] ?? b.method}</small>
+                  <small>{[b.phone, b.services.join(", "), `visit ${visit(b.visit)}${b.slot ? `, ${slotLabel(b.slot)}` : ""}`, METHODS[b.method] ?? b.method].filter(Boolean).join(" · ")}</small>
                 </span>
                 <b>{money(b.total)}</b>
               </div>

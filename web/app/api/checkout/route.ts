@@ -72,8 +72,9 @@ export async function POST(request: Request) {
     const sent = await emailTeam(`Booking: ${booking.quote.lines.map((l) => l.title).join(", ")} – ${booking.name}`, "New booking", rows, booking.email);
     if (sent !== "sent") return NextResponse.json({ error: `Sorry, we could not send your booking just now. Please call ${site.phone}.` }, { status: 503 });
     await recordBooking({
-      visit: booking.date, services: booking.quote.lines.map((l) => l.title), total: booking.quote.total,
+      visit: booking.date, slot: booking.slot, services: booking.quote.lines.map((l) => l.title), total: booking.quote.total,
       method: booking.pay === "full" ? "request" : booking.pay, name: booking.name, postcode: booking.postcode,
+      phone: booking.phone, email: booking.email, address: booking.address, notes: booking.notes,
     });
     if (isOffline(booking.pay)) {
       await emailInvoice({

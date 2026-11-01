@@ -9,6 +9,7 @@ import { SOCIAL, TEXT_GROUPS } from "@/lib/siteText";
 
 const TABS = [
   ["overview", "Overview", "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"],
+  ["bookings", "Bookings", "M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"],
   ["prices", "Prices", "M20 12l-8 8-9-9V3h8l9 9zM7.5 7.5h.01"],
   ["offers", "Offers & banner", "M19 5L5 19M7 7h.01M17 17h.01M9 7a2 2 0 11-4 0 2 2 0 014 0zm10 10a2 2 0 11-4 0 2 2 0 014 0z"],
   ["text", "Website text", "M4 6h16M4 12h16M4 18h10"],
@@ -94,7 +95,7 @@ function Example({ slugs, s }: { slugs: string[]; s: Settings }) {
   );
 }
 
-export default function AdminApp({ initial, canSave, pendingReviews, reviews, bookings, visitors, keys: initialKeys, webhookUrl }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode; bookings: React.ReactNode; visitors: React.ReactNode; keys: SecretStatus; webhookUrl: string }) {
+export default function AdminApp({ initial, canSave, pendingReviews, reviews, bookings, bookingList, visitors, keys: initialKeys, webhookUrl }: { initial: Settings; canSave: boolean; pendingReviews: number; reviews: React.ReactNode; bookings: React.ReactNode; bookingList: React.ReactNode; visitors: React.ReactNode; keys: SecretStatus; webhookUrl: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [s, setS] = useState(initial);
   const [saved, setSaved] = useState(initial);
@@ -274,6 +275,8 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
           </div>
         )}
 
+        {tab === "bookings" && bookingList}
+
         {tab === "reviews" && reviews}
 
         {tab === "settings" && (
@@ -313,7 +316,7 @@ export default function AdminApp({ initial, canSave, pendingReviews, reviews, bo
           </div>
         )}
 
-        {tab !== "overview" && tab !== "reviews" && (
+        {tab !== "overview" && tab !== "reviews" && tab !== "bookings" && (
           <div className={`adm-bar${dirty ? " dirty" : ""}`}>
             <p className={status?.ok === false ? "bad" : ""} aria-live="polite">{status?.message ?? (dirty ? "You have unsaved changes" : "All changes saved")}</p>
             <button type="button" onClick={submit} disabled={saving || !canSave || !dirty}>{saving ? "Saving…" : "Save changes"}</button>

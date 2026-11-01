@@ -5,10 +5,12 @@ import { get, list, put } from "@vercel/blob";
 import { blobConfigured } from "@/lib/blob";
 import { revalidateTag, unstable_cache } from "next/cache";
 
-// A short record of each booking for the admin overview, one JSON file per
-// booking in Vercel Blob under bookings/. Local development uses .data/bookings/.
+// A record of each booking for the admin, one JSON file per booking in Vercel
+// Blob under bookings/. Contact details are only kept in a private store.
+// Local development uses .data/bookings/.
 export type BookingMethod = "card" | "bank" | "cash" | "request";
-export type BookingRecord = { id: string; at: string; visit: string; services: string[]; total: number; method: BookingMethod; name: string; postcode: string };
+export type BookingRecord = { id: string; at: string; visit: string; slot?: string; services: string[]; total: number; method: BookingMethod; name: string; postcode: string; phone?: string; email?: string; address?: string; notes?: string };
+const CONTACT = ["phone", "email", "address", "notes"] as const;
 
 const LOCAL_DIR = path.join(process.cwd(), ".data", "bookings");
 const ACCESS = ["private", "public"] as const;
@@ -22,7 +24,8 @@ export async function recordBooking(input: Omit<BookingRecord, "id" | "at">, id 
     if (blob()) {
       for (const access of ACCESS) {
         try {
-          await put(`bookings/${record.id}.json`, body, { access, addRandomSuffix: false, allowOverwrite: true, contentType: "application/json" });
+          const data = access === "private" ? body : JSON.stringify({ ...record, ...Object.fromEntries(CONTACT.map((k) => [k, undefined])) });
+          await put(`bookings/${record.id}.json`, data, { access, addRandomSuffix: false, allowOverwrite: true, contentType: "application/json" });
           revalidateTag(TAG);
           return;
         } catch {}
