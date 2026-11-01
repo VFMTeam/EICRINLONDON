@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { areas, getArea, type Area } from "@/lib/areas";
 import { formatPrice } from "@/lib/services";
-import { getSettings, getSite, pricedServices } from "@/lib/settings";
+import { getSite, pricedServices } from "@/lib/settings";
 import { site } from "@/lib/site";
 
 const featured = ["eicr-certificate", "gas-safety", "boiler-gas-safety-combo", "epc", "fire-risk", "pat-testing", "fire-safety-certificate", "commercial-eicr"];
@@ -42,11 +42,10 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   const priced = await pricedServices();
   const list = featured.map((slug) => priced.find((s) => s.slug === slug)).filter((s) => s !== undefined);
   const contact = await getSite();
-  const offer = (await getSettings()).offer.enabled;
   const faqs: [string, string][] = [
     [`Do you cover all of ${a.name}?`, `Yes. We work across ${a.name}, including ${a.places.join(", ")}. Postcodes we visit include ${a.postcodes.join(", ")}.`],
     ["How often does a rental property need an EICR?", "In England a private landlord needs an EICR at least every five years, or sooner if the last report says so. A copy goes to tenants within 28 days of the inspection."],
-    ["Can I book more than one certificate in the same visit?", `Yes. Booking several services together saves you a second visit${offer ? ", and you get a discount on multiple services" : ""}.`],
+    ["Can I book more than one certificate in the same visit?", "Yes. Booking several services together saves you a second visit, and we offer a discount on multiple services."],
     ["Do I need to be there?", "No, as long as the engineer can get in. Many landlords arrange access through the tenant or the letting agent."],
   ];
 

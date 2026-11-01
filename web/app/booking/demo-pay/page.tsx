@@ -19,7 +19,6 @@ export default async function DemoPayPage({ searchParams }: { searchParams: Prom
   const booking = decodeBooking(b, settings);
   if (!booking || !b) redirect("/booking/");
   const extras = [
-    ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, -booking.quote.discount] as const] : []),
     ...(booking.quote.parking ? [["Parking", booking.quote.parking] as const] : []),
     ...(booking.quote.congestion ? [["Congestion zone", booking.quote.congestion] as const] : []),
   ];

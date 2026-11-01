@@ -26,7 +26,7 @@ async function stripeCheckout(b: Booking, origin: string, key: string) {
   const meta: Record<string, string> = {
     services, property: propertyLabel(b),
     date: b.date, slot: b.slot, address: b.address, postcode: b.postcode, name: b.name, phone: b.phone,
-    parking: b.parking, congestion: b.congestion ? "yes" : "no", discount: String(b.quote.discount), total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
+    parking: b.parking, congestion: b.congestion ? "yes" : "no", total: String(b.quote.total), pay: b.pay, notes: b.notes ?? "",
     invoice: packLines(b.quote),
   };
   for (const [k, v] of Object.entries(meta)) params.set(`metadata[${k}]`, v.slice(0, 500));
@@ -60,7 +60,6 @@ export async function POST(request: Request) {
     const rows = [
       ["Name", booking.name], ["Phone", booking.phone], ["Email", booking.email],
       ...booking.quote.lines.map((l) => [l.title, gbp(l.price)]),
-      ...(booking.quote.discount ? [[`Multi-service offer (${booking.quote.discountPercent}% off)`, `-${gbp(booking.quote.discount)}`]] : []),
       ["Parking", booking.quote.parking ? gbp(booking.quote.parking) : "Free parking"],
       ["Congestion charge", booking.quote.congestion ? gbp(booking.quote.congestion) : "No"],
       ["Total", gbp(booking.quote.total)],

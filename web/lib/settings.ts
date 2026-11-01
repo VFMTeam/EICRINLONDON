@@ -83,6 +83,5 @@ export async function getSite() {
 // An HTML partial from content/ with the saved contact details and text.
 export async function renderPartial(name: string) {
   const s = await getSettings();
-  const html = readPartial(name).replace(/<!--offer-->([\s\S]*?)<!--\/offer-->/g, s.offer.enabled ? "$1" : "");
-  return applyText(applyBusiness(html, s.business), s.text);
+  return applyText(applyBusiness(readPartial(name), s.business), s.text);
 }

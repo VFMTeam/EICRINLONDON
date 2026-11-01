@@ -422,7 +422,6 @@ body {
   }
 }
 
-
 .pay-overlay {
   position: fixed;
   inset: 0;
@@ -760,17 +759,6 @@ body {
   }
 }
 
-.booking-offer {
-  display: inline-block;
-  margin-top: 0.5rem;
-  border-radius: 0.5rem;
-  background: #fef3c7;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 900;
-  color: #020617;
-}
-
 /* Customer reviews on the home page */
 .reviews-section {
   max-width: 80rem;
@@ -1068,7 +1056,6 @@ body {
 .review-error {
   color: #b91c1c;
 }
-
 
 .site-announcement {
   display: block;
