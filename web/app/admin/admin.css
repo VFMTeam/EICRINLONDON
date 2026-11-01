@@ -252,16 +252,7 @@ body:has(.adm-page) {
   justify-content: space-between;
   gap: 1rem;
 }
-.adm-share {
-  justify-self: start;
-  margin-top: 0.3rem;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.88rem;
-}
-.adm-booking a.adm-share {
-  color: var(--adm-ink);
-}
-.adm-booking-notes {
+.adm-booking a.adm-booking-notes {
   border-left: 3px solid var(--adm-line);
   padding-left: 0.6rem;
   color: var(--adm-muted);
