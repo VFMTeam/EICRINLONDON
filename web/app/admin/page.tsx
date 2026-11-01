@@ -3,7 +3,9 @@ import AdminApp from "@/components/AdminApp";
 import AdminBookings from "@/components/AdminBookings";
 import AdminLogin from "@/components/AdminLogin";
 import AdminReviews from "@/components/AdminReviews";
+import AdminVisitors from "@/components/AdminVisitors";
 import { adminConfigured, isAdmin } from "@/lib/admin";
+import { visitorReport } from "@/lib/analytics";
 import { cachedBookings } from "@/lib/bookings";
 import { cachedReviews } from "@/lib/reviews";
 import { secretStatus } from "@/lib/secrets";
@@ -32,19 +34,21 @@ export default async function AdminPage() {
       </main>
     );
   }
-  const [pending, approved, bookings, settings, keys, site] = await Promise.all([
+  const [pending, approved, bookings, settings, keys, site, report] = await Promise.all([
     cachedReviews.pending().catch(() => []),
     cachedReviews.approved().catch(() => []),
     cachedBookings().catch(() => []),
     getSettings(),
     secretStatus(),
     getSite(),
+    visitorReport().catch(() => null),
   ]);
   return (
     <main id="main-content" className="adm-page">
       <AdminApp
         initial={settings}
         bookings={<AdminBookings bookings={bookings} />}
+        visitors={<AdminVisitors report={report} />}
         keys={keys}
         webhookUrl={`${site.url}/api/stripe-webhook/`}
         canSave={storageReady()} pendingReviews={pending.length} reviews={<AdminReviews pending={pending} approved={approved} />} />

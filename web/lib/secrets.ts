@@ -8,6 +8,7 @@ export const SECRET_KEYS = {
   stripeSecretKey: "STRIPE_SECRET_KEY",
   stripeWebhookSecret: "STRIPE_WEBHOOK_SECRET",
   resendApiKey: "RESEND_API_KEY",
+  gaServiceAccount: "GA_SERVICE_ACCOUNT_JSON",
 } as const;
 export type SecretName = keyof typeof SECRET_KEYS;
 export type SecretStatus = Record<SecretName, { source: "admin" | "vercel" | ""; hint: string }>;
@@ -45,7 +46,7 @@ export async function saveSecrets(changes: Partial<Record<SecretName, string>>) 
     const v = changes[name]?.trim();
     if (!v) continue;
     if (v === "-") delete next[name];
-    else next[name] = v.slice(0, 300);
+    else next[name] = v.slice(0, 5000);
   }
   await put(BLOB_PATH, JSON.stringify(next), { access: "private", addRandomSuffix: false, allowOverwrite: true, contentType: "application/json" });
   revalidateTag(TAG);
